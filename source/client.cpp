@@ -1,17 +1,15 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Server.cpp                                         :+:      :+:    :+:   */
+/*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/04/27 15:25:36 by acamargo          #+#    #+#             */
-/*   Updated: 2026/04/27 15:58:15 by acamargo         ###   ########.fr       */
+/*   Created: 2026/04/21 15:12:53 by acamargo          #+#    #+#             */
+/*   Updated: 2026/04/27 15:56:35 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <cstring>
-#include <netdb.h>
 #include <cstdio>
 #include <cstring>
 #include <iostream>
@@ -22,45 +20,36 @@
 #include <unistd.h>
 #include <netdb.h>
 
-
-int	main(void)
+int	main(int argc, char **argv)
 {
+	// if (argc != 2)
+	// {
+	// 	std::cerr << "Error: args" << std::endl;
+	// 	return (EXIT_FAILURE);
+	// }
 	struct addrinfo addrinfo;
-	struct addrinfo	*result;
 	memset(&addrinfo, 0, sizeof addrinfo);
+	struct addrinfo *result;
 	addrinfo.ai_family = AF_INET;
-	addrinfo.ai_protocol = 0;
 	addrinfo.ai_socktype = SOCK_STREAM;
-	addrinfo.ai_flags = 0;
-	if (getaddrinfo("localhost", "8888", &addrinfo, &result))
+	addrinfo.ai_protocol = 0;
+	int error = getaddrinfo("localhost", "8888", &addrinfo, &result);
+	if (error != 0)
 	{
-		perror("getaddrinfo");
-		exit(1);
+		perror("?\n");
+		exit(error);
 	}
 	int sfd = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
-	if (bind(sfd, result->ai_addr, result->ai_addrlen) != 0)
+	if (connect(sfd, result->ai_addr, result->ai_addrlen) != 0)
 	{
-		perror("bind");
+		perror("connect");
 		exit(1);
 	}
-	if (listen(sfd, 128) != 0)
-	{
-		perror("listen");
-		exit(1);
-	}
-	int client = accept(sfd, NULL, NULL);
-	char	buff[4096];
-	while (1)
-	{
-		int recived = recv(client, buff, sizeof buff, 0);
-		printf("???\n");
-		if (recived < 0)
-		{
-			perror("recv");
-			exit(1);
-		}
-		if (!recived)
-			break;
-		printf("%s\n", buff);
-	}
+	send(sfd, "hola", 4, 0);
+	sleep(1000);
+	close(sfd);
+
+	(void)argc;
+	(void)argv;
+	return EXIT_SUCCESS;
 }
