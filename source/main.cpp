@@ -89,9 +89,11 @@
 //                                                                                      retour à epoll_wait()
 
 #include <iostream>
+# include <stdlib.h>
 
-int	main(int argc, char *argv[])
+int	main(int argc, char **argv)
 {
+	(void)argv;
 	if (argc != 2)
 	{
 		std::cerr << "Error: args" << std::endl;

@@ -1,26 +1,29 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Server.cpp                                         :+:      :+:    :+:   */
+/*   server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/27 15:25:36 by acamargo          #+#    #+#             */
-/*   Updated: 2026/04/27 15:58:15 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/04/28 17:44:12 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <cerrno>
 #include <cstring>
 #include <netdb.h>
 #include <cstdio>
 #include <cstring>
 #include <iostream>
 #include <cstdlib>
+#include <sys/poll.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <netdb.h>
+#include <poll.h>
 
 
 int	main(void)
@@ -54,18 +57,33 @@ int	main(void)
 		close(sfd);
 		exit(1);
 	}
-	if (listen(sfd, 128) != 0)
+	if (listen(sfd, 10) != 0)
 	{
 		perror("listen");
 		exit(1);
 	}
-	int client = accept(sfd, NULL, NULL);
+	struct pollfd pfds;
+	pfds.fd = sfd;
+	pfds.events = POLLIN;
+	(void)pfds;
+	std::cout << "Waiting for a connection...\n";
+	int perr = poll(&pfds, 1, 5000);
+	if (perr == 0)
+	{
+		std::cerr << "Timeout.\n";
+		exit(1);
+	}
+	else if (perr < 0)
+		std::cerr << strerror(perr);
+	struct	sockaddr_storage their;
+	socklen_t sizeaddr = sizeof their;
+	int client = accept(sfd, reinterpret_cast<struct sockaddr*>(&their), &sizeaddr);
+	std::cout << "Connection succesfull\n";
 	char	buff[4096];
 	while (1)
 	{
-		std::cout<<"waiting for activity\n";
+		memset(&buff, 0, sizeof buff);
 		int recived = recv(client, buff, sizeof buff, 0);
-		printf("???\n");
 		if (recived < 0)
 		{
 			perror("recv");
@@ -73,7 +91,10 @@ int	main(void)
 		}
 		if (!recived)
 			break;
-		printf("%s\n", buff);
-		sleep(1000);
+		std::cout << buff;
 	}
+	std::cout << "done reading\n";
+	freeaddrinfo(result);
+	close(sfd);
+	close(client);
 }
