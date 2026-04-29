@@ -26,8 +26,14 @@
 #include <poll.h>
 
 
-int	main(void)
+int	main(int ac, char *av[])
 {
+	if (ac != 2) {
+		std::cerr << "Error: need one conf file" << std::endl;
+		return (1);
+	}
+	std::string	conf_file = av[1];
+	
 	struct addrinfo addrinfo;
 	struct addrinfo	*result;
 	memset(&addrinfo, 0, sizeof addrinfo);
@@ -73,8 +79,10 @@ int	main(void)
 		std::cerr << "Timeout.\n";
 		exit(1);
 	}
-	else if (perr < 0)
+	else if (perr < 0) {
 		std::cerr << strerror(perr);
+		exit(perr);
+	}
 	struct	sockaddr_storage their;
 	socklen_t sizeaddr = sizeof their;
 	int client = accept(sfd, reinterpret_cast<struct sockaddr*>(&their), &sizeaddr);

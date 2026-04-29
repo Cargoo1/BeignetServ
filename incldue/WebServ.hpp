@@ -1,5 +1,9 @@
 #pragma once
 
+#include <location.hpp>
+#include <location.hpp>
+
+
 class WebServ {
 	public:
 		WebServ();
@@ -9,4 +13,7 @@ class WebServ {
 		WebServ &operator=(const WebServ &rhs);
 
 		
+	private:
+			server		_serv;
+			location	*_locs;
 };
