@@ -89,14 +89,26 @@
 //                                                                                      retour à epoll_wait()
 
 #include <iostream>
-# include <stdlib.h>
+#include <stdlib.h>
+#include <configParser.hpp>
 
-int	main(int argc, char **argv)
+int	main(int ac, char **av)
 {
-	(void)argv;
-	if (argc != 2)
+	(void)av;
+	if (ac != 2)
 	{
 		std::cerr << "Error: args" << std::endl;
 		return (EXIT_FAILURE);
+	}
+	else {
+		configParser	server;
+		try {
+			server.parse(av[1]);
+		}
+		catch (configException &e) {
+			std::cerr << e.what() << std::endl;
+			return (1);
+		}
+		return (0);
 	}
 }
