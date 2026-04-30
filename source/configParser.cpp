@@ -2,7 +2,7 @@
 #include <cstring>
 #include <fstream>
 #include <iostream>
-#include <stdexcept>
+#include <configException.hpp>
 
 configParser::configParser() : _filepath(0), _content(0), _tokens(0), _pos(0), _servers(0) {}
 
@@ -25,31 +25,56 @@ const std::vector<serverConfig> &configParser::getServers(void) {
 	return (this->_servers);
 }
 
-void configParser::parse(std::string arg) {
+void configParser::parse(const std::string &arg) {
 	if (arg.empty())
-		throw std::invalid_argument(arg);
+		throw configException("Error: empty arg ", 0, arg, errno);
 	std::ifstream config_file(arg.c_str());
-	if (!config_file)
-		throw ;
+	if (!config_file.is_open())
+		throw configException("Error: cannot open config file", 0, arg, errno);
+	if (config_file.fail())
+		throw configException("Error details: ", 0, strerror(errno), errno);
+	this->_filepath = arg;
 	_readFile(config_file);
 }
 
-void _readFile(std::ifstream file_conf) {
+void configParser::_readFile(std::ifstream &file_conf) {
 	std::string line;
+
 
 	getline(file_conf, line);
 	while (getline(file_conf, line)) {
+		
 	}
 }
 
-void _tokenize() {
+void configParser::_tokenize() {
 
 }
 
-void _parseServer() {
+void configParser::_parseServer() {
 
 }
 
-void _parseLocation() {
+void configParser::_parseLocation() {
+
+}
+
+void configParser::_parseDirective() {
+
+}
+
+void configParser::_expect() {
+
+}
+
+void configParser::_peek() {
+
+}
+
+void configParser::_consume() {
+
+}
+
+void configParser::_validateAll() {
 
 }

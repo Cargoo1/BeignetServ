@@ -16,7 +16,7 @@ class serverConfig {
 
 	private:
 		std::string					_host;
-		int							_port;
+		std::string					_port;
 		std::string					_serverName;
 		std::map<int, std::string>	_errorPages;
 		size_t						_clientMaxBodySize;

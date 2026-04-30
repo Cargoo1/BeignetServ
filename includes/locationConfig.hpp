@@ -17,4 +17,12 @@ class locationConfig {
 		std::vector<std::string>			_methods;
 		std::string							_root;
 		std::string							_index;
+		bool								_autoindex;
+		std::string							_uploadStore;
+		std::map<std::string, std::string>	_cgi;
+		bool								_hasRedirect;
+		int									_redirectCode;
+		std::string							_redirectUrl;
+		size_t								_clientMaxBodySize;
+		bool								_hasClientMaxBodySize;
 };
