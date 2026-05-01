@@ -4,10 +4,10 @@
 #include <string>
 #include <vector>
 
-#include <configException.hpp>
-#include <locationConfig.hpp>
-#include <serverConfig.hpp>
-#include <Token.hpp>
+#include "configException.hpp"
+// #include "locationConfig.hpp"
+// #include "serverConfig.hpp"
+#include "Token.hpp"
 
 
 /*
@@ -34,7 +34,7 @@ class configParser {
 		~configParser();
 
 		configParser					&operator=(const configParser &rhs);
-		const std::vector<serverConfig>	&getServers(void);
+		// const std::vector<serverConfig>	&getServers(void);
 
 		void parse(const std::string &arg);
 
@@ -43,10 +43,10 @@ class configParser {
 		std::string					_content;
 		std::vector<Token>			_tokens;
 		size_t						_pos;
-		std::vector<serverConfig>	_servers;
+		// std::vector<serverConfig>	_servers;
 
-		void _readFile(std::ifstream &file_conf);
-		void _tokenize();
+		void _readFile(std::ofstream &file_conf);
+		void _tokenize(std::streambuf &str_to_token);
 		void _parseServer();
 		void _parseLocation();
 		void _parseDirective();

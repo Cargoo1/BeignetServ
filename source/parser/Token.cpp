@@ -11,6 +11,7 @@ Token &Token::operator=(const Token &rhs) {
 		this->_value = rhs._value;
 		this->_line = rhs._line;
 	}
+	return *this;
 }
 
 Token::~Token() {}
