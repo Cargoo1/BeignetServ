@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 19:10:40 by acamargo          #+#    #+#             */
-/*   Updated: 2026/04/30 21:34:28 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/05/05 20:47:40 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,10 +27,10 @@ int		getListenerSocket(const std::string &host, const std::string &port)
 	int		gai_errno;
 	int		sfd = -1;
 
+	memset(&hints, 0, sizeof hints);
 	hints.ai_family = AF_INET;
 	hints.ai_protocol = 0;
 	hints.ai_socktype = SOCK_STREAM;
-	memset(&hints, 0, sizeof hints);
 	if ((gai_errno = getaddrinfo(host.c_str(), port.c_str(), &hints, &result)) != 0)
 		throw std::runtime_error(gai_strerror(gai_errno));
 	for (temp = result; temp != NULL; temp = temp->ai_next)
@@ -49,7 +49,7 @@ int		getListenerSocket(const std::string &host, const std::string &port)
 	}
 	freeaddrinfo(result);
 	if (listen(sfd, 10) < 0)
-		throw std::runtime_error(strerror(errno));
+		throw std::runtime_error("Listen: " + std::string(strerror(errno)));
 	return sfd;
 }
 
@@ -74,39 +74,40 @@ void	add_pfds(int pfd, std::vector<struct pollfd> &pfds)
 
 void	process_connection(int sfd, std::vector<struct pollfd> &pfds)
 {
-	std::vector<struct pollfd>::iterator it;
 	char	buff[1000];
 	int		new_fd;
 
-	memset(&buff, 0, sizeof buff);
 	for (size_t i = 0; i < pfds.size(); i++)
 	{
-		if ((pfds.at(i)).revents & (POLLIN | POLLHUP))
+		memset(&buff, 0, sizeof buff);
+		if (!((pfds.at(i)).revents & (POLLIN | POLLHUP)))
+			continue;
+		if ((pfds.at(i)).fd == sfd)
 		{
-			if ((pfds.at(i)).fd == sfd)
+			new_fd = accept(sfd, NULL, NULL);
+			if (new_fd < 0)
 			{
-				new_fd = accept(sfd, NULL, NULL);
-				if (new_fd < 0)
-					std::cerr << strerror(errno);
-				else
-				{
-					add_pfds(new_fd, pfds);
-				}
+				std::cerr << strerror(errno);
+				std::cerr << "\nCould not accept socket: ";
+				std::cerr << sfd << '\n';
 			}
 			else
 			{
-				int		size_read = recv((pfds.at(i)).fd, &buff, 1000, 0);
-				if (size_read <= 0)
-				{
-					if (size_read == 0)
-						std::cout << "BeignetServ: socket " << (pfds.at(i)).fd << " hung up\n";
-					close((pfds.at(i)).fd);
-					pfds.erase(pfds.begin()+i);
-					continue;
-				}
-				std::cout << "socket: " << (pfds.at(i)).fd << ": " << buff;
+				add_pfds(new_fd, pfds);
+				std::cout << "New socket connected: " << new_fd << '\n';
 			}
+			continue;
 		}
+		int		size_read = recv((pfds.at(i)).fd, &buff, 1000, 0);
+		if (size_read <= 0)
+		{
+			if (size_read == 0)
+				std::cout << "Socket: " << (pfds.at(i)).fd << " hung up\n";
+			close((pfds.at(i)).fd);
+			pfds.erase(pfds.begin() + i);
+		}
+		else
+			std::cout << "Socket: " << (pfds.at(i)).fd << ": " << buff;
 	}
 }
 
@@ -121,9 +122,9 @@ void	run(const std::string &host, const std::string &port)
 	test.events = POLLIN;
 	test.revents = 0;
 	pfds.push_back(test);
+	std::cout << "Waiting for connections...\n";
 	for(;;)
 	{
-		std::cout << "Waiting for connections...\n";
 		int	pollcount = poll(pfds.data(), pfds.size(), 5000);
 		if (pollcount == TIMEOUT)
 		{
@@ -133,7 +134,7 @@ void	run(const std::string &host, const std::string &port)
 		else if (pollcount < 0)
 		{
 			close_server(sfd, pfds);
-			throw std::runtime_error(strerror(errno));
+			throw std::runtime_error("Poll: " + std::string(strerror(errno)));
 		}
 		process_connection(sfd.front(), pfds);
 	}
@@ -148,7 +149,7 @@ int	main(void)
 	}
 	std::string name  = "a";
 	try {
-		run("localhost", "6666");
+		run("localhost", "8888");
 	}
 	catch(std::exception &e) {
 		std::cout << e.what() << "\n";
