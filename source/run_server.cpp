@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 19:10:40 by acamargo          #+#    #+#             */
-/*   Updated: 2026/05/05 20:47:40 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/05/06 22:38:18 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ int		getListenerSocket(const std::string &host, const std::string &port)
 	hints.ai_protocol = 0;
 	hints.ai_socktype = SOCK_STREAM;
 	if ((gai_errno = getaddrinfo(host.c_str(), port.c_str(), &hints, &result)) != 0)
-		throw std::runtime_error(gai_strerror(gai_errno));
+		throw std::runtime_error("gai: " + std::string(gai_strerror(gai_errno)));
 	for (temp = result; temp != NULL; temp = temp->ai_next)
 	{
 		sfd = socket(temp->ai_family, temp->ai_socktype, temp->ai_protocol);
@@ -45,7 +45,7 @@ int		getListenerSocket(const std::string &host, const std::string &port)
 	if (temp == NULL)
 	{
 		freeaddrinfo(result);
-		throw std::runtime_error(strerror(errno));
+		throw std::runtime_error("Could not bind or create a socket: " + std::string(strerror(errno)));
 	}
 	freeaddrinfo(result);
 	if (listen(sfd, 10) < 0)
@@ -75,6 +75,7 @@ void	add_pfds(int pfd, std::vector<struct pollfd> &pfds)
 void	process_connection(int sfd, std::vector<struct pollfd> &pfds)
 {
 	char	buff[1000];
+	std::string msg("HTTP/1.1 404 Not Found\nContent-Length: 46\nContent-Type: html\n\n<html><body><h1>t ou</h1></body></html>");
 	int		new_fd;
 
 	for (size_t i = 0; i < pfds.size(); i++)
@@ -105,9 +106,10 @@ void	process_connection(int sfd, std::vector<struct pollfd> &pfds)
 				std::cout << "Socket: " << (pfds.at(i)).fd << " hung up\n";
 			close((pfds.at(i)).fd);
 			pfds.erase(pfds.begin() + i);
+			continue;
 		}
-		else
-			std::cout << "Socket: " << (pfds.at(i)).fd << ": " << buff;
+		std::cout << "Socket: " << (pfds.at(i)).fd << ": " << buff;
+		send(pfds.at(i).fd, msg.c_str(), msg.length(), 0);
 	}
 }
 
