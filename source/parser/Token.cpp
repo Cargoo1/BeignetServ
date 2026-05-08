@@ -24,3 +24,8 @@ const std::string &Token::getValue() const {
 int Token::getLine() const {
 	return (this->_line);
 }
+
+void Token::update(const std::string &value, int line) {
+	this->_value = value;
+	this->_line = line;
+}

@@ -4,28 +4,11 @@
 #include <string>
 #include <vector>
 
-#include "configException.hpp"
-// #include "locationConfig.hpp"
-// #include "serverConfig.hpp"
-#include "Token.hpp"
+#include <exception/configException.hpp>
+#include <configClass/locationConfig.hpp>
+#include <configClass/serverConfig.hpp>
+#include <parser/Token.hpp>
 
-
-/*
-ConfigParser        ← orchestre tout le parsing
-        │
-        ▼
-ServerConfig        ← représente un bloc server
-        │
-        ▼
-LocationConfig      ← représente un bloc location
-        │
-RouteConfig         ← (optionnel) gestion des redirections
-*/
-
-typedef struct s_token {
-	std::string value;
-	int line;
-} t_token;
 
 class configParser {
 	public:
@@ -34,24 +17,23 @@ class configParser {
 		~configParser();
 
 		configParser					&operator=(const configParser &rhs);
-		// const std::vector<serverConfig>	&getServers(void);
+		const std::vector<serverConfig>	&getServers(void);
 
 		void parse(const std::string &arg);
 
 	private:
-		std::string					_filepath;
 		std::string					_content;
 		std::vector<Token>			_tokens;
-		size_t						_pos;
-		// std::vector<serverConfig>	_servers;
+		std::size_t						_pos;
+		std::vector<serverConfig>	_servers;
 
-		void _readFile(std::ofstream &file_conf);
-		void _tokenize(std::streambuf &str_to_token);
-		void _parseServer();
-		void _parseLocation();
-		void _parseDirective();
-		void _expect();
-		void _peek();
-		void _consume();
-		void _validateAll();
+		void _readFile(const std::string &arg);
+		void _tokenize(void);
+		void _parseServer(serverConfig &toParse);
+		void _parseLocation(locationConfig &locTo_add);
+		void _parseDirective(serverConfig &toParse);
+		void _expect(const std::string &to_compare);
+		Token _peek(void);
+		Token _consume(void);
+		void _validateAll(void);
 };

@@ -6,6 +6,7 @@
 
 class locationConfig {
 	public:
+		friend class configParser;
 		locationConfig();
 		locationConfig(const locationConfig &rhs);
 		~locationConfig();
@@ -23,6 +24,6 @@ class locationConfig {
 		bool								_hasRedirect;
 		int									_redirectCode;
 		std::string							_redirectUrl;
-		size_t								_clientMaxBodySize;
+		std::size_t								_clientMaxBodySize;
 		bool								_hasClientMaxBodySize;
 };

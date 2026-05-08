@@ -1,6 +1,7 @@
 #pragma once
 
-#include <string> 
+#include <string>
+#include <typeinfo>
 
 class Token {
 	public:
@@ -12,6 +13,8 @@ class Token {
 
 		const std::string	&getValue() const;
 		int					getLine()  const;
+
+		void				update(const std::string &value, int line);
 
 	private:
 		std::string	_value;

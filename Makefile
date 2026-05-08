@@ -6,20 +6,26 @@ NAME = WebServ
 
 
 HEADER_DIR = includes
-CONF_DIR = configClass
+CFC_DIR = configClass
 EXC_DIR = exception
 PAR_DIR = parser
 HEADER = $(HEADER_DIR)/$(EXC_DIR)/configException.hpp	\
 		 $(HEADER_DIR)/$(PAR_DIR)/configParser.hpp		\
-		 $(HEADER_DIR)/$(PAR_DIR)/Token.hpp
+		 $(HEADER_DIR)/$(PAR_DIR)/Token.hpp				\
+		 $(HEADER_DIR)/$(PAR_DIR)/parserUtils.hpp		\
+		 $(HEADER_DIR)/$(CFC_DIR)/serverConfig.hpp		\
+		 $(HEADER_DIR)/$(CFC_DIR)/locationConfig.hpp
 
 SRCS_DIR = source
-CONF_DIR = configClass
+CFC_DIR = configClass
 EXC_DIR = exception
 PAR_DIR = parser
 SRCS = $(SRCS_DIR)/$(EXC_DIR)/configException.cpp	\
 	   $(SRCS_DIR)/$(PAR_DIR)/configParser.cpp		\
-	   $(SRCS_DIR)/$(PAR_DIR)/Token.cpp			\
+	   $(SRCS_DIR)/$(PAR_DIR)/Token.cpp				\
+	   $(SRCS_DIR)/$(PAR_DIR)/parserUtils.cpp		\
+	   $(SRCS_DIR)/$(CFC_DIR)/serverConfig.cpp		\
+	   $(SRCS_DIR)/$(CFC_DIR)/locationConfig.cpp	\
 	   $(SRCS_DIR)/main.cpp
 
 OBJ_DIR = obj
