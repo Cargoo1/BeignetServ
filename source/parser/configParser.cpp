@@ -5,25 +5,36 @@
 #include <algorithm>
 #include <cstring>
 #include <fstream>
-#include <sstream>
 #include <iostream>
 
 #define PORT_MIN 1
 #define PORT_MAX 65535
 #define ERRO_MIN 400
 #define ERRO_MAX 599
+#define RDIR_MIN 300
+#define RDIR_MAX 399
 
 /*============= UTILS SERVER =============*/
 
-enum DIR { LISTEN, SERVER_NAME, ERROR_PAGE, INDEX, CLIENT_MAX_BODY, NONE};
-
-namespace { DIR findDir(const std::string &listenPort) {
-	if (listenPort == "listen") return (LISTEN);
-	if (listenPort == "server_name") return (SERVER_NAME);
-	if (listenPort == "error_page") return (ERROR_PAGE);
-	if (listenPort == "index") return (INDEX);
-	if (listenPort == "client_max_body_size") return (CLIENT_MAX_BODY);
+namespace { DIR findDir(const std::string &directive) {
+	if (directive == "listen") return (LISTEN);
+	if (directive == "server_name") return (SERVER_NAME);
+	if (directive == "error_page") return (ERROR_PAGE);
+	if (directive == "index") return (INDEX);
+	if (directive == "client_max_body_size") return (CLIENT_MAX_BODY);
 	else return (NONE);
+} } 
+
+namespace { L_CONF find_LocDir(const std::string &local_confDir) {
+	if (local_confDir == "methods") return (METHOD);
+	if (local_confDir == "root") return (ROOT);
+	if (local_confDir == "index") return (L_INDEX);
+	if (local_confDir == "autoindex") return (AUTO_I);
+	if (local_confDir == "upload_store") return (UPLD_S);
+	if (local_confDir == "cgi") return (CGI);
+	if (local_confDir == "return") return (REDIR);
+	if (local_confDir == "client_max_body_size") return (L_CLIENT_MAX_BODY);
+	else return (L_NONE);
 } } 
 
 namespace { bool parseDigit_code(const std::string &listenPort, int min, int max) {
@@ -45,6 +56,12 @@ namespace { bool isValidPath(const std::string &token, bool absolute) {
 	return (true);
 } }
 
+namespace { bool isValidUrl(const std::string &token) {
+	if (token.at(0) == '/')
+		return (isValidPath(token, true));
+	return(isValidPath(token, false));
+} }
+
 namespace { bool check_double(const std::vector<unsigned int> &vect) {
 	std::vector<unsigned int> tmp(vect);
 	std::vector<unsigned int>::iterator it = tmp.begin();
@@ -62,9 +79,17 @@ namespace { bool isValid_clientBodySisze(const std::string &token) {
 	std::size_t i = 0;
 	while (isdigit(token.at(i)))
 		i++;
-	char unite;
-	unite = tolower(token.at(i));
+	char unite = tolower(token.at(i));
 	if (unite == 'k' || unite == 'm' || unite == 'g')
+		i++;
+	return (i == token.length());
+} }
+
+namespace { bool isValid_extCgi(const std::string &token) {
+	std::size_t i = 1;
+	if (token.at(0) != '.')
+		return (false);
+	while (i < token.length() && islower(token.at(i)))
 		i++;
 	return (i == token.length());
 } }
@@ -170,15 +195,101 @@ void configParser::_parseServer(serverConfig &servTo_pars) {
 		else
 			_parseDirective(servTo_pars);
 	}
-	_expect("}");
+	_pos++;
 }
 
 void configParser::_parseLocation(locationConfig &locTo_add) {
-	if (_peek().getValue() != "/" || !isValidPath(_peek().getValue(), true))
+	if (_peek().getValue() != "/" && !isValidPath(_peek().getValue(), true))
 		throw configException("Error: location path syntax:", _peek().getLine(), _peek().getValue());
 	locTo_add._path = _consume().getValue();
+	_expect("{");
+	while (_peek().getValue() != "}") {
+		_parseLocationDir(locTo_add);
+	}
+	_pos++;
 }
 
+void configParser::_parseLocationDir(locationConfig &locTo_pars) {
+	Token tmp = _peek();
+	switch (find_LocDir(_consume().getValue()))
+	{
+		case METHOD: {
+			std::vector<std::string> methds;
+			while (_peek().getValue() != ";") {
+				if (string_verifFunc(_peek().getValue(), isupper))
+					methds.push_back(_consume().getValue());
+				else
+					throw configException("Error: error_codes syntax:", _peek().getLine(), _peek().getValue());
+			}
+			locTo_pars._methods = methds;
+			_expect(";");
+			break;
+		}
+		case ROOT: {
+			if (!isValidPath(_peek().getValue(), true))
+				throw configException("Error: root path syntax:", _peek().getLine(), _peek().getValue());
+			locTo_pars._root = _consume().getValue();
+			_expect(";");
+			break;
+		}
+		case L_INDEX: {
+			if (!isValidPath(_peek().getValue(), false))
+				throw configException("Error: index syntax:", _peek().getLine(), _peek().getValue());
+			locTo_pars._index = _consume().getValue();
+			_expect(";");
+			break;
+		}
+		case AUTO_I: {
+			if (_peek().getValue() != "on" && _peek().getValue() != "off")
+				throw configException("Error: autoindex syntax:", _peek().getLine(), _peek().getValue());
+			locTo_pars._autoindex = (_consume().getValue() == "on");
+			_expect(";");
+			break;
+		}
+		case UPLD_S: {
+			if (!isValidPath(_peek().getValue(), true))
+				throw configException("Error: upload_store syntax:", _peek().getLine(), _peek().getValue());
+			locTo_pars._uploadStore = _consume().getValue();
+			_expect(";");
+			break;
+		}
+		case CGI: {
+			if (!isValid_extCgi(_peek().getValue()))
+				throw configException("Error: cgi extention syntax:", _peek().getLine(), _peek().getValue());
+			std::string ext = _consume().getValue();
+			if (!isValidPath(_peek().getValue(), true))
+				throw configException("Error: cgi path syntax:", _peek().getLine(), _peek().getValue());
+			locTo_pars._cgi[ext] = _consume().getValue();
+			_expect(";");
+			break;
+		}
+		case REDIR: {
+			if (!string_verifFunc(_peek().getValue(), isdigit))
+				throw configException("Error: redir code must be numerics characters:", _peek().getLine(), _peek().getValue());
+			int code = toInt(_consume().getValue());
+			if (_peek().getValue() != ";") {
+				if (!isValidUrl(_peek().getValue()))
+					throw configException("Error: redir url syntax:", _peek().getLine(), _peek().getValue());
+				locTo_pars._redirectUrl = _consume().getValue();
+				if (code < RDIR_MIN || code > RDIR_MAX)
+					throw configException("Error: redir code to url must be 3xx:", _peek().getLine(), _peek().getValue());
+			}
+			locTo_pars._redirectCode = code;
+			locTo_pars._hasRedirect = true;
+			_expect(";");
+			break;
+		}
+		case L_CLIENT_MAX_BODY: {
+			if(!isValid_clientBodySisze(_peek().getValue()))
+				throw configException("Error: client_max_body_size syntax:", _peek().getLine(), _peek().getValue());
+			locTo_pars._clientMaxBodySize = toInt(_consume().getValue());
+			_expect(";");
+			break;
+		}
+		default:
+			throw configException("Error: location directive unknown: ", tmp.getLine(), tmp.getValue());
+	}
+}
 
 void configParser::_parseDirective(serverConfig &toParse) {
 	Token tmp = _peek();
@@ -194,7 +305,7 @@ void configParser::_parseDirective(serverConfig &toParse) {
 		case SERVER_NAME: {
 				if (!string_verifFunc(_peek().getValue(), isspecial))
 					throw configException("Error: server name syntax error:", _peek().getLine(), _peek().getValue());
-			toParse._host = _consume().getValue();
+			toParse._serverName = _consume().getValue();
 			_expect(";");
 			break;
 		}
@@ -202,10 +313,7 @@ void configParser::_parseDirective(serverConfig &toParse) {
 			std::vector<unsigned int> codes;
 			while (!isValidPath(_peek().getValue(), true)) {
 				if (parseDigit_code(_peek().getValue(), ERRO_MIN, ERRO_MAX)) {
-					std::stringstream ss(_consume().getValue());
-					unsigned int toPush;
-					ss >> toPush;
-					codes.push_back(toPush);
+					codes.push_back(toInt(_consume().getValue()));
 				}
 				else
 					throw configException("Error: error_codes syntax:", _peek().getLine(), _peek().getValue());
@@ -228,10 +336,7 @@ void configParser::_parseDirective(serverConfig &toParse) {
 		case CLIENT_MAX_BODY: {
 			if(!isValid_clientBodySisze(_peek().getValue()))
 				throw configException("Error: client_max_body_size syntax:", _peek().getLine(), _peek().getValue());
-			std::stringstream ss(_consume().getValue());
-				std::size_t clientBodySize;
-				ss >> clientBodySize;
-			toParse._clientMaxBodySize = clientBodySize;
+			toParse._clientMaxBodySize = toInt(_consume().getValue());
 			_expect(";");
 			break;
 		}
@@ -260,8 +365,69 @@ Token configParser::_consume() {
 }
 
 void configParser::_validateAll() {
-	if (_pos == _tokens.size()) {
-
+	std::cout << "\n=============== PARSED CONFIGURATION ===============\n" << std::endl;
+	
+	for (std::size_t i = 0; i < this->_servers.size(); i++) {
+		const serverConfig &server = this->_servers[i];
+		
+		std::cout << "--- SERVER " << i + 1 << " ---" << std::endl;
+		std::cout << "  Host: " << server._host << std::endl;
+		std::cout << "  Port: " << server._port << std::endl;
+		std::cout << "  Server Name: " << server._serverName << std::endl;
+		std::cout << "  Index: " << server._index << std::endl;
+		std::cout << "  Client Max Body Size: " << server._clientMaxBodySize << std::endl;
+		
+		if (!server._errorPages.empty()) {
+			std::cout << "  Error Pages:" << std::endl;
+			for (std::map<int, std::string>::const_iterator it = server._errorPages.begin(); 
+				 it != server._errorPages.end(); ++it) {
+				std::cout << "    " << it->first << " -> " << it->second << std::endl;
+			}
+		}
+		
+		if (!server._locations.empty()) {
+			std::cout << "  Locations:" << std::endl;
+			for (std::size_t j = 0; j < server._locations.size(); j++) {
+				const locationConfig &loc = server._locations[j];
+				std::cout << "    [" << j + 1 << "] Path: " << loc._path << std::endl;
+				
+				if (!loc._methods.empty()) {
+					std::cout << "        Methods: ";
+					for (std::size_t k = 0; k < loc._methods.size(); k++) {
+						std::cout << loc._methods[k];
+						if (k < loc._methods.size() - 1) std::cout << ", ";
+					}
+					std::cout << std::endl;
+				}
+				
+				if (!loc._root.empty())
+					std::cout << "        Root: " << loc._root << std::endl;
+				if (!loc._index.empty())
+					std::cout << "        Index: " << loc._index << std::endl;
+				std::cout << "        Autoindex: " << (loc._autoindex ? "on" : "off") << std::endl;
+				if (!loc._uploadStore.empty())
+					std::cout << "        Upload Store: " << loc._uploadStore << std::endl;
+				
+				if (!loc._cgi.empty()) {
+					std::cout << "        CGI:" << std::endl;
+					for (std::map<std::string, std::string>::const_iterator it = loc._cgi.begin();
+						 it != loc._cgi.end(); ++it) {
+						std::cout << "          " << it->first << " -> " << it->second << std::endl;
+					}
+				}
+				
+				if (loc._hasRedirect) {
+					std::cout << "        Redirect: " << loc._redirectCode;
+					if (!loc._redirectUrl.empty())
+						std::cout << " -> " << loc._redirectUrl;
+					std::cout << std::endl;
+				}
+				
+				if (loc._hasClientMaxBodySize)
+					std::cout << "        Client Max Body Size: " << loc._clientMaxBodySize << std::endl;
+			}
+		}
+		std::cout << std::endl;
 	}
-
+	std::cout << "==================================================\n" << std::endl;
 }

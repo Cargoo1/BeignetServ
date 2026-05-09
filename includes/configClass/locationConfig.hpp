@@ -4,6 +4,8 @@
 #include <vector>
 #include <string>
 
+enum L_CONF { METHOD, ROOT, L_INDEX, AUTO_I, UPLD_S, CGI, REDIR, L_CLIENT_MAX_BODY, L_NONE};
+
 class locationConfig {
 	public:
 		friend class configParser;
@@ -24,6 +26,6 @@ class locationConfig {
 		bool								_hasRedirect;
 		int									_redirectCode;
 		std::string							_redirectUrl;
-		std::size_t								_clientMaxBodySize;
+		std::size_t							_clientMaxBodySize;
 		bool								_hasClientMaxBodySize;
 };

@@ -13,3 +13,10 @@ int isspecial(int c) {
 		return (1);
 	return (0);
 }
+
+unsigned int toInt(const std::string &str) {
+	std::stringstream ss(str);
+	unsigned int ret;
+	ss >> ret;
+	return (ret);
+}

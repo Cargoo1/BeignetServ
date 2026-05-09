@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 
+enum DIR { LISTEN, SERVER_NAME, ERROR_PAGE, INDEX, CLIENT_MAX_BODY, NONE};
 
 class serverConfig {
 	friend class configParser;
@@ -22,6 +23,6 @@ class serverConfig {
 		std::string					_serverName;
 		std::string					_index;
 		std::map<int, std::string>	_errorPages;
-		std::size_t						_clientMaxBodySize;
+		std::size_t					_clientMaxBodySize;
 		std::vector<locationConfig>	_locations;
 };
