@@ -20,3 +20,4 @@ unsigned int toInt(const std::string &str) {
 	ss >> ret;
 	return (ret);
 }
+

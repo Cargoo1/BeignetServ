@@ -5,7 +5,11 @@
 #include <algorithm>
 #include <cstring>
 #include <fstream>
+#include <climits>
 #include <iostream>
+#include <cstdint>
+
+#include <unistd.h>
 
 #define PORT_MIN 1
 #define PORT_MAX 65535
@@ -62,19 +66,6 @@ namespace { bool isValidUrl(const std::string &token) {
 	return(isValidPath(token, false));
 } }
 
-namespace { bool check_double(const std::vector<unsigned int> &vect) {
-	std::vector<unsigned int> tmp(vect);
-	std::vector<unsigned int>::iterator it = tmp.begin();
-	std::vector<unsigned int>::iterator ite = tmp.end();
-	std::sort(it, ite);
-	std::vector<unsigned int>::iterator comp = std::adjacent_find(it, ite);
-	if (comp != ite) {
-		std::cerr << "Error: duplicate entry: " << *comp << std::endl;
-		return (false);
-	}
-	return (true);
-} }
-
 namespace { bool isValid_clientBodySisze(const std::string &token) {
 	std::size_t i = 0;
 	while (isdigit(token.at(i)))
@@ -92,6 +83,33 @@ namespace { bool isValid_extCgi(const std::string &token) {
 	while (i < token.length() && islower(token.at(i)))
 		i++;
 	return (i == token.length());
+} }
+
+namespace { std::size_t convert_clientBodyS(const std::string &conv) {
+	std::size_t ret = toInt(conv);
+	std::size_t max = SIZE_MAX;
+
+	switch (conv.at(conv.size()-1))
+	{
+		case 'k':
+			if (ret * 1024 > SIZE_MAX)
+				throw std::out_of_range("Error: risk overflow client_max_body_size");
+			ret = ret * 1024;
+			break;
+		case 'm':
+			if (ret * 1024 * 1024 > SIZE_MAX)
+				throw std::out_of_range("Error: risk overflow client_max_body_size");
+			ret = ret * 1024 * 1024;
+			break;
+		case 'g':
+			if (ret * 1024 * 1024 * 1024 > SIZE_MAX)
+				throw std::out_of_range("Error: risk overflow client_max_body_size");
+			ret = ret * 1024 * 1024 * 1024;;
+			break;
+		default:
+			break;
+	}
+	return (ret);
 } }
 
 /*============= METHODE SERVER =============*/
@@ -282,7 +300,7 @@ void configParser::_parseLocationDir(locationConfig &locTo_pars) {
 		case L_CLIENT_MAX_BODY: {
 			if(!isValid_clientBodySisze(_peek().getValue()))
 				throw configException("Error: client_max_body_size syntax:", _peek().getLine(), _peek().getValue());
-			locTo_pars._clientMaxBodySize = toInt(_consume().getValue());
+			locTo_pars._clientMaxBodySize = convert_clientBodyS(_consume().getValue());
 			_expect(";");
 			break;
 		}
@@ -322,7 +340,7 @@ void configParser::_parseDirective(serverConfig &toParse) {
 				throw configException("Error: duplicate error_codes", _peek().getLine());
 			std::string url = _consume().getValue();
 			for (std::size_t code = 0; code < codes.size(); code++)
-				toParse._errorPages[code] = url;
+				toParse._errorPages[codes[code]] = url;
 			_expect(";");
 			break;
 		}
@@ -336,7 +354,7 @@ void configParser::_parseDirective(serverConfig &toParse) {
 		case CLIENT_MAX_BODY: {
 			if(!isValid_clientBodySisze(_peek().getValue()))
 				throw configException("Error: client_max_body_size syntax:", _peek().getLine(), _peek().getValue());
-			toParse._clientMaxBodySize = toInt(_consume().getValue());
+			toParse._clientMaxBodySize = convert_clientBodyS(_consume().getValue());
 			_expect(";");
 			break;
 		}
@@ -364,14 +382,36 @@ Token configParser::_consume() {
 	return (tmp);
 }
 
+
 void configParser::_validateAll() {
+	std::vector<std::string> tmp_dup;
+	for (std::size_t i = 0; i < this->_servers.size(); i++) {
+		const serverConfig &server = this->_servers[i];
+		if (server._port.empty()) {
+			std::cerr << "Error: server " << server._serverName << " has no port define" << std::endl;
+			throw std::runtime_error("Aborting");
+		}
+		tmp_dup.push_back(server._port);
+		if (!check_double(tmp_dup)) {
+			std::cerr << "Error: server " << server._serverName << "is listening an already assigned port" << std::endl;
+			throw std::runtime_error("Aborting");
+		}
+		for (std::map<int, std::string>::const_iterator it = server._errorPages.begin(); it != server._errorPages.end(); ++it) {
+			if (access(it->second.c_str(), X_OK) < 0)
+				std::cerr << "Error: server " << server._serverName << "'s configuration errors pages are " << std::endl;
+				throw configException("Aborting on errno: ", -1, "", errno);
+		}
+	}
+}
+
+void	configParser::DEBUG_printConf(void) {
 	std::cout << "\n=============== PARSED CONFIGURATION ===============\n" << std::endl;
 	
 	for (std::size_t i = 0; i < this->_servers.size(); i++) {
 		const serverConfig &server = this->_servers[i];
 		
 		std::cout << "--- SERVER " << i + 1 << " ---" << std::endl;
-		std::cout << "  Host: " << server._host << std::endl;
+
 		std::cout << "  Port: " << server._port << std::endl;
 		std::cout << "  Server Name: " << server._serverName << std::endl;
 		std::cout << "  Index: " << server._index << std::endl;
