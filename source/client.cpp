@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/21 15:12:53 by acamargo          #+#    #+#             */
-/*   Updated: 2026/04/28 12:39:55 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/05/09 12:33:14 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include <cstring>
 #include <iostream>
 #include <cstdlib>
+#include <map>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <sys/types.h>
@@ -27,13 +28,16 @@ int	main(int argc, char **argv)
 	// 	std::cerr << "Error: args" << std::endl;
 	// 	return (EXIT_FAILURE);
 	// }
+	std::map<std::string, std::string> test;
+	test["lol"] = "so";
+	std::cout << test["lol"];
 	struct addrinfo addrinfo;
 	memset(&addrinfo, 0, sizeof addrinfo);
 	struct addrinfo *result;
 	addrinfo.ai_family = AF_INET;
 	addrinfo.ai_socktype = SOCK_STREAM;
 	addrinfo.ai_protocol = 0;
-	int error = getaddrinfo("localhost", "8888", &addrinfo, &result);
+	int error = getaddrinfo("localhost", "8080", &addrinfo, &result);
 	if (error != 0)
 	{
 		perror("?\n");
@@ -45,9 +49,16 @@ int	main(int argc, char **argv)
 		perror("connect");
 		exit(1);
 	}
-	send(sfd, "a", 4, 0);
+	char buff[100000];
+	std::string msg = "GET / HTTP/1.1\r\nHost: www.google.com\r\n\r\n";
+	send(sfd, msg.c_str(), msg.size(), 0);
+	recv(sfd, buff, 100000, 0);
+	std::cout << buff;
+	sleep(1);
+	listen(sfd, 10);
+	//int new_fd = accept(sfd, NULL, NULL);
 	//sleep(1000);
-	close(sfd);
+	//close(sfd);
 
 	(void)argc;
 	(void)argv;

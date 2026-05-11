@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 19:10:40 by acamargo          #+#    #+#             */
-/*   Updated: 2026/05/06 22:38:18 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/05/07 20:18:05 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,9 @@ int		getListenerSocket(const std::string &host, const std::string &port)
 	if (temp == NULL)
 	{
 		freeaddrinfo(result);
-		throw std::runtime_error("Could not bind or create a socket: " + std::string(strerror(errno)));
+		throw std::runtime_error(
+			"Could not bind or create a socket: "
+			+ std::string(strerror(errno)));
 	}
 	freeaddrinfo(result);
 	if (listen(sfd, 10) < 0)
@@ -75,7 +77,7 @@ void	add_pfds(int pfd, std::vector<struct pollfd> &pfds)
 void	process_connection(int sfd, std::vector<struct pollfd> &pfds)
 {
 	char	buff[1000];
-	std::string msg("HTTP/1.1 404 Not Found\nContent-Length: 46\nContent-Type: html\n\n<html><body><h1>t ou</h1></body></html>");
+	std::string msg("HTTP/1.1 200 OK\n\n<html><body><h1>t ou</h1></body></html>");
 	int		new_fd;
 
 	for (size_t i = 0; i < pfds.size(); i++)
