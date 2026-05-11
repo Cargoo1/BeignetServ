@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 19:10:40 by acamargo          #+#    #+#             */
-/*   Updated: 2026/05/07 20:18:05 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/05/11 20:24:35 by alejandrocama    ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <sys/poll.h>
+#include "../includes/handle_request.hpp"
 #include <sys/socket.h>
 #include <vector>
 
@@ -74,15 +75,24 @@ void	add_pfds(int pfd, std::vector<struct pollfd> &pfds)
 	pfds.push_back(temp);
 }
 
+bool	listen_msg(std::string& msg, int pfd)
+{
+	char	buff[100];
+	int		size_read = recv(pfd, &buff, 100, 0);
+	if (size_read <= 0)
+		return false;
+	msg.append(buff);
+	std::cout << "msg : \n" << msg;
+	return true;
+}
+
 void	process_connection(int sfd, std::vector<struct pollfd> &pfds)
 {
-	char	buff[1000];
-	std::string msg("HTTP/1.1 200 OK\n\n<html><body><h1>t ou</h1></body></html>");
+	std::string msg;
 	int		new_fd;
 
 	for (size_t i = 0; i < pfds.size(); i++)
 	{
-		memset(&buff, 0, sizeof buff);
 		if (!((pfds.at(i)).revents & (POLLIN | POLLHUP)))
 			continue;
 		if ((pfds.at(i)).fd == sfd)
@@ -99,19 +109,18 @@ void	process_connection(int sfd, std::vector<struct pollfd> &pfds)
 				add_pfds(new_fd, pfds);
 				std::cout << "New socket connected: " << new_fd << '\n';
 			}
-			continue;
 		}
-		int		size_read = recv((pfds.at(i)).fd, &buff, 1000, 0);
-		if (size_read <= 0)
+		else
 		{
-			if (size_read == 0)
-				std::cout << "Socket: " << (pfds.at(i)).fd << " hung up\n";
-			close((pfds.at(i)).fd);
-			pfds.erase(pfds.begin() + i);
-			continue;
+			if (!listen_msg(msg, pfds.at(i).fd))
+			{
+				std::cerr << "Socket: " << pfds.at(i).fd << " hung up\n";
+				close(pfds.at(i).fd);
+				pfds.erase(pfds.begin() + i);
+			}
+			else
+				handle_request(msg);
 		}
-		std::cout << "Socket: " << (pfds.at(i)).fd << ": " << buff;
-		send(pfds.at(i).fd, msg.c_str(), msg.length(), 0);
 	}
 }
 

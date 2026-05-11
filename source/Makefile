@@ -1,7 +1,22 @@
-all : client server
+SRCS = run_server.cpp parse_request.cpp Request.cpp handle_request.cpp
+INCLUDES = ../includes/Request.hpp
+C++ = c++
+CFLAGS = -Wall -Wextra -Werror -std=c++98 -g3
+NAME = server
+OBJS = ${SRCS:.cpp=.o}
 
-client : client.cpp
-	c++ -Wall -Wextra -Werror -o client client.cpp -g3
+all: $(NAME)
 
-server : server.cpp
-	c++ -Wall -Wextra -Werror -o server server.cpp -g3
+$(NAME): $(OBJS)
+	$(C++) -o $(NAME) $(OBJS)
+
+$(OBJS): $(SRCS) $(INCLUDES)
+	$(C++) $(CFLAGS) -c $(SRCS)
+
+clean:
+	rm -f $(OBJS)
+
+fclean: clean
+	rm -f $(NAME)
+
+re: fclean all

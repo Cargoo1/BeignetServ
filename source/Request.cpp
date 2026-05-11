@@ -6,11 +6,13 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/08 15:51:44 by acamargo          #+#    #+#             */
-/*   Updated: 2026/05/09 12:44:32 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/05/11 19:27:14 by alejandrocama    ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/Request.hpp"
+#include <cstddef>
+#include <map>
 #include <string>
 
 Request::Request(std::string& method, std::string& uri, std::string& protocol_v,
@@ -47,6 +49,61 @@ std::string const*	Request::getMethod(void) const
 	return this->_method;
 }
 
+std::string const*	Request::getTargetResource(void) const
+{
+	return this->_target_resource;
+}
+
+std::string const*	Request::getProtocolV(void) const
+{
+	return this->_protocol_v;
+}
+
+std::map<std::string, std::string> const&	Request::getHost(void) const
+{
+	return this->_host;
+}
+
+bool	Request::setMethod(std::string& method)
+{
+	if (this->_method)
+		return false;
+	this->_method = new std::string(method);
+	return true;
+}
+
+bool	Request::setTargetResource(std::string& uri)
+{
+	if (this->_target_resource)
+		return false;
+	this->_target_resource = new std::string(uri);
+	return true;
+}
+
+bool	Request::setProtocolV(std::string& protocol)
+{
+	if (this->_protocol_v)
+		return false;
+	this->_protocol_v = new std::string(protocol);
+	return true;
+}
+
+bool	Request::setHost(std::string& host)
+{
+	size_t	pos;
+	if (!this->_host.empty())
+		return false;
+	pos = host.find_first_of(':');
+	if (pos == std::string::npos)
+	{
+		this->_host["host"] = host;
+		return true;
+	}
+	this->_host["host"] = host.substr(0, pos);
+	this->_host["port"] = host.substr(pos, std::string::npos);
+	return true;
+}
+
 Request&	Request::operator=(const Request& other)
 {
 	if (&other == this)
@@ -54,4 +111,9 @@ Request&	Request::operator=(const Request& other)
 	this->~Request();
 	new (this) Request(other);
 	return *this;
+}
+
+const char*	Request::BadRequest::what() const throw()
+{
+	return "Bad request.\n";
 }

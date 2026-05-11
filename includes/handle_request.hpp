@@ -1,37 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   run_server.hpp                                     :+:      :+:    :+:   */
+/*   handle_request.hpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
+/*   By: alejandrocamargo <acamargo@student.42.fr>  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/04/29 19:14:10 by acamargo          #+#    #+#             */
-/*   Updated: 2026/05/02 22:47:59 by alejandrocama    ###   ########.fr       */
+/*   Created: 2026/05/11 19:51:58 by alejandrocama     #+#    #+#             */
+/*   Updated: 2026/05/11 19:52:11 by alejandrocama    ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
-#include <netdb.h>
-
 #include <string>
 
-#include <sys/poll.h>
+void	handle_request(std::string& request);
 
-#include <sys/socket.h>
-
-#include <netinet/in.h>
-
-#include <sys/types.h>
-
-#include <unistd.h>
-
-#include <poll.h>
-
-#include <vector>
-
-#include <iostream>
-
-#define TIMEOUT 0
-
-void	run(std::vector<int> ports, std::string &interface);
