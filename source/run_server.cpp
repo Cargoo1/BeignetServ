@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 19:10:40 by acamargo          #+#    #+#             */
-/*   Updated: 2026/05/11 20:24:35 by alejandrocama    ###   ########.fr       */
+/*   Updated: 2026/05/12 20:56:23 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,10 @@
 #include <stdexcept>
 #include <sys/poll.h>
 #include "../includes/handle_request.hpp"
+#include "../includes/Client.hpp"
 #include <sys/socket.h>
 #include <vector>
+#define BUFF_SIZE 256
 
 int		getListenerSocket(const std::string &host, const std::string &port)
 {
@@ -47,7 +49,8 @@ int		getListenerSocket(const std::string &host, const std::string &port)
 	{
 		freeaddrinfo(result);
 		throw std::runtime_error(
-			"Could not bind or create a socket: "
+			"Could not bind() or socket(): "
+			+ port + ' '
 			+ std::string(strerror(errno)));
 	}
 	freeaddrinfo(result);
@@ -66,29 +69,31 @@ void	close_server(const std::vector<int> &sfds, const std::vector<struct pollfd>
 		close((*it_pfd).fd);
 }
 
-void	add_pfds(int pfd, std::vector<struct pollfd> &pfds)
+void	add_client(int pfd, std::vector<struct pollfd> &pfds, std::vector<Client> &clients)
 {
 	struct pollfd temp;
 	temp.events = POLLIN;
 	temp.fd = pfd;
 	temp.revents = 0;
 	pfds.push_back(temp);
+	clients.push_back(Client(pfd, POLLIN));
 }
 
 bool	listen_msg(std::string& msg, int pfd)
 {
-	char	buff[100];
-	int		size_read = recv(pfd, &buff, 100, 0);
+	char	buff[BUFF_SIZE];
+
+	memset(buff, 0, BUFF_SIZE);
+	int		size_read = recv(pfd, &buff, BUFF_SIZE, 0);
 	if (size_read <= 0)
 		return false;
-	msg.append(buff);
-	std::cout << "msg : \n" << msg;
+	msg.append(buff, BUFF_SIZE);
+	std::cout << "READ {\n" << msg << "\n} END\n";
 	return true;
 }
 
-void	process_connection(int sfd, std::vector<struct pollfd> &pfds)
+void	process_connection(int sfd, std::vector<struct pollfd> &pfds, std::vector<Client> &clients)
 {
-	std::string msg;
 	int		new_fd;
 
 	for (size_t i = 0; i < pfds.size(); i++)
@@ -106,20 +111,21 @@ void	process_connection(int sfd, std::vector<struct pollfd> &pfds)
 			}
 			else
 			{
-				add_pfds(new_fd, pfds);
+				add_client(new_fd, pfds, clients);
 				std::cout << "New socket connected: " << new_fd << '\n';
 			}
 		}
 		else
 		{
-			if (!listen_msg(msg, pfds.at(i).fd))
+			if (!listen_msg(clients.at(i).getMessage(), pfds.at(i).fd))
 			{
-				std::cerr << "Socket: " << pfds.at(i).fd << " hung up\n";
+				std::cerr << "Client: " << pfds.at(i).fd << " hung up\n";
 				close(pfds.at(i).fd);
 				pfds.erase(pfds.begin() + i);
+				clients.erase(clients.begin() + i);
 			}
-			else
-				handle_request(msg);
+			else if (clients.at(i).getMessage().find("\r\n\r\n",0) != std::string::npos)
+				handle_request(clients.at(i).getMessage());
 		}
 	}
 }
@@ -127,6 +133,7 @@ void	process_connection(int sfd, std::vector<struct pollfd> &pfds)
 void	run(const std::string &host, const std::string &port)
 {
 	std::vector<struct pollfd>	pfds;
+	std::vector<Client>			clients;
 	std::vector<int>			sfd;
 
 	sfd.push_back(getListenerSocket(host, port));
@@ -135,6 +142,7 @@ void	run(const std::string &host, const std::string &port)
 	test.events = POLLIN;
 	test.revents = 0;
 	pfds.push_back(test);
+	clients.push_back(Client(sfd.front(), POLLIN));
 	std::cout << "Waiting for connections...\n";
 	for(;;)
 	{
@@ -149,7 +157,7 @@ void	run(const std::string &host, const std::string &port)
 			close_server(sfd, pfds);
 			throw std::runtime_error("Poll: " + std::string(strerror(errno)));
 		}
-		process_connection(sfd.front(), pfds);
+		process_connection(sfd.front(), pfds, clients);
 	}
 }
 

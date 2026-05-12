@@ -6,7 +6,7 @@
 /*   By: alejandrocamargo <acamargo@student.42.fr>  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/11 19:40:38 by alejandrocama     #+#    #+#             */
-/*   Updated: 2026/05/11 20:23:03 by alejandrocama    ###   ########.fr       */
+/*   Updated: 2026/05/12 23:13:36 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@ void	handle_request(std::string& request)
 {
 	Request	r;
 	std::istringstream request_stream(request);
+
 	try
 	{
 		parse_request(request_stream, r);
@@ -32,5 +33,6 @@ void	handle_request(std::string& request)
 	std::cout << *r.getMethod() << std::endl;
 	std::cout << *r.getProtocolV() << std::endl;
 	std::cout << *r.getTargetResource() << std::endl;
+	std::cout << r.getHost().at("host") << '\n';
 }
 

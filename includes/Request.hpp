@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/08 14:23:48 by acamargo          #+#    #+#             */
-/*   Updated: 2026/05/09 13:37:02 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/05/12 23:14:13 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,16 +33,16 @@ public:
 	std::string const*	getMethod(void) const;
 	std::string const*	getTargetResource(void) const;
 	std::string const*	getProtocolV(void) const;
-	std::map<std::string, std::string> const & getHost(void) const;
-	bool	setMethod(std::string& method);
-	bool	setTargetResource(std::string& uri);
-	bool	setProtocolV(std::string& protocol);
-	bool	setHost(std::string& host);
+	std::map<std::string const, std::string> const & getHost(void) const;
+	bool	setMethod(std::string const& method);
+	bool	setTargetResource(std::string const& uri);
+	bool	setProtocolV(std::string const& protocol);
+	bool	setHost(std::string const& host);
 
 	Request & operator=(const Request& other);
 private:
 	std::string	*_method;
 	std::string	*_target_resource;
 	std::string	*_protocol_v;
-	std::map<std::string, std::string>	_host;
+	std::map<std::string const, std::string>	_host;
 };

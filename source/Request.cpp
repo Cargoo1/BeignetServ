@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/08 15:51:44 by acamargo          #+#    #+#             */
-/*   Updated: 2026/05/11 19:27:14 by alejandrocama    ###   ########.fr       */
+/*   Updated: 2026/05/12 23:13:23 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,12 @@ Request::Request() : _method(NULL), _target_resource(NULL), _protocol_v(NULL)
 
 Request::~Request()
 {
+	if (this->_method)
+		delete this->_method;
+	if (this->_target_resource)
+		delete this->_target_resource;
+	if (this->_protocol_v)
+		delete this->_protocol_v;
 	return;
 }
 
@@ -59,12 +65,12 @@ std::string const*	Request::getProtocolV(void) const
 	return this->_protocol_v;
 }
 
-std::map<std::string, std::string> const&	Request::getHost(void) const
+std::map<std::string const, std::string> const&	Request::getHost(void) const
 {
 	return this->_host;
 }
 
-bool	Request::setMethod(std::string& method)
+bool	Request::setMethod(std::string const& method)
 {
 	if (this->_method)
 		return false;
@@ -72,7 +78,7 @@ bool	Request::setMethod(std::string& method)
 	return true;
 }
 
-bool	Request::setTargetResource(std::string& uri)
+bool	Request::setTargetResource(std::string const& uri)
 {
 	if (this->_target_resource)
 		return false;
@@ -80,7 +86,7 @@ bool	Request::setTargetResource(std::string& uri)
 	return true;
 }
 
-bool	Request::setProtocolV(std::string& protocol)
+bool	Request::setProtocolV(std::string const& protocol)
 {
 	if (this->_protocol_v)
 		return false;
@@ -88,7 +94,7 @@ bool	Request::setProtocolV(std::string& protocol)
 	return true;
 }
 
-bool	Request::setHost(std::string& host)
+bool	Request::setHost(std::string const& host)
 {
 	size_t	pos;
 	if (!this->_host.empty())

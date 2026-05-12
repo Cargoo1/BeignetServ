@@ -1,14 +1,15 @@
-SRCS = run_server.cpp parse_request.cpp Request.cpp handle_request.cpp
-INCLUDES = ../includes/Request.hpp
+SRCS = run_server.cpp parse_request.cpp Request.cpp handle_request.cpp Client.cpp
+INCLUDES = ../includes/Request.hpp \
+		   ../includes/Client.hpp
 C++ = c++
-CFLAGS = -Wall -Wextra -Werror -std=c++98 -g3
+CFLAGS = -Wall -Wextra -Werror -std=c++98 -g3 -fsanitize=address
 NAME = server
 OBJS = ${SRCS:.cpp=.o}
 
 all: $(NAME)
 
 $(NAME): $(OBJS)
-	$(C++) -o $(NAME) $(OBJS)
+	$(C++) $(CFLAGS) -o $(NAME) $(OBJS)
 
 $(OBJS): $(SRCS) $(INCLUDES)
 	$(C++) $(CFLAGS) -c $(SRCS)
