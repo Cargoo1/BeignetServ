@@ -6,7 +6,7 @@
 /*   By: alejandrocamargo <acamargo@student.42.fr>  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/11 19:40:38 by alejandrocama     #+#    #+#             */
-/*   Updated: 2026/05/12 23:13:36 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/05/13 19:26:20 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,10 +16,13 @@
 #include <string>
 #include "../includes/parse_request.hpp"
 
-void	handle_request(std::string& request)
+int	handle_request(std::string& request)
 {
 	Request	r;
-	std::istringstream request_stream(request);
+	int		status_code = 200;
+	size_t pos = request.find("\r\n\r\n");
+	std::istringstream request_stream(request.substr(0, pos));
+	std::string test = request_stream.str();
 
 	try
 	{
@@ -28,11 +31,11 @@ void	handle_request(std::string& request)
 	catch(std::exception& e)
 	{
 		std::cerr << e.what();
-		return;
+		status_code = 400;
 	}
 	std::cout << *r.getMethod() << std::endl;
 	std::cout << *r.getProtocolV() << std::endl;
 	std::cout << *r.getTargetResource() << std::endl;
-	std::cout << r.getHost().at("host") << '\n';
+	std::cout << r.getHost().at("Host") << '\n';
+	return 200;	
 }
-

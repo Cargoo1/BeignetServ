@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/08 14:23:48 by acamargo          #+#    #+#             */
-/*   Updated: 2026/05/12 23:14:13 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/05/13 18:59:26 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,13 +34,14 @@ public:
 	std::string const*	getTargetResource(void) const;
 	std::string const*	getProtocolV(void) const;
 	std::map<std::string const, std::string> const & getHost(void) const;
-	bool	setMethod(std::string const& method);
-	bool	setTargetResource(std::string const& uri);
-	bool	setProtocolV(std::string const& protocol);
-	bool	setHost(std::string const& host);
+	bool	setMethod(std::string& method);
+	bool	setTargetResource(std::string& uri);
+	bool	setProtocolV(std::string& protocol);
+	bool	setHost(std::string& host);
 
 	Request & operator=(const Request& other);
 private:
+	int			status_code;
 	std::string	*_method;
 	std::string	*_target_resource;
 	std::string	*_protocol_v;

@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 19:10:40 by acamargo          #+#    #+#             */
-/*   Updated: 2026/05/12 20:56:23 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/05/13 17:15:15 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@ int		getListenerSocket(const std::string &host, const std::string &port)
 	struct addrinfo	*temp;
 	int		gai_errno;
 	int		sfd = -1;
+	const int		enable = 1;
 
 	memset(&hints, 0, sizeof hints);
 	hints.ai_family = AF_INET;
@@ -39,6 +40,8 @@ int		getListenerSocket(const std::string &host, const std::string &port)
 	for (temp = result; temp != NULL; temp = temp->ai_next)
 	{
 		sfd = socket(temp->ai_family, temp->ai_socktype, temp->ai_protocol);
+		if (setsockopt(sfd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0)
+			throw std::runtime_error(strerror(errno));
 		if (sfd < 0)
 			continue;
 		if (bind(sfd, temp->ai_addr, temp->ai_addrlen) < 0)
@@ -125,7 +128,11 @@ void	process_connection(int sfd, std::vector<struct pollfd> &pfds, std::vector<C
 				clients.erase(clients.begin() + i);
 			}
 			else if (clients.at(i).getMessage().find("\r\n\r\n",0) != std::string::npos)
+			{
+				std::string msg("HTTP/1.1 200 OK\r\nContent-Length:46\r\n\r\n<html><body><h1>Hello World!</h1></body></html>");
 				handle_request(clients.at(i).getMessage());
+				send(clients.at(i).getPfd().fd, msg.c_str(), msg.length(), 0);
+			}
 		}
 	}
 }

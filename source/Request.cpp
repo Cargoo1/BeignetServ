@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/08 15:51:44 by acamargo          #+#    #+#             */
-/*   Updated: 2026/05/12 23:13:23 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/05/13 16:28:26 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,7 @@ std::map<std::string const, std::string> const&	Request::getHost(void) const
 	return this->_host;
 }
 
-bool	Request::setMethod(std::string const& method)
+bool	Request::setMethod(std::string& method)
 {
 	if (this->_method)
 		return false;
@@ -78,7 +78,7 @@ bool	Request::setMethod(std::string const& method)
 	return true;
 }
 
-bool	Request::setTargetResource(std::string const& uri)
+bool	Request::setTargetResource(std::string& uri)
 {
 	if (this->_target_resource)
 		return false;
@@ -86,7 +86,7 @@ bool	Request::setTargetResource(std::string const& uri)
 	return true;
 }
 
-bool	Request::setProtocolV(std::string const& protocol)
+bool	Request::setProtocolV(std::string& protocol)
 {
 	if (this->_protocol_v)
 		return false;
@@ -94,19 +94,15 @@ bool	Request::setProtocolV(std::string const& protocol)
 	return true;
 }
 
-bool	Request::setHost(std::string const& host)
+bool	Request::setHost(std::string& host)
 {
 	size_t	pos;
-	if (!this->_host.empty())
-		return false;
+
 	pos = host.find_first_of(':');
-	if (pos == std::string::npos)
-	{
-		this->_host["host"] = host;
-		return true;
-	}
-	this->_host["host"] = host.substr(0, pos);
-	this->_host["port"] = host.substr(pos, std::string::npos);
+	if (pos == host.length() - 1)
+		return false;
+	host.erase(0, pos + 1);
+	this->_host["Host"] = host;
 	return true;
 }
 

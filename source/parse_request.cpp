@@ -6,10 +6,11 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/07 19:49:10 by acamargo          #+#    #+#             */
-/*   Updated: 2026/05/12 23:06:22 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/05/13 16:31:21 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <cctype>
 #include <cstddef>
 #include <fstream>
 #include <istream>
@@ -24,7 +25,7 @@ typedef struct s_token
 	std::string	value;
 }	t_token;
 
-typedef bool(Request::*field_function)(std::string const&);
+typedef bool(Request::*field_function)(std::string &);
 
 void	remove_spaces(std::string& line, size_t pos)
 {
@@ -33,6 +34,18 @@ void	remove_spaces(std::string& line, size_t pos)
 	line.erase(0, pos);
 	pos_2 = line.find_first_not_of(' ', 0);
 	line.erase(0, pos_2);
+}
+
+void	remove_whitespace(std::string& line)
+{
+	size_t	pos = 0;
+
+	while (pos < line.length())
+	{
+		if (std::isspace(line.at(pos)))
+			line.erase(pos, 1);
+		pos++;
+	}
 }
 
 void	parse_method(std::string &line, Request& r)
@@ -71,6 +84,17 @@ void	check_method(Request& r)
 		throw Request::BadRequest();
 }
 
+size_t	check_field_line_syntax(std::string const& line)
+{
+	size_t	colon_pos = line.find_first_of(':', 0);
+	if (colon_pos == std::string::npos)
+		throw Request::BadRequest();
+	size_t	whitespace_pos = line.find_first_of(' ', 0);
+	if (whitespace_pos < colon_pos)
+		throw Request::BadRequest();
+	return colon_pos;
+}	
+
 void	parse_line(std::string & line, Request& r, std::map<std::string, field_function> fields)
 {
 	if (!r.getMethod())
@@ -79,9 +103,11 @@ void	parse_line(std::string & line, Request& r, std::map<std::string, field_func
 		check_method(r);
 		return;
 	}
-	std::map<std::string, field_function>::iterator it = fields.find(line.substr(0, line.find_first_of(':', 0)));
+	std::map<std::string, field_function>::iterator it;
+	it = fields.find(line.substr(0, check_field_line_syntax(line)));
 	if (it == fields.end())
 		return;
+	remove_whitespace(line);
 	(r.*(it->second))(line);
 }
 
@@ -97,4 +123,6 @@ void	parse_request(std::istringstream& request, Request &r)
 		std::getline(request, line);
 		parse_line(line, r, fields);
 	}
+	if (r.getHost().find("Host") == r.getHost().end())
+		throw Request::BadRequest();
 }
