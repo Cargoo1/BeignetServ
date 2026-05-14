@@ -51,18 +51,6 @@ namespace { bool		parse_digitCode(const std::string &listenPort, int min, int ma
 	return (true);
 } }
 
-namespace { bool		parse_methods(const std::vector<std::string> &methods, const std::string &path) {
-	if (methods.empty()) {
-		std::cerr << "Error: location " << path << " has no methods" << std::endl;
-		return (false);
-	}
-	if (!isValid_method(methods)) {
-		std::cerr << "Error: location " << path << " has unknown methods" << std::endl;
-		return (false);
-	}
-	return (true);
-} }
-
 namespace { bool		isValid_path(const std::string &token, bool absolute) {
 	if (absolute ? (token.at(0) != '/') : (token.at(0) == '/'))
 		return (false);
@@ -74,8 +62,8 @@ namespace { bool		isValid_path(const std::string &token, bool absolute) {
 
 namespace { bool		isValid_url(const std::string &token) {
 	if (token.at(0) == '/')
-		return (isValidPath(token, true));
-	return(isValidPath(token, false));
+		return (isValid_path(token, true));
+	return(isValid_path(token, false));
 } }
 
 namespace { bool		isValid_clientBodySize(const std::string &token) {
@@ -141,6 +129,18 @@ namespace { std::size_t	convert_clientBodySize(const std::string &conv) {
 		return (ret);
 	}
 }
+
+namespace { bool		parse_methods(const std::vector<std::string> &methods, const std::string &path) {
+	if (methods.empty()) {
+		std::cerr << "Error: location " << path << " has no methods" << std::endl;
+		return (false);
+	}
+	if (!isValid_method(methods)) {
+		std::cerr << "Error: location " << path << " has unknown methods" << std::endl;
+		return (false);
+	}
+	return (true);
+} }
 
 /*============= METHODE SERVER =============*/
 /*============= cnstr/dstr =============*/

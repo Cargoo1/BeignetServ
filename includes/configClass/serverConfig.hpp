@@ -17,7 +17,7 @@ class serverConfig {
 
 		serverConfig &operator=(const serverConfig &rhs);
 
-	private:
+	public:
 		std::string					_port;
 		std::string					_serverName;
 		std::string					_index;
