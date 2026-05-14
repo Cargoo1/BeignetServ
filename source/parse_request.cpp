@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/07 19:49:10 by acamargo          #+#    #+#             */
-/*   Updated: 2026/05/13 16:31:21 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/05/14 17:06:09 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,6 +123,7 @@ void	parse_request(std::istringstream& request, Request &r)
 		std::getline(request, line);
 		parse_line(line, r, fields);
 	}
+	throw Request::BadRequest();
 	if (r.getHost().find("Host") == r.getHost().end())
 		throw Request::BadRequest();
 }

@@ -105,10 +105,11 @@ int	main(int ac, char **av)
 		try {
 			server.parse(av[1]);
 		}
-		catch (configException &e) {
+		catch (const std::exception &e) {
 			std::cerr << e.what() << std::endl;
-			return (1);
+			return 1;
 		}
+		
 		return (0);
 	}
 }

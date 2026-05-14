@@ -6,7 +6,7 @@
 /*   By: alejandrocamargo <acamargo@student.42.fr>  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/11 19:40:38 by alejandrocama     #+#    #+#             */
-/*   Updated: 2026/05/13 19:26:20 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/05/14 17:06:21 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@ int	handle_request(std::string& request)
 {
 	Request	r;
 	int		status_code = 200;
+	(void)status_code;
 	size_t pos = request.find("\r\n\r\n");
 	std::istringstream request_stream(request.substr(0, pos));
 	std::string test = request_stream.str();
@@ -27,6 +28,7 @@ int	handle_request(std::string& request)
 	try
 	{
 		parse_request(request_stream, r);
+		///////
 	}
 	catch(std::exception& e)
 	{
