@@ -88,6 +88,7 @@
 //                                                                                                ▼
 //                                                                                      retour à epoll_wait()
 
+#include "run_server.hpp"
 #include <iostream>
 #include <stdlib.h>
 #include <configParser.hpp>
@@ -100,16 +101,14 @@ int	main(int ac, char **av)
 		std::cerr << "Error: args" << std::endl;
 		return (EXIT_FAILURE);
 	}
-	else {
-		configParser	server;
-		try {
-			server.parse(av[1]);
-		}
-		catch (const std::exception &e) {
-			std::cerr << e.what() << std::endl;
-			return 1;
-		}
-		
-		return (0);
+	configParser	server;
+	try {
+		server.parse(av[1]);
 	}
+	catch (const std::exception &e) {
+		std::cerr << e.what() << std::endl;
+		return 1;
+	}
+	int exit_sts = run(server.getServers());
+	return (exit_sts);
 }

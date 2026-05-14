@@ -1,0 +1,275 @@
+[
+ {
+  "directory": "/home/acamargo/42/BeignetServ",
+  "arguments": [
+   "c++",
+   "-Wall",
+   "-Wextra",
+   "-Werror",
+   "-std=c++98",
+   "-Iincludes/execution",
+   "-Iincludes/exception",
+   "-Iincludes/parser",
+   "-Iincludes/",
+   "-g3",
+   "-fsanitize=address",
+   "-c",
+   "source/exception/configException.cpp",
+   "-o",
+   "obj/exception/configException.o"
+  ],
+  "file": "source/exception/configException.cpp"
+ },
+ {
+  "directory": "/home/acamargo/42/BeignetServ",
+  "arguments": [
+   "c++",
+   "-Wall",
+   "-Wextra",
+   "-Werror",
+   "-std=c++98",
+   "-Iincludes/execution",
+   "-Iincludes/exception",
+   "-Iincludes/parser",
+   "-Iincludes/",
+   "-g3",
+   "-fsanitize=address",
+   "-c",
+   "source/parser/configParser.cpp",
+   "-o",
+   "obj/parser/configParser.o"
+  ],
+  "file": "source/parser/configParser.cpp"
+ },
+ {
+  "directory": "/home/acamargo/42/BeignetServ",
+  "arguments": [
+   "c++",
+   "-Wall",
+   "-Wextra",
+   "-Werror",
+   "-std=c++98",
+   "-Iincludes/execution",
+   "-Iincludes/exception",
+   "-Iincludes/parser",
+   "-Iincludes/",
+   "-g3",
+   "-fsanitize=address",
+   "-c",
+   "source/parser/Token.cpp",
+   "-o",
+   "obj/parser/Token.o"
+  ],
+  "file": "source/parser/Token.cpp"
+ },
+ {
+  "directory": "/home/acamargo/42/BeignetServ",
+  "arguments": [
+   "c++",
+   "-Wall",
+   "-Wextra",
+   "-Werror",
+   "-std=c++98",
+   "-Iincludes/execution",
+   "-Iincludes/exception",
+   "-Iincludes/parser",
+   "-Iincludes/",
+   "-g3",
+   "-fsanitize=address",
+   "-c",
+   "source/parser/parserUtils.cpp",
+   "-o",
+   "obj/parser/parserUtils.o"
+  ],
+  "file": "source/parser/parserUtils.cpp"
+ },
+ {
+  "directory": "/home/acamargo/42/BeignetServ",
+  "arguments": [
+   "c++",
+   "-Wall",
+   "-Wextra",
+   "-Werror",
+   "-std=c++98",
+   "-Iincludes/execution",
+   "-Iincludes/exception",
+   "-Iincludes/parser",
+   "-Iincludes/",
+   "-g3",
+   "-fsanitize=address",
+   "-c",
+   "source/configClass/serverConfig.cpp",
+   "-o",
+   "obj/configClass/serverConfig.o"
+  ],
+  "file": "source/configClass/serverConfig.cpp"
+ },
+ {
+  "directory": "/home/acamargo/42/BeignetServ",
+  "arguments": [
+   "c++",
+   "-Wall",
+   "-Wextra",
+   "-Werror",
+   "-std=c++98",
+   "-Iincludes/execution",
+   "-Iincludes/exception",
+   "-Iincludes/parser",
+   "-Iincludes/",
+   "-g3",
+   "-fsanitize=address",
+   "-c",
+   "source/configClass/locationConfig.cpp",
+   "-o",
+   "obj/configClass/locationConfig.o"
+  ],
+  "file": "source/configClass/locationConfig.cpp"
+ },
+ {
+  "directory": "/home/acamargo/42/BeignetServ",
+  "arguments": [
+   "c++",
+   "-Wall",
+   "-Wextra",
+   "-Werror",
+   "-std=c++98",
+   "-Iincludes/execution",
+   "-Iincludes/exception",
+   "-Iincludes/parser",
+   "-Iincludes/",
+   "-g3",
+   "-fsanitize=address",
+   "-c",
+   "source/main.cpp",
+   "-o",
+   "obj/main.o"
+  ],
+  "file": "source/main.cpp"
+ },
+ {
+  "directory": "/home/acamargo/42/BeignetServ",
+  "arguments": [
+   "c++",
+   "-Wall",
+   "-Wextra",
+   "-Werror",
+   "-std=c++98",
+   "-Iincludes/execution",
+   "-Iincludes/exception",
+   "-Iincludes/parser",
+   "-Iincludes/",
+   "-g3",
+   "-fsanitize=address",
+   "-c",
+   "source/execution/Client.cpp",
+   "-o",
+   "obj/execution/Client.o"
+  ],
+  "file": "source/execution/Client.cpp"
+ },
+ {
+  "directory": "/home/acamargo/42/BeignetServ",
+  "arguments": [
+   "c++",
+   "-Wall",
+   "-Wextra",
+   "-Werror",
+   "-std=c++98",
+   "-Iincludes/execution",
+   "-Iincludes/exception",
+   "-Iincludes/parser",
+   "-Iincludes/",
+   "-g3",
+   "-fsanitize=address",
+   "-c",
+   "source/execution/handle_request.cpp",
+   "-o",
+   "obj/execution/handle_request.o"
+  ],
+  "file": "source/execution/handle_request.cpp"
+ },
+ {
+  "directory": "/home/acamargo/42/BeignetServ",
+  "arguments": [
+   "c++",
+   "-Wall",
+   "-Wextra",
+   "-Werror",
+   "-std=c++98",
+   "-Iincludes/execution",
+   "-Iincludes/exception",
+   "-Iincludes/parser",
+   "-Iincludes/",
+   "-g3",
+   "-fsanitize=address",
+   "-c",
+   "source/execution/parse_request.cpp",
+   "-o",
+   "obj/execution/parse_request.o"
+  ],
+  "file": "source/execution/parse_request.cpp"
+ },
+ {
+  "directory": "/home/acamargo/42/BeignetServ",
+  "arguments": [
+   "c++",
+   "-Wall",
+   "-Wextra",
+   "-Werror",
+   "-std=c++98",
+   "-Iincludes/execution",
+   "-Iincludes/exception",
+   "-Iincludes/parser",
+   "-Iincludes/",
+   "-g3",
+   "-fsanitize=address",
+   "-c",
+   "source/execution/Request.cpp",
+   "-o",
+   "obj/execution/Request.o"
+  ],
+  "file": "source/execution/Request.cpp"
+ },
+ {
+  "directory": "/home/acamargo/42/BeignetServ",
+  "arguments": [
+   "c++",
+   "-Wall",
+   "-Wextra",
+   "-Werror",
+   "-std=c++98",
+   "-Iincludes/execution",
+   "-Iincludes/exception",
+   "-Iincludes/parser",
+   "-Iincludes/",
+   "-g3",
+   "-fsanitize=address",
+   "-c",
+   "source/execution/run_server.cpp",
+   "-o",
+   "obj/execution/run_server.o"
+  ],
+  "file": "source/execution/run_server.cpp"
+ },
+ {
+  "directory": "/home/acamargo/42/BeignetServ",
+  "arguments": [
+   "c++",
+   "-Wall",
+   "-Wextra",
+   "-Werror",
+   "-std=c++98",
+   "-Iincludes/execution",
+   "-Iincludes/exception",
+   "-Iincludes/parser",
+   "-Iincludes/",
+   "-g3",
+   "-fsanitize=address",
+   "-c",
+   "source/execution/Server.cpp",
+   "-o",
+   "obj/execution/Server.o"
+  ],
+  "file": "source/execution/Server.cpp"
+ }
+]
