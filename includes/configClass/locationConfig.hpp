@@ -5,6 +5,7 @@
 #include <string>
 
 enum L_CONF { METHOD, ROOT, L_INDEX, AUTO_I, UPLD_S, CGI, REDIR, L_CLIENT_MAX_BODY, L_NONE};
+enum MTHD { GET, POST, DELETE, PUT, HEAD, OPTIONS, PATCH};
 
 class locationConfig {
 	public:

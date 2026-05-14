@@ -7,9 +7,8 @@
 #include <fstream>
 #include <climits>
 #include <iostream>
-#include <cstdint>
 
-#include <unistd.h>
+
 
 #define PORT_MIN 1
 #define PORT_MAX 65535
@@ -20,7 +19,7 @@
 
 /*============= UTILS SERVER =============*/
 
-namespace { DIR findDir(const std::string &directive) {
+namespace { DIR			findDir(const std::string &directive) {
 	if (directive == "listen") return (LISTEN);
 	if (directive == "server_name") return (SERVER_NAME);
 	if (directive == "error_page") return (ERROR_PAGE);
@@ -29,7 +28,7 @@ namespace { DIR findDir(const std::string &directive) {
 	else return (NONE);
 } } 
 
-namespace { L_CONF find_LocDir(const std::string &local_confDir) {
+namespace { L_CONF		find_LocDir(const std::string &local_confDir) {
 	if (local_confDir == "methods") return (METHOD);
 	if (local_confDir == "root") return (ROOT);
 	if (local_confDir == "index") return (L_INDEX);
@@ -41,7 +40,7 @@ namespace { L_CONF find_LocDir(const std::string &local_confDir) {
 	else return (L_NONE);
 } } 
 
-namespace { bool parseDigit_code(const std::string &listenPort, int min, int max) {
+namespace { bool		parseDigit_code(const std::string &listenPort, int min, int max) {
 	if (!string_verifFunc(listenPort, isdigit))
 		return (false);
 	int verif;
@@ -52,7 +51,7 @@ namespace { bool parseDigit_code(const std::string &listenPort, int min, int max
 	return (true);
 } }
 
-namespace { bool isValidPath(const std::string &token, bool absolute) {
+namespace { bool		isValidPath(const std::string &token, bool absolute) {
 	if (absolute ? (token.at(0) != '/') : (token.at(0) == '/'))
 		return (false);
 	if (!string_verifFunc(token, isspecial)) return (false);
@@ -60,13 +59,13 @@ namespace { bool isValidPath(const std::string &token, bool absolute) {
 	return (true);
 } }
 
-namespace { bool isValidUrl(const std::string &token) {
+namespace { bool		isValidUrl(const std::string &token) {
 	if (token.at(0) == '/')
 		return (isValidPath(token, true));
 	return(isValidPath(token, false));
 } }
 
-namespace { bool isValid_clientBodySisze(const std::string &token) {
+namespace { bool		isValid_clientBodySisze(const std::string &token) {
 	std::size_t i = 0;
 	while (isdigit(token.at(i)))
 		i++;
@@ -76,7 +75,7 @@ namespace { bool isValid_clientBodySisze(const std::string &token) {
 	return (i == token.length());
 } }
 
-namespace { bool isValid_extCgi(const std::string &token) {
+namespace { bool		isValid_extCgi(const std::string &token) {
 	std::size_t i = 1;
 	if (token.at(0) != '.')
 		return (false);
@@ -85,24 +84,24 @@ namespace { bool isValid_extCgi(const std::string &token) {
 	return (i == token.length());
 } }
 
-namespace { std::size_t convert_clientBodyS(const std::string &conv) {
+namespace { std::size_t	convert_clientBodyS(const std::string &conv) {
 	std::size_t ret = toInt(conv);
-	std::size_t max = SIZE_MAX;
+	std::size_t max_size = (size_t)-1;
 
 	switch (conv.at(conv.size()-1))
 	{
 		case 'k':
-			if (ret * 1024 > SIZE_MAX)
+			if (ret * 1024 > max_size)
 				throw std::out_of_range("Error: risk overflow client_max_body_size");
 			ret = ret * 1024;
 			break;
 		case 'm':
-			if (ret * 1024 * 1024 > SIZE_MAX)
+			if (ret * 1024 * 1024 > max_size)
 				throw std::out_of_range("Error: risk overflow client_max_body_size");
 			ret = ret * 1024 * 1024;
 			break;
 		case 'g':
-			if (ret * 1024 * 1024 * 1024 > SIZE_MAX)
+			if (ret * 1024 * 1024 * 1024 > max_size)
 				throw std::out_of_range("Error: risk overflow client_max_body_size");
 			ret = ret * 1024 * 1024 * 1024;;
 			break;
@@ -112,13 +111,32 @@ namespace { std::size_t convert_clientBodyS(const std::string &conv) {
 	return (ret);
 } }
 
+namespace { bool		isValid_method(const std::vector<std::string> &methods) {
+	std::vector<std::string>::const_iterator it = methods.begin();
+	while (it != methods.end()) {
+		if (*it == "GET") it++;
+		else if (*it == "POST") it++;
+		else if (*it == "DELETE") it++;
+		else if (*it == "PUT") it++;
+		else if (*it == "HEAD") it++;
+		else if (*it == "OPIONS") it++;
+		else if (*it == "PATCH") it++;
+		else
+			return false;
+	}
+	return (true);
+} }
+
 /*============= METHODE SERVER =============*/
+/*============= cnstr/dstr =============*/
 
 configParser::configParser() : _content(), _tokens(), _pos(0), _servers() {}
 
 configParser::configParser(const configParser &rhs) : _content(rhs._content), _tokens(rhs._tokens), _pos(rhs._pos), _servers(rhs._servers) {}
 
 configParser::~configParser() {}
+
+/*============= oprtr/getr =============*/
 
 configParser &configParser::operator=(const configParser &rhs) {
 	if (this != &rhs) {
@@ -133,6 +151,8 @@ configParser &configParser::operator=(const configParser &rhs) {
 const std::vector<serverConfig> &configParser::getServers(void) {
 	return (this->_servers);
 }
+
+/*============= parsr =============*/
 
 void configParser::parse(const std::string &arg) {
 	_readFile(arg);
@@ -237,7 +257,7 @@ void configParser::_parseLocationDir(locationConfig &locTo_pars) {
 				if (string_verifFunc(_peek().getValue(), isupper))
 					methds.push_back(_consume().getValue());
 				else
-					throw configException("Error: error_codes syntax:", _peek().getLine(), _peek().getValue());
+					throw configException("Error: methods syntax:", _peek().getLine(), _peek().getValue());
 			}
 			locTo_pars._methods = methds;
 			_expect(";");
@@ -363,6 +383,42 @@ void configParser::_parseDirective(serverConfig &toParse) {
 	}
 }
 
+void configParser::_validateAll() {
+	if (_servers.size() <= 0) {
+		std::cerr << "Error: config must have at least one server conf" << std::endl;
+		throw std::runtime_error("Aborting");
+	}
+	std::vector<std::string> port_dup;
+	std::vector<std::string> path_dup;
+	for (std::size_t i = 0; i < this->_servers.size(); i++) {
+		const serverConfig &server = this->_servers[i];
+		if (server._port.empty()) {
+			std::cerr << "Error: server " << server._serverName << " has no port define" << std::endl;
+			throw std::runtime_error("Aborting");
+		}
+		port_dup.push_back(server._port);
+		if (!check_double(port_dup)) {
+			std::cerr << "Error: server " << server._serverName << " is listening an already assigned port" << std::endl;
+			throw std::runtime_error("Aborting");
+		}
+		for (std::size_t j = 0; j < server._locations.size(); j++) {
+			const locationConfig &location = server._locations[j];
+			path_dup.push_back(location._path);
+			if (!check_double(path_dup)) {
+				std::cerr << "Error: server " << server._serverName << " have locations with duplicate path:" << location._path << std::endl;
+				throw std::runtime_error("Aborting");
+			}
+			if (!isValid_method(location._methods)) {
+				std::cerr << "Error: server " << server._serverName << ": " << location._path << ": have unknown methodes" << std::endl;
+				throw std::runtime_error("Aborting");
+			}
+		}
+		path_dup.clear();
+	}
+}
+
+/*============= tokens =============*/
+
 void configParser::_expect(const std::string &to_compare) {
 	if (_peek().getValue() != to_compare)
 		throw configException("Error: syntax", _peek().getLine(), _peek().getValue());
@@ -382,27 +438,6 @@ Token configParser::_consume() {
 	return (tmp);
 }
 
-
-void configParser::_validateAll() {
-	std::vector<std::string> tmp_dup;
-	for (std::size_t i = 0; i < this->_servers.size(); i++) {
-		const serverConfig &server = this->_servers[i];
-		if (server._port.empty()) {
-			std::cerr << "Error: server " << server._serverName << " has no port define" << std::endl;
-			throw std::runtime_error("Aborting");
-		}
-		tmp_dup.push_back(server._port);
-		if (!check_double(tmp_dup)) {
-			std::cerr << "Error: server " << server._serverName << "is listening an already assigned port" << std::endl;
-			throw std::runtime_error("Aborting");
-		}
-		for (std::map<int, std::string>::const_iterator it = server._errorPages.begin(); it != server._errorPages.end(); ++it) {
-			if (access(it->second.c_str(), X_OK) < 0)
-				std::cerr << "Error: server " << server._serverName << "'s configuration errors pages are " << std::endl;
-				throw configException("Aborting on errno: ", -1, "", errno);
-		}
-	}
-}
 
 void	configParser::DEBUG_printConf(void) {
 	std::cout << "\n=============== PARSED CONFIGURATION ===============\n" << std::endl;

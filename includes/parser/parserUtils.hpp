@@ -14,10 +14,10 @@ unsigned int toInt(const std::string &str);
 template <typename T>
 bool check_double(const std::vector<T> &vect) {
 	std::vector<T> tmp(vect);
-	std::vector<T>::iterator it = tmp.begin();
-	std::vector<T>::iterator ite = tmp.end();
+	typename std::vector<T>::iterator it = tmp.begin();
+	typename std::vector<T>::iterator ite = tmp.end();
 	std::sort(it, ite);
-	std::vector<T>::iterator comp = std::adjacent_find(it, ite);
+	typename std::vector<T>::iterator comp = std::adjacent_find(it, ite);
 	if (comp != ite) {
 		return (false);
 	}
