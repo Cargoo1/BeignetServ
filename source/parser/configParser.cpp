@@ -8,7 +8,7 @@
 #include <climits>
 #include <iostream>
 
-
+#define DEFAULT_CLIENT_MAX_BODY_SIZE "1m"
 
 #define PORT_MIN 1
 #define PORT_MAX 65535
@@ -19,7 +19,7 @@
 
 /*============= UTILS SERVER =============*/
 
-namespace { DIR			findDir(const std::string &directive) {
+namespace { DIR			find_Dir(const std::string &directive) {
 	if (directive == "listen") return (LISTEN);
 	if (directive == "server_name") return (SERVER_NAME);
 	if (directive == "error_page") return (ERROR_PAGE);
@@ -40,8 +40,8 @@ namespace { L_CONF		find_LocDir(const std::string &local_confDir) {
 	else return (L_NONE);
 } } 
 
-namespace { bool		parseDigit_code(const std::string &listenPort, int min, int max) {
-	if (!string_verifFunc(listenPort, isdigit))
+namespace { bool		parse_digitCode(const std::string &listenPort, int min, int max) {
+	if (!string_verifFunc(listenPort, isdigit) || listenPort.empty())
 		return (false);
 	int verif;
 	std::stringstream ss(listenPort);
@@ -51,29 +51,43 @@ namespace { bool		parseDigit_code(const std::string &listenPort, int min, int ma
 	return (true);
 } }
 
-namespace { bool		isValidPath(const std::string &token, bool absolute) {
+namespace { bool		parse_methods(const std::vector<std::string> &methods, const std::string &path) {
+	if (methods.empty()) {
+		std::cerr << "Error: location " << path << " has no methods" << std::endl;
+		return (false);
+	}
+	if (!isValid_method(methods)) {
+		std::cerr << "Error: location " << path << " has unknown methods" << std::endl;
+		return (false);
+	}
+	return (true);
+} }
+
+namespace { bool		isValid_path(const std::string &token, bool absolute) {
 	if (absolute ? (token.at(0) != '/') : (token.at(0) == '/'))
 		return (false);
+	if (absolute && token.size() == 1) return (true);
 	if (!string_verifFunc(token, isspecial)) return (false);
 	if (token.at(token.size()-1) == '/') return (false);
 	return (true);
 } }
 
-namespace { bool		isValidUrl(const std::string &token) {
+namespace { bool		isValid_url(const std::string &token) {
 	if (token.at(0) == '/')
 		return (isValidPath(token, true));
 	return(isValidPath(token, false));
 } }
 
-namespace { bool		isValid_clientBodySisze(const std::string &token) {
-	std::size_t i = 0;
-	while (isdigit(token.at(i)))
-		i++;
-	char unite = tolower(token.at(i));
-	if (unite == 'k' || unite == 'm' || unite == 'g')
-		i++;
-	return (i == token.length());
-} }
+namespace { bool		isValid_clientBodySize(const std::string &token) {
+		std::size_t i = 0;
+		while (isdigit(token.at(i)))
+			i++;
+		char unite = tolower(token.at(i));
+		if (unite == 'k' || unite == 'm' || unite == 'g')
+			i++;
+		return (i == token.length());
+	}
+}
 
 namespace { bool		isValid_extCgi(const std::string &token) {
 	std::size_t i = 1;
@@ -81,34 +95,7 @@ namespace { bool		isValid_extCgi(const std::string &token) {
 		return (false);
 	while (i < token.length() && islower(token.at(i)))
 		i++;
-	return (i == token.length());
-} }
-
-namespace { std::size_t	convert_clientBodyS(const std::string &conv) {
-	std::size_t ret = toInt(conv);
-	std::size_t max_size = (size_t)-1;
-
-	switch (conv.at(conv.size()-1))
-	{
-		case 'k':
-			if (ret * 1024 > max_size)
-				throw std::out_of_range("Error: risk overflow client_max_body_size");
-			ret = ret * 1024;
-			break;
-		case 'm':
-			if (ret * 1024 * 1024 > max_size)
-				throw std::out_of_range("Error: risk overflow client_max_body_size");
-			ret = ret * 1024 * 1024;
-			break;
-		case 'g':
-			if (ret * 1024 * 1024 * 1024 > max_size)
-				throw std::out_of_range("Error: risk overflow client_max_body_size");
-			ret = ret * 1024 * 1024 * 1024;;
-			break;
-		default:
-			break;
-	}
-	return (ret);
+	return (i == token.length() || i == 1);
 } }
 
 namespace { bool		isValid_method(const std::vector<std::string> &methods) {
@@ -119,13 +106,41 @@ namespace { bool		isValid_method(const std::vector<std::string> &methods) {
 		else if (*it == "DELETE") it++;
 		else if (*it == "PUT") it++;
 		else if (*it == "HEAD") it++;
-		else if (*it == "OPIONS") it++;
+		else if (*it == "OPION") it++;
 		else if (*it == "PATCH") it++;
 		else
 			return false;
 	}
 	return (true);
 } }
+
+namespace { std::size_t	convert_clientBodySize(const std::string &conv) {
+		std::size_t ret = toInt(conv);
+		std::size_t max_size = (size_t)-1;
+
+		switch (conv.at(conv.size()-1))
+		{
+			case 'k':
+				if (ret * 1024 > max_size)
+					throw std::out_of_range("Error: risk overflow client_max_body_size");
+				ret = ret * 1024;
+				break;
+			case 'm':
+				if (ret * 1024 * 1024 > max_size)
+					throw std::out_of_range("Error: risk overflow client_max_body_size");
+				ret = ret * 1024 * 1024;
+				break;
+			case 'g':
+				if (ret * 1024 * 1024 * 1024 > max_size)
+					throw std::out_of_range("Error: risk overflow client_max_body_size");
+				ret = ret * 1024 * 1024 * 1024;;
+				break;
+			default:
+				break;
+		}
+		return (ret);
+	}
+}
 
 /*============= METHODE SERVER =============*/
 /*============= cnstr/dstr =============*/
@@ -237,7 +252,7 @@ void configParser::_parseServer(serverConfig &servTo_pars) {
 }
 
 void configParser::_parseLocation(locationConfig &locTo_add) {
-	if (_peek().getValue() != "/" && !isValidPath(_peek().getValue(), true))
+	if (!isValid_path(_peek().getValue(), true))
 		throw configException("Error: location path syntax:", _peek().getLine(), _peek().getValue());
 	locTo_add._path = _consume().getValue();
 	_expect("{");
@@ -264,14 +279,14 @@ void configParser::_parseLocationDir(locationConfig &locTo_pars) {
 			break;
 		}
 		case ROOT: {
-			if (!isValidPath(_peek().getValue(), true))
+			if (!isValid_path(_peek().getValue(), true))
 				throw configException("Error: root path syntax:", _peek().getLine(), _peek().getValue());
 			locTo_pars._root = _consume().getValue();
 			_expect(";");
 			break;
 		}
 		case L_INDEX: {
-			if (!isValidPath(_peek().getValue(), false))
+			if (!isValid_path(_peek().getValue(), false))
 				throw configException("Error: index syntax:", _peek().getLine(), _peek().getValue());
 			locTo_pars._index = _consume().getValue();
 			_expect(";");
@@ -285,7 +300,7 @@ void configParser::_parseLocationDir(locationConfig &locTo_pars) {
 			break;
 		}
 		case UPLD_S: {
-			if (!isValidPath(_peek().getValue(), true))
+			if (!isValid_path(_peek().getValue(), true))
 				throw configException("Error: upload_store syntax:", _peek().getLine(), _peek().getValue());
 			locTo_pars._uploadStore = _consume().getValue();
 			_expect(";");
@@ -295,7 +310,7 @@ void configParser::_parseLocationDir(locationConfig &locTo_pars) {
 			if (!isValid_extCgi(_peek().getValue()))
 				throw configException("Error: cgi extention syntax:", _peek().getLine(), _peek().getValue());
 			std::string ext = _consume().getValue();
-			if (!isValidPath(_peek().getValue(), true))
+			if (!isValid_path(_peek().getValue(), true))
 				throw configException("Error: cgi path syntax:", _peek().getLine(), _peek().getValue());
 			locTo_pars._cgi[ext] = _consume().getValue();
 			_expect(";");
@@ -306,7 +321,7 @@ void configParser::_parseLocationDir(locationConfig &locTo_pars) {
 				throw configException("Error: redir code must be numerics characters:", _peek().getLine(), _peek().getValue());
 			int code = toInt(_consume().getValue());
 			if (_peek().getValue() != ";") {
-				if (!isValidUrl(_peek().getValue()))
+				if (!isValid_url(_peek().getValue()))
 					throw configException("Error: redir url syntax:", _peek().getLine(), _peek().getValue());
 				locTo_pars._redirectUrl = _consume().getValue();
 				if (code < RDIR_MIN || code > RDIR_MAX)
@@ -318,9 +333,10 @@ void configParser::_parseLocationDir(locationConfig &locTo_pars) {
 			break;
 		}
 		case L_CLIENT_MAX_BODY: {
-			if(!isValid_clientBodySisze(_peek().getValue()))
+			if(!isValid_clientBodySize(_peek().getValue()))
 				throw configException("Error: client_max_body_size syntax:", _peek().getLine(), _peek().getValue());
-			locTo_pars._clientMaxBodySize = convert_clientBodyS(_consume().getValue());
+			locTo_pars._clientMaxBodySize = convert_clientBodySize(_consume().getValue());
+			locTo_pars._hasClientMaxBodySize = true;
 			_expect(";");
 			break;
 		}
@@ -331,10 +347,10 @@ void configParser::_parseLocationDir(locationConfig &locTo_pars) {
 
 void configParser::_parseDirective(serverConfig &toParse) {
 	Token tmp = _peek();
-	switch (findDir(_consume().getValue()))
+	switch (find_Dir(_consume().getValue()))
 	{
 		case LISTEN: {
-			if (!parseDigit_code(_peek().getValue(), PORT_MIN, PORT_MAX))
+			if (!parse_digitCode(_peek().getValue(), PORT_MIN, PORT_MAX))
 				throw configException("Error: listen port syntax error:", _peek().getLine(), _peek().getValue());
 			toParse._port = _consume().getValue();
 			_expect(";");
@@ -349,8 +365,8 @@ void configParser::_parseDirective(serverConfig &toParse) {
 		}
 		case ERROR_PAGE: {
 			std::vector<unsigned int> codes;
-			while (!isValidPath(_peek().getValue(), true)) {
-				if (parseDigit_code(_peek().getValue(), ERRO_MIN, ERRO_MAX)) {
+			while (!isValid_path(_peek().getValue(), true)) {
+				if (parse_digitCode(_peek().getValue(), ERRO_MIN, ERRO_MAX)) {
 					codes.push_back(toInt(_consume().getValue()));
 				}
 				else
@@ -365,16 +381,16 @@ void configParser::_parseDirective(serverConfig &toParse) {
 			break;
 		}
 		case INDEX: {
-			if (!isValidPath(_peek().getValue(), false))
+			if (!isValid_path(_peek().getValue(), false))
 				throw configException("Error: index syntax:", _peek().getLine(), _peek().getValue());
 			toParse._index = _consume().getValue();
 			_expect(";");
 			break;
 		}
 		case CLIENT_MAX_BODY: {
-			if(!isValid_clientBodySisze(_peek().getValue()))
+			if(!isValid_clientBodySize(_peek().getValue()))
 				throw configException("Error: client_max_body_size syntax:", _peek().getLine(), _peek().getValue());
-			toParse._clientMaxBodySize = convert_clientBodyS(_consume().getValue());
+			toParse._clientMaxBodySize = convert_clientBodySize(_consume().getValue());
 			_expect(";");
 			break;
 		}
@@ -401,20 +417,31 @@ void configParser::_validateAll() {
 			std::cerr << "Error: server " << server._serverName << " is listening an already assigned port" << std::endl;
 			throw std::runtime_error("Aborting");
 		}
+		if (server._clientMaxBodySize == 0)
+			this->_servers[i]._clientMaxBodySize = convert_clientBodySize(DEFAULT_CLIENT_MAX_BODY_SIZE);
+		if (server._locations.empty()) {
+			std::cerr << "Error: server " << server._serverName << " have no locations" << std::endl;
+			throw std::runtime_error("Aborting");
+		}
 		for (std::size_t j = 0; j < server._locations.size(); j++) {
 			const locationConfig &location = server._locations[j];
+			if (location._path.empty() && location._uploadStore.empty()) {
+				std::cerr << "Error: server " << server._serverName << " have a location with no path or upload store" << std::endl;
+				throw std::runtime_error("Aborting");
+			}
 			path_dup.push_back(location._path);
 			if (!check_double(path_dup)) {
 				std::cerr << "Error: server " << server._serverName << " have locations with duplicate path:" << location._path << std::endl;
 				throw std::runtime_error("Aborting");
 			}
-			if (!isValid_method(location._methods)) {
-				std::cerr << "Error: server " << server._serverName << ": " << location._path << ": have unknown methodes" << std::endl;
+			if (!parse_methods(location._methods, location._path))
 				throw std::runtime_error("Aborting");
-			}
+			if (!location._hasClientMaxBodySize)
+				this->_servers[i]._locations[j]._clientMaxBodySize = this->_servers[i]._clientMaxBodySize;
 		}
 		path_dup.clear();
 	}
+	DEBUG_printConf();
 }
 
 /*============= tokens =============*/
