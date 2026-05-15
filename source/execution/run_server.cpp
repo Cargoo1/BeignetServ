@@ -6,12 +6,13 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 19:10:40 by acamargo          #+#    #+#             */
-/*   Updated: 2026/05/14 20:44:34 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/05/15 21:02:18 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "configClass/serverConfig.hpp"
 #include "configParser.hpp"
+#include <cstddef>
 # include <run_server.hpp>
 #include <cerrno>
 #include <cstring>
@@ -22,6 +23,7 @@
 #include <Server.hpp>
 #include <sys/socket.h>
 #include <vector>
+#include <sys/epoll.h>
 #define BUFF_SIZE 256
 
 int		getListenerSocket(const std::string &host, const std::string &port)
@@ -142,42 +144,74 @@ void	process_connection(Server&	server)
 	}
 }
 
+#define MAX_EVENTS 10
+int		set_epoll(Server const& server)
+{
+	int		epollfd = -1;
+
+	epollfd = epoll_create1(0);
+	if (epollfd < 0)
+	{
+		std::cerr << "Epoll: " << strerror(errno) << '\n';
+		return -1;
+	}
+	for (size_t i = 0; i < sfds.size(); i++)
+	{
+		sfds_inf[i].data.fd = sfds.at(i);
+		sfds_inf[i].events = EPOLLIN;
+		if (epoll_ctl(epollfd, EPOLL_CTL_ADD, sfds.at(i), &sfds_inf[i]) < 0)
+		{
+			std::cerr << "Epoll: " << strerror(errno) << '\n';
+			return -1;
+		}
+	}
+	return epollfd;
+
+}
+
 int	run(std::vector<serverConfig> const& servers_conf)
 {
-	std::vector<Server>			servers;
+	Server	server(servers_conf);
 	std::vector<serverConfig>::const_iterator	it_svrconf;
 
 	for (it_svrconf = servers_conf.begin(); it_svrconf != servers_conf.end(); it_svrconf++)
 	{
 		try
 		{
-			servers.push_back(Server(*it_svrconf,
-									getListenerSocket(it_svrconf->_serverName, it_svrconf->_port),
-									POLLIN));
+			server.getSfds().push_back(getListenerSocket(it_svrconf->_serverName, it_svrconf->_port));
 		}
 		catch (std::exception &e)
 		{
-			e.what();
+			std::cerr << e.what() << '\n';
 			return -1;
 		}
+	}
+	for (std::vector<int>::iterator it = server.getSfds().begin(); it != server.getSfds().end(); it++)
+	{
+		server.addE_sfds_inf(*it, EPOLLIN);
+	}
+	server.setEpollfd(set_epoll())
+	if (epollfd < 0)
+	{
+		delete sfds_inf;
 	}
 	std::vector<Server>::iterator	it_servers;
 	std::cout << "Waiting for connections...\n";
 	for(;;)
 	{
-		for (it_servers = servers.begin(); it_servers != servers.end(); it_servers++)
+		for (it_servers = sfds.begin(); it_servers != sfds.end(); it_servers++)
 		{
 
 			int	pollcount = poll(it_servers->getPfd().data(), it_servers->getPfd().size(), 60000);
 			if (pollcount == TIMEOUT)
 			{
-				close_servers(servers);
+				close_servers(sfds);
 				std::cerr << "Timeout.\nEnding the comunication\n";
 				return TIMEOUT;
 			}
 			else if (pollcount < 0)
 			{
-				close_servers(servers);
+				close_servers(sfds);
 				std::cerr << "Poll: " << strerror(errno) << '\n';
 				return errno;
 			}

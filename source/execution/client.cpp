@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/21 15:12:53 by acamargo          #+#    #+#             */
-/*   Updated: 2026/05/13 19:30:34 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/05/15 19:51:02 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ int	main(int argc, char **argv)
 	addrinfo.ai_family = AF_INET;
 	addrinfo.ai_socktype = SOCK_STREAM;
 	addrinfo.ai_protocol = 0;
-	int error = getaddrinfo("localhost", "8080", &addrinfo, &result);
+	int error = getaddrinfo("localhost", "8180", &addrinfo, &result);
 	if (error != 0)
 	{
 		perror("?\n");
@@ -50,7 +50,7 @@ int	main(int argc, char **argv)
 		exit(1);
 	}
 	char buff[100000];
-	std::string msg = "GET      http://localhost:8080/ HTTP/1.1\r\nHost:localhost:aa\r\nContent-type:\r\n\r\n";
+	std::string msg = "GET      /asdasdasda HTTP/1.1\r\nHost:localhost:8180\r\nContent-type:\r\n\r\n";
 	send(sfd, msg.c_str(), msg.size(), 0);
 	recv(sfd, buff, 100000, 0);
 	std::cout << buff;

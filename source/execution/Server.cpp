@@ -6,29 +6,27 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/12 15:15:33 by acamargo          #+#    #+#             */
-/*   Updated: 2026/05/14 20:39:41 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/05/15 21:00:06 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <Client.hpp>
 #include "configClass/serverConfig.hpp"
 #include <Server.hpp>
+#include <sys/epoll.h>
 #include <sys/poll.h>
 #include <vector>
 
 Server::Server(Server const& other) : _server_conf(other._server_conf)
 {
-	this->_clients = other._clients;
-	this->_connections = other._connections;
-	this->_sfd = other._sfd;
-	return;
+	this->_e_sfds_inf = other._e_sfds_inf;
+	this->_sfds = other._sfds;
+	this->_epollfd = other._epollfd;
 }
 
-Server::Server(serverConfig const& server_conf, int sfd, short events) : _server_conf(server_conf)
+Server::Server(std::vector<serverConfig> const& servers_conf) : _server_conf(servers_conf)
 {
-	this->_sfd = sfd;
-	struct pollfd	pfd_tmp = {sfd, events, 0};
-	this->_connections.push_back(pfd_tmp);
+	this->_epollfd = -1;
 	return ;
 }
 
@@ -46,33 +44,27 @@ Server&	Server::operator=(Server const& other)
 	return *this;
 }
 
-std::vector<struct pollfd>&	Server::getPfd(void)
+void	Server::setEpollfd(int fd)
 {
-	return this->_connections;
+	this->_epollfd = fd;
 }
 
-int	Server::getSfd(void)
+std::vector<int>&	Server::getSfds(void)
 {
-	return this->_sfd;
+	return this->_sfds;
 }
 
-std::vector<Client>&	Server::getClients(void)
+int	Server::getEpollfd(void)
 {
-	return this->_clients;
+	return this->_epollfd;
 }
 
-void	Server::addPfd(int pfd, short events)
+void	Server::addE_sfds_inf(int fd, uint32_t events)
 {
-	struct pollfd	pfd_tmp = {pfd, events, 0};
-	this->_connections.push_back(pfd_tmp);
+	struct epoll_event	ev_temp;
+
+	ev_temp.events = events;
+	ev_temp.data.fd = fd;
+	this->_e_sfds_inf.push_back(ev_temp);
 	return ;
-}
-
-bool	Server::addClient(int fd)
-{
-	if (fd <= 0)
-		return false;
-	this->_clients.push_back(Client(fd));
-	this->addPfd(fd, POLLIN | POLLOUT);
-	return true;
 }
