@@ -6,16 +6,17 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/14 19:50:59 by acamargo          #+#    #+#             */
-/*   Updated: 2026/05/14 20:36:39 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/05/19 19:18:43 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <Client.hpp>
 #include <Request.hpp>
 
-Client::Client(int fd)
+Client::Client(int fd, uint32_t events)
 {
-	this->fd = fd;
+	this->einf.data.fd = fd;
+	this->einf.events = events;
 	return;
 }
 
@@ -26,7 +27,7 @@ Client::~Client()
 
 Client::Client(Client const& other)
 {
-	this->fd = other.fd;
+	this->einf = other.einf;
 	this->_r = other._r;
 	this->message = other.message;
 	this->response = other.response;
@@ -60,4 +61,14 @@ void			Client::setMessage(std::string& msg)
 void			Client::setResponse(std::string& response)
 {
 	this->response = response;
+}
+
+int		Client::getFd(void)
+{
+	return this->einf.data.fd;
+}
+
+Request&		Client::getRequest(void)
+{
+	return this->_r;
 }

@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/12 15:08:39 by acamargo          #+#    #+#             */
-/*   Updated: 2026/05/15 20:59:42 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/05/19 18:06:27 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include <sys/poll.h>
 #include <vector>
 #include <Client.hpp>
+#define MAX_EVENTS 10
 
 class	Server
 {
@@ -30,10 +31,15 @@ public:
 	std::vector<int>&			getSfds(void);
 	int							getEpollfd(void);
 	void						setEpollfd(int fd);
-	void						addE_sfds_inf(int pfd, uint32_t events);
+	struct epoll_event&	getEinf(void);
+	void						setEinf(int fd, uint32_t events);
+	struct epoll_event*			getEventQueue(void);
+	std::vector<Client>&	getClients(void);
+	void						addClient(int fd, uint32_t events);
 private:
 	std::vector<int>			_sfds;
 	int							_epollfd;
 	std::vector<serverConfig> const&	_server_conf;
-	std::vector<struct epoll_event>	_e_sfds_inf;
+	std::vector<Client>			_clients;
+	struct epoll_event	_einf, _eventQueue[MAX_EVENTS];
 };

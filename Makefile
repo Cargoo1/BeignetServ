@@ -1,5 +1,5 @@
 CXX = c++
-CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -I$(HEADER_DIR)/$(EXEC_DIR) -I$(HEADER_DIR)/$(EXEP_DIR) -I$(HEADER_DIR)/$(PAR_DIR) -I$(HEADER_DIR)/$(CONF_DIR) -g3 -fsanitize=address
+CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -I$(HEADER_DIR)/$(EXEC_DIR) -I$(HEADER_DIR)/$(EXEP_DIR) -I$(HEADER_DIR)/$(PAR_DIR) -I$(HEADER_DIR)/$(CONF_DIR) -g3
 
 NAME = WebServ
 
@@ -22,6 +22,7 @@ HEADER = $(HEADER_DIR)/$(EXEP_DIR)/configException.hpp	\
 		 $(HEADER_DIR)/$(EXEC_DIR)/Request.hpp			\
 		 $(HEADER_DIR)/$(EXEC_DIR)/run_server.hpp		\
 		 $(HEADER_DIR)/$(EXEC_DIR)/Client.hpp			\
+		 $(HEADER_DIR)/$(EXEC_DIR)/Header.hpp			\
 
 SRCS_DIR = source
 CFC_DIR = configClass
@@ -39,6 +40,7 @@ SRCS = $(SRCS_DIR)/$(EXEP_DIR)/configException.cpp	\
 	   $(SRCS_DIR)/$(EXEC_DIR)/Request.cpp			\
 	   $(SRCS_DIR)/$(EXEC_DIR)/run_server.cpp		\
 	   $(SRCS_DIR)/$(EXEC_DIR)/Client.cpp			\
+	   $(SRCS_DIR)/$(EXEC_DIR)/Header.cpp			\
 	   $(SRCS_DIR)/main.cpp
 
 OBJ_DIR = obj

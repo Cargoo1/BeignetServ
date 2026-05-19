@@ -6,10 +6,12 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/07 19:49:10 by acamargo          #+#    #+#             */
-/*   Updated: 2026/05/14 17:59:01 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/05/19 21:12:19 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "Client.hpp"
+#include "Header.hpp"
 #include <cctype>
 #include <cstddef>
 #include <fstream>
@@ -20,12 +22,7 @@
 #include <utility>
 #include <Request.hpp>
 
-typedef struct s_token
-{
-	std::string	value;
-}	t_token;
-
-typedef bool(Request::*field_function)(std::string &);
+typedef void(Header::*field_function)(std::string &);
 
 void	remove_spaces(std::string& line, size_t pos)
 {
@@ -48,7 +45,7 @@ void	remove_whitespace(std::string& line)
 	}
 }
 
-void	parse_method(std::string &line, Request& r)
+void	parse_method(std::string &line, Header& header)
 {
 	size_t	pos = line.find_first_of(' ', 0);
 	std::string	buff_tmp;
@@ -56,31 +53,20 @@ void	parse_method(std::string &line, Request& r)
 	while (pos != std::string::npos || !line.empty())
 	{
 		buff_tmp = line.substr(0, pos);
-		if (!r.getMethod())
-			r.setMethod(buff_tmp);
-		else if (!r.getTargetResource())
-			r.setTargetResource(buff_tmp);
-		else if (!r.getProtocolV())
-			r.setProtocolV(buff_tmp);
+		if (header.getMethod().empty())
+			header.setMethod(buff_tmp);
+		else if (header.getTargetResource().empty())
+			header.setTargetResource(buff_tmp);
+		else if (header.getProtocolV().empty())
+			header.setProtocolV(buff_tmp);
 		else
 			break;
 		remove_spaces(line, pos);
 		pos = line.find_first_of(' ', 0);
 	}
-	if (!r.getMethod() ||
-		!r.getTargetResource() ||
-		!r.getProtocolV())
-		throw Request::BadRequest();
-}
-
-void	check_method(Request& r)
-{
-	if (r.getMethod()->compare(0, 4, "GET") &&
-		r.getMethod()->compare(0, 5, "POST") &&
-		r.getMethod()->compare(0, 7, "DELETE"))
-		throw Request::BadRequest();
-	if (r.getProtocolV()->compare(0, 8, "HTTP/1.1") &&
-		r.getProtocolV()->compare(0, 9, "HTTP/1.1\r"))
+	if (header.getMethod().empty() ||
+		header.getTargetResource().empty() ||
+		header.getProtocolV().empty())
 		throw Request::BadRequest();
 }
 
@@ -95,35 +81,52 @@ size_t	check_field_line_syntax(std::string const& line)
 	return colon_pos;
 }	
 
-void	parse_line(std::string & line, Request& r, std::map<std::string, field_function> fields)
+void	parse_line(std::string & line, Header& header, std::map<std::string, field_function> fields)
 {
-	if (!r.getMethod())
+	if (header.getMethod().empty())
 	{
-		parse_method(line, r);
-		check_method(r);
+		parse_method(line, header);
 		return;
 	}
+	remove_whitespace(line);
+	if (line.empty())
+		return;
 	std::map<std::string, field_function>::iterator it;
 	it = fields.find(line.substr(0, check_field_line_syntax(line)));
 	if (it == fields.end())
 		return;
 	remove_whitespace(line);
-	(r.*(it->second))(line);
+	(header.*(it->second))(line);
 }
 
-void	parse_request(std::istringstream& request, Request &r)
+#define FIELDS_SIZE 2
+
+void	init_map_fields(std::map<std::string, field_function>& map_fields)
+{
+	std::pair<std::string, field_function>	field;
+	std::string		name_fields[FIELDS_SIZE] = {"Host",
+												"Content-Length"};
+	field_function	fn_fields[FIELDS_SIZE] = {&Header::setHost,
+												&Header::setContent_len};
+
+	for (size_t i = 0; i < FIELDS_SIZE; i++)
+	{
+		field.first = name_fields[i];
+		field.second = fn_fields[i];
+		map_fields.insert(field);
+	}
+}
+
+void	parse_header(std::istringstream& request, Header &header)
 {
 	std::string	line;
-	std::map<std::string, field_function> fields;
-	std::pair<std::string, field_function>	field("Host", &Request::setHost);
-	fields.insert(field);
+	std::map<std::string, field_function> map_fields;
 
-	while (!request.eof())
+	init_map_fields(map_fields);
+	while (std::getline(request, line) && line.compare(0, 2, "\r"))
 	{
-		std::getline(request, line);
-		parse_line(line, r, fields);
+		parse_line(line, header, map_fields);
 	}
-	throw Request::BadRequest();
-	if (r.getHost().find("Host") == r.getHost().end())
+	if (header.getFields().find("Host") == header.getFields().end())
 		throw Request::BadRequest();
 }

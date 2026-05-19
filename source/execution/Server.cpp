@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/12 15:15:33 by acamargo          #+#    #+#             */
-/*   Updated: 2026/05/15 21:00:06 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/05/19 20:38:51 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@
 
 Server::Server(Server const& other) : _server_conf(other._server_conf)
 {
-	this->_e_sfds_inf = other._e_sfds_inf;
+	this->_einf = other._einf;
 	this->_sfds = other._sfds;
 	this->_epollfd = other._epollfd;
 }
@@ -59,12 +59,31 @@ int	Server::getEpollfd(void)
 	return this->_epollfd;
 }
 
-void	Server::addE_sfds_inf(int fd, uint32_t events)
-{
-	struct epoll_event	ev_temp;
 
-	ev_temp.events = events;
-	ev_temp.data.fd = fd;
-	this->_e_sfds_inf.push_back(ev_temp);
-	return ;
+struct epoll_event&	Server::getEinf(void)
+{
+	return this->_einf;
+}
+
+void						Server::setEinf(int fd, uint32_t events)
+{
+	this->_einf.data.fd = fd;
+	this->_einf.events = events;
+}
+
+struct epoll_event*			Server::getEventQueue(void)
+{
+	return this->_eventQueue;
+}
+
+std::vector<Client>&	Server::getClients(void)
+{
+	return this->_clients;
+}
+
+void	Server::addClient(int fd, uint32_t events)
+{
+	this->setEinf(fd, EPOLLIN);
+	epoll_ctl(this->_epollfd, EPOLL_CTL_ADD, fd, &this->_einf);
+	this->_clients.push_back(Client(fd, events));
 }
