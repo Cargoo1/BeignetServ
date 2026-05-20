@@ -21,3 +21,11 @@ locationConfig &locationConfig::operator=(const locationConfig &rhs) {
 	}
 	return (*this);
 }
+
+std::string &locationConfig::getPath() {
+	return (this->_path);
+}
+
+const std::string &locationConfig::getPath() const {
+	return (this->_path);
+}

@@ -16,6 +16,8 @@ class locationConfig {
 
 		locationConfig &operator=(const locationConfig &rhs);
 
+		std::string &getPath();
+		const std::string &getPath() const;
 	private:
 		std::string							_path;
 		std::vector<std::string>			_methods;

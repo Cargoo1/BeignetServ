@@ -12,12 +12,12 @@ class HttpMethod {
 	protected:
 		const ExecutionContext &_context;
 
-		bool verifyPath();
 		bool verifyContentLength();
 		bool verifyBodySize();
 		bool checkAllowedMethods();
 		bool checkResourceExists();
 		bool checkFilePermissions();
+		bool isPathInsideRoot();
 		std::string resolveResourcePath();
 		std::string getContentType(const std::string &filepath);
 		void buildErrorResponse(HttpResponse &res, int code, std::string msg);

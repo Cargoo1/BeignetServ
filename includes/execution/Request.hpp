@@ -29,6 +29,7 @@ public:
 	Request(const Request & other);
 	~Request();
 
+	const Header&				getHeader(void) const;
 	Header&				getHeader(void);
 
 	Request & operator=(const Request& other);

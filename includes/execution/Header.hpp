@@ -17,25 +17,26 @@
 
 class Header
 {
-public:
-	Header();
-	Header(Header const& other);
-	~Header();
+	public:
+		Header();
+		Header(Header const& other);
+		~Header();
 
-	Header&	operator=(Header const& other);
+		Header&	operator=(Header const& other);
 
-	std::string&		getMethod(void);
-	std::string&		getTargetResource(void);
-	std::string&		getProtocolV(void);
-	std::map<std::string, std::string>&	getFields(void);
-	bool	setMethod(std::string& method);
-	bool	setTargetResource(std::string& uri);
-	bool	setProtocolV(std::string& protocol);
-	void	setHost(std::string& host);
-	void	setContent_len(std::string& content_len);
-private:
-	std::map<std::string, std::string>	_map_fields;
-	std::string	_method;
-	std::string	_target_resource;
-	std::string	_protocol_v;
+		std::string&		getMethod(void);
+		std::string&		getTargetResource(void);
+		const std::string&		getTargetResource(void) const;
+		std::string&		getProtocolV(void);
+		std::map<std::string, std::string>&	getFields(void);
+		bool	setMethod(std::string& method);
+		bool	setTargetResource(std::string& uri);
+		bool	setProtocolV(std::string& protocol);
+		void	setHost(std::string& host);
+		void	setContent_len(std::string& content_len);
+	private:
+		std::map<std::string, std::string>	_map_fields;
+		std::string							_method;
+		std::string							_target_resource; //path
+		std::string							_protocol_v;
 };

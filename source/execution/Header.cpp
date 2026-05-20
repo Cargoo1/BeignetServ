@@ -52,6 +52,11 @@ std::string&	Header::getTargetResource(void)
 	return this->_target_resource;
 }
 
+const std::string&	Header::getTargetResource(void) const
+{
+	return this->_target_resource;
+}
+
 std::string&	Header::getProtocolV(void)
 {
 	return this->_protocol_v;
