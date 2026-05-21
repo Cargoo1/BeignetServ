@@ -6,13 +6,14 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/12 15:08:39 by acamargo          #+#    #+#             */
-/*   Updated: 2026/05/19 18:06:27 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/05/21 22:33:28 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 #include "Request.hpp"
-#include "configClass/serverConfig.hpp"
+#include <serverConfig.hpp>
+#include <map>
 #include <sys/epoll.h>
 #include <sys/poll.h>
 #include <vector>
@@ -32,6 +33,7 @@ public:
 	int							getEpollfd(void);
 	void						setEpollfd(int fd);
 	struct epoll_event&	getEinf(void);
+	std::vector<serverConfig> const&	getServerConf(void) const;
 	void						setEinf(int fd, uint32_t events);
 	struct epoll_event*			getEventQueue(void);
 	std::vector<Client>&	getClients(void);

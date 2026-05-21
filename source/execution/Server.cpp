@@ -6,12 +6,12 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/12 15:15:33 by acamargo          #+#    #+#             */
-/*   Updated: 2026/05/19 20:38:51 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/05/21 22:34:09 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <Client.hpp>
-#include "configClass/serverConfig.hpp"
+#include <serverConfig.hpp>
 #include <Server.hpp>
 #include <sys/epoll.h>
 #include <sys/poll.h>
@@ -63,6 +63,10 @@ int	Server::getEpollfd(void)
 struct epoll_event&	Server::getEinf(void)
 {
 	return this->_einf;
+}
+std::vector<serverConfig> const&	Server::getServerConf(void) const
+{
+	return this->_server_conf;
 }
 
 void						Server::setEinf(int fd, uint32_t events)

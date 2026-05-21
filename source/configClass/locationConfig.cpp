@@ -1,4 +1,4 @@
-#include <configClass/locationConfig.hpp>
+#include <locationConfig.hpp>
 
 locationConfig::locationConfig() : _autoindex(false), _hasRedirect(false), _hasClientMaxBodySize(false) {}
 locationConfig::locationConfig(const locationConfig &rhs) : _path(rhs._path), _methods(rhs._methods), _root(rhs._root), _index(rhs._index), _autoindex(rhs._autoindex), _uploadStore(rhs._uploadStore), _cgi(rhs._cgi), _hasRedirect(rhs._hasRedirect), _redirectCode(rhs._redirectCode), _redirectUrl(rhs._redirectUrl), _clientMaxBodySize(rhs._clientMaxBodySize), _hasClientMaxBodySize(rhs._hasClientMaxBodySize) {}

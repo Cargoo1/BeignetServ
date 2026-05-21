@@ -1,39 +1,30 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   run_server.hpp                                     :+:      :+:    :+:   */
+/*   send_response.cpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/04/29 19:14:10 by acamargo          #+#    #+#             */
-/*   Updated: 2026/05/21 22:30:02 by acamargo         ###   ########.fr       */
+/*   Created: 2026/05/21 21:54:03 by acamargo          #+#    #+#             */
+/*   Updated: 2026/05/21 22:36:52 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#pragma once
-
-#include <netdb.h>
-
-#include <string>
-
-#include <sys/poll.h>
-
-#include <sys/socket.h>
-
-#include <netinet/in.h>
-
-#include <sys/types.h>
-
-#include <unistd.h>
-
-#include <poll.h>
-
+#include <HttpResponse.hpp>
 #include <vector>
-
-#include <iostream>
-
 #include <serverConfig.hpp>
 
-#define TIMEOUT 0
+void	client_error(HttpResponse& response)
+{
 
-int	run(std::vector<serverConfig> const&	servers_conf);
+}
+
+int	send_response(int status_code, serverConfig const& serverConf)
+{
+	HttpResponse	response(status_code);
+	response.addField("Server", "Beignetserv/0.1");
+	if (status_code >= 400)
+	{
+
+	}
+}

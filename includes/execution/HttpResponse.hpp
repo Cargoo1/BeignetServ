@@ -1,5 +1,6 @@
 #pragma once
 
+#include <sstream>
 #include <string>
 #include <map>
 
@@ -12,7 +13,7 @@ class HttpResponse {
 		HttpResponse &operator=(const HttpResponse &rhs);
 
 		void	setStatusCode(int code);
-		void	addHeaders(const std::string &key, const std::string &value);
+		void	addField(const std::string &key, const std::string &value);
 		void	setBody(const std::string &body);
 
 		void	addContentLength();
@@ -20,23 +21,22 @@ class HttpResponse {
 		bool	setBodyFromFile(const std::string &filepath);
 
 		int											getStatusCode();
-		const std::map<std::string, std::string>	&getHeaders();
+		const std::map<std::string, std::string>	&getHeader();
 		const std::string							&getBody();
-		const std::string							*getHeader(const std::string &key);
+		bool										getField(const std::string &key, std::string& value);
 
 		std::string	toHttpString();
 
 	private:
 		int										_statusCode;
-		std::map<std:: string, std:: string>	_headers;
+		std::map<std:: string, std:: string>	_header;
 		std::string								_body;
 };
 
 /* ==== utils ==== */
 template <typename T>
 std::string toStr(const T &num) {
-	std::ostringstream oss;
+	std::stringstream	oss;
 	oss << num;
-	std::string	ret = oss.str();
-	return (ret);
+	return (oss.str());
 }

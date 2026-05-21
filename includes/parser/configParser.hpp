@@ -4,10 +4,10 @@
 #include <string>
 #include <vector>
 
-#include <exception/configException.hpp>
-#include <configClass/locationConfig.hpp>
-#include <configClass/serverConfig.hpp>
-#include <parser/Token.hpp>
+#include <configParser.hpp>
+#include <locationConfig.hpp>
+#include <serverConfig.hpp>
+#include <Token.hpp>
 
 
 class configParser {

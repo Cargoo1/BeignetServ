@@ -6,12 +6,11 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 19:10:40 by acamargo          #+#    #+#             */
-/*   Updated: 2026/05/19 21:07:05 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/05/21 22:34:18 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "configClass/serverConfig.hpp"
-#include "configParser.hpp"
+#include <configParser.hpp>
 #include <cstddef>
 # include <run_server.hpp>
 #include <cerrno>
@@ -138,7 +137,7 @@ void	process_connection(Server&	server, int epollcount)
 				server.getClients().erase(server.getClients().begin() + client_index);
 				continue;
 			}
-			handle_request(server.getClients().at(client_index));
+			handle_request(server.getClients().at(client_index), server.getServerConf());
 		}
 	}
 }
@@ -168,7 +167,6 @@ int		set_epoll(Server& server)
 		}
 	}
 	return 0;
-
 }
 
 int	run(std::vector<serverConfig> const& servers_conf)

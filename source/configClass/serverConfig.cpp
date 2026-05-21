@@ -1,4 +1,4 @@
-#include <configClass/serverConfig.hpp>
+#include <serverConfig.hpp>
 
 serverConfig::serverConfig() {}
 serverConfig::serverConfig(const serverConfig &rhs) : _port(rhs._port), _serverName(rhs._serverName), _index(rhs._index), _errorPages(rhs._errorPages), _clientMaxBodySize(rhs._clientMaxBodySize), _locations(rhs._locations) {}
