@@ -8,17 +8,14 @@ class HttpMethod {
 		HttpMethod(const ExecutionContext &context);
 		virtual ~HttpMethod(void);
 
-		virtual void executeMethod() = 0;
+		virtual HttpResponse &executeMethod() = 0;
 	protected:
 		const ExecutionContext &_context;
-
+		std::string NormalizePath(std::string toNomalize);
 		bool verifyContentLength();
 		bool verifyBodySize();
-		bool checkAllowedMethods();
 		bool checkResourceExists();
-		bool checkFilePermissions();
-		bool isPathInsideRoot();
-		std::string resolveResourcePath();
+		struct stat getFileData(const std::string &filePath);
 		std::string getContentType(const std::string &filepath);
-		void buildErrorResponse(HttpResponse &res, int code, std::string msg);
+		HttpResponse buildErrorResponse(HttpResponse &res, int code, std::string msg);
 };

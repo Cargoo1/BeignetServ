@@ -29,3 +29,11 @@ std::string &locationConfig::getPath() {
 const std::string &locationConfig::getPath() const {
 	return (this->_path);
 }
+
+std::string &locationConfig::getRoot() {
+	return (this->_root);
+}
+
+const std::string &locationConfig::getRoot() const {
+	return (this->_root);
+}

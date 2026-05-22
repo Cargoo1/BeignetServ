@@ -4,6 +4,8 @@
 #include <string>
 #include <map>
 
+enum MIME { JPG, PNG, HTML, TXT}
+
 class HttpResponse {
 	public:
 		HttpResponse();

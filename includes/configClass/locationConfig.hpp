@@ -18,6 +18,10 @@ class locationConfig {
 
 		std::string &getPath();
 		const std::string &getPath() const;
+
+		std::string &getRoot();
+		const std::string &getRoot() const;
+
 	private:
 		std::string							_path;
 		std::vector<std::string>			_methods;
