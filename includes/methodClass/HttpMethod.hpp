@@ -12,9 +12,6 @@ class HttpMethod {
 	protected:
 		const ExecutionContext &_context;
 		std::string NormalizePath(std::string toNomalize);
-		bool verifyContentLength();
-		bool verifyBodySize();
-		bool checkResourceExists();
 		struct stat getFileData(const std::string &filePath);
 		std::string getContentType(const std::string &filepath);
 		HttpResponse buildErrorResponse(HttpResponse &res, int code, std::string msg);

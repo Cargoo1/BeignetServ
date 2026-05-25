@@ -28,11 +28,12 @@ public:
 	Request(void);
 	Request(const Request & other);
 	~Request();
-
-	const Header&				getHeader(void) const;
-	Header&				getHeader(void);
-
+	
 	Request & operator=(const Request& other);
+
+	const Header&		getHeader(void) const;
+	Header&				getHeader(void);
+	const std::string	getBody(void);
 private:
 	int			status_code;
 	Header		_header;

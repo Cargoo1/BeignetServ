@@ -51,6 +51,10 @@ const Header&		Request::getHeader(void) const
 	return this->_header;
 }
 
+const std::string			Request::getBody(void) {
+	return (this->_body);
+}
+
 const char*	Request::BadRequest::what() const throw()
 {
 	return "Bad request.\n";

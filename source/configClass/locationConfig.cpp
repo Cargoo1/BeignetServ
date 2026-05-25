@@ -37,3 +37,23 @@ std::string &locationConfig::getRoot() {
 const std::string &locationConfig::getRoot() const {
 	return (this->_root);
 }
+
+std::string &locationConfig::getUploadStore() {
+	return (this->_uploadStore);
+}
+
+const std::string &locationConfig::getUploadStore() const {
+	return (this->_uploadStore);
+}
+
+
+bool &locationConfig::hasCMBS() const {
+	return (this->_hasClientMaxBodySize);
+}
+
+std::size_t &locationConfig::getCMBS() {
+	return (this->_clientMaxBodySize);
+}
+const std::size_t &locationConfig::getCMBS() const {
+	return (this->_clientMaxBodySize);
+}

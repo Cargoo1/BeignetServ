@@ -22,6 +22,14 @@ class locationConfig {
 		std::string &getRoot();
 		const std::string &getRoot() const;
 
+		std::string &getUploadStore();
+		const std::string &getUploadStore() const;
+
+		bool &hasCMBS() const;
+
+		std::size_t &getCMBS();
+		const std::size_t &getCMBS() const;
+
 	private:
 		std::string							_path;
 		std::vector<std::string>			_methods;

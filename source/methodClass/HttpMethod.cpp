@@ -66,18 +66,6 @@ std::string HttpMethod::NormalizePath(std::string toNomalize) {
 	return (tmp);
 }
 
-bool HttpMethod::verifyContentLength() {
-
-}
-
-bool HttpMethod::verifyBodySize() {
-
-}
-
-bool HttpMethod::checkResourceExists() {
-
-}
-
 struct stat HttpMethod::getFileData(const std::string &filePath) {
 	struct stat buffer;
 	stat(filePath.c_str(), &buffer);

@@ -121,7 +121,7 @@ namespace { std::size_t	convert_clientBodySize(const std::string &conv) {
 			case 'g':
 				if (ret * 1024 * 1024 * 1024 > max_size)
 					throw std::out_of_range("Error: risk overflow client_max_body_size");
-				ret = ret * 1024 * 1024 * 1024;;
+				ret = ret * 1024 * 1024 * 1024;
 				break;
 			default:
 				break;

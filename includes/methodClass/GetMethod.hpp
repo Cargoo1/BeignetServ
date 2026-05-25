@@ -7,5 +7,4 @@ class GetMethod : public HttpMethod {
 		GetMethod(ExecutionContext &context);
 		~GetMethod();
 		HttpResponse &executeMethod();
-	private:
 };

@@ -24,11 +24,13 @@ class Header
 
 		Header&	operator=(Header const& other);
 
-		std::string&		getMethod(void);
-		std::string&		getTargetResource(void);
-		const std::string&		getTargetResource(void) const;
-		std::string&		getProtocolV(void);
+		std::string&						getMethod(void);
+		std::string&						getTargetResource(void);
+		const std::string&					getTargetResource(void) const;
+		std::string&						getProtocolV(void);
 		std::map<std::string, std::string>&	getFields(void);
+		std::string							getContentLenght(void);
+		const std::string							getContentLenght(void) const;
 		bool	setMethod(std::string& method);
 		bool	setTargetResource(std::string& uri);
 		bool	setProtocolV(std::string& protocol);

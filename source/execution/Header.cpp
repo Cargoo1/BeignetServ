@@ -119,3 +119,13 @@ void	Header::setContent_len(std::string& content_len)
 	content_len.erase(0, colon_pos + 1);
 	this->_map_fields["Content-Length"] = content_len;
 }
+
+std::string	Header::getContentLenght(void)
+{
+	return (this->_map_fields["Content-Length"]);
+}
+
+const std::string	Header::getContentLenght(void) const
+{
+	return (this->_map_fields["Content-Length"]);
+}
