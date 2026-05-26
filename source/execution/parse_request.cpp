@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/07 19:49:10 by acamargo          #+#    #+#             */
-/*   Updated: 2026/05/19 21:12:19 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/05/26 19:29:22 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,17 +67,17 @@ void	parse_method(std::string &line, Header& header)
 	if (header.getMethod().empty() ||
 		header.getTargetResource().empty() ||
 		header.getProtocolV().empty())
-		throw Request::BadRequest();
+		throw Request::ErrorRequest(400);
 }
 
 size_t	check_field_line_syntax(std::string const& line)
 {
 	size_t	colon_pos = line.find_first_of(':', 0);
 	if (colon_pos == std::string::npos)
-		throw Request::BadRequest();
+		throw Request::ErrorRequest(400);
 	size_t	whitespace_pos = line.find_first_of(' ', 0);
 	if (whitespace_pos < colon_pos)
-		throw Request::BadRequest();
+		throw Request::ErrorRequest(400);
 	return colon_pos;
 }	
 
@@ -128,5 +128,5 @@ void	parse_header(std::istringstream& request, Header &header)
 		parse_line(line, header, map_fields);
 	}
 	if (header.getFields().find("Host") == header.getFields().end())
-		throw Request::BadRequest();
+		throw Request::ErrorRequest(400);
 }

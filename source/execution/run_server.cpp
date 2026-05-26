@@ -6,16 +6,19 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 19:10:40 by acamargo          #+#    #+#             */
-/*   Updated: 2026/05/21 22:34:18 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/05/26 23:32:30 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "HttpResponse.hpp"
 #include <configParser.hpp>
 #include <cstddef>
+#include <netinet/in.h>
 # include <run_server.hpp>
 #include <cerrno>
 #include <cstring>
 #include <iostream>
+#include <sstream>
 #include <stdexcept>
 #include <sys/poll.h>
 #include <handle_request.hpp>
@@ -105,40 +108,61 @@ bool	listen_msg(std::string& msg, int pfd)
 	return true;
 }
 
+void	accept_client(Server& server, int i)
+{
+	struct sockaddr_in	client_info;
+	long	client_ip;
+	long	ip_parts[4];
+	std::stringstream	ip;
+	std::stringstream	port;
+	socklen_t	client_info_len = sizeof(client_info);
+	int new_fd = accept(server.getEventQueue()[i].data.fd,
+						(struct sockaddr*)&client_info,
+						&client_info_len);
+	client_ip = ntohl(client_info.sin_addr.s_addr);
+	ip_parts[0] = client_ip >> 24 & 255;
+	ip_parts[1] = client_ip >> 16 & 255;
+	ip_parts[2] = client_ip >> 8 & 255;
+	ip_parts[3] = client_ip & 255;
+	ip << ip_parts[0] << '.' << ip_parts[1] << '.' << ip_parts[2] << '.' << ip_parts[3];
+	if (new_fd < 0)
+	{
+		std::cerr << strerror(errno);
+		std::cerr << "\nCould not accept socket: ";
+		std::cerr << server.getEventQueue()[i].data.fd << '\n';
+		return;
+	}
+	client_info_len = sizeof(client_info);
+	getsockname(new_fd, (struct sockaddr*)&client_info, &client_info_len);
+	port << ntohs(client_info.sin_port);
+	server.addClient(new_fd, EPOLLIN).setIpPort(ip.str(), port.str());
+	std::cout << "New client connected to: " <<
+				server.getClients().back().getIp() +
+				':' + server.getClients().back().getPort() << '\n';
+}
+
+void	get_client_msg(Server& server, int i)
+{
+	size_t	client_index = server.getEventQueue()[i].data.fd - server.getClients().front().getFd();
+	if (!listen_msg(server.getClients().at(client_index).getMessage(),
+				server.getEventQueue()[i].data.fd))
+	{
+		std::cerr << "Client: " << server.getClients().at(client_index).getFd() << " hung up\n";
+		close(server.getClients().at(client_index).getFd());
+		server.getClients().erase(server.getClients().begin() + client_index);
+		return;
+	}
+	handle_request(server.getClients().at(client_index), server.getServerConf());
+}
+
 void	process_connection(Server&	server, int epollcount)
 {
-	int		new_fd;
-
 	for (int i = 0; i < epollcount; i++)
 	{
 		if (server.getEventQueue()[i].data.fd <= server.getSfds().back())
-		{
-			new_fd = accept(server.getEventQueue()[i].data.fd, NULL, NULL);
-			if (new_fd < 0)
-			{
-				std::cerr << strerror(errno);
-				std::cerr << "\nCould not accept socket: ";
-				std::cerr << server.getEventQueue()[i].data.fd << '\n';
-			}
-			else
-			{
-				server.addClient(new_fd, EPOLLIN);
-				std::cout << "New client connected from: " << new_fd << '\n';
-			}
-		}
+			accept_client(server, i);
 		else
-		{
-			size_t	client_index = server.getClients().front().getFd() - server.getEventQueue()[i].data.fd;
-			if (!listen_msg(server.getClients().at(client_index).getMessage(),
-							server.getEventQueue()[i].data.fd))
-			{
-				std::cerr << "Client: " << server.getClients().at(client_index).getFd() << " hung up\n";
-				close(server.getClients().at(client_index).getFd());
-				server.getClients().erase(server.getClients().begin() + client_index);
-				continue;
-			}
-			handle_request(server.getClients().at(client_index), server.getServerConf());
-		}
+			get_client_msg(server, i);
 	}
 }
 
@@ -178,7 +202,7 @@ int	run(std::vector<serverConfig> const& servers_conf)
 	{
 		try
 		{
-			server.getSfds().push_back(getListenerSocket(it_svrconf->_serverName, it_svrconf->_port));
+			server.getSfds().push_back(getListenerSocket(it_svrconf->_serverName, it_svrconf->_listen));
 		}
 		catch (std::exception &e)
 		{

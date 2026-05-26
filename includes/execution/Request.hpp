@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/08 14:23:48 by acamargo          #+#    #+#             */
-/*   Updated: 2026/05/19 19:35:35 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/05/26 19:27:11 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,10 +20,14 @@
 class	Request
 {
 public:
-	class	BadRequest : public std::exception
+	class	ErrorRequest : public std::exception
 	{
 	public:
+		ErrorRequest(int error_code);
+		int		getErrorCode(void) const;
 		virtual const char *	what() const throw();
+	private:
+		int	_error_code;
 	};
 	Request(void);
 	Request(const Request & other);

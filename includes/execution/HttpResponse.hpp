@@ -4,7 +4,17 @@
 #include <string>
 #include <map>
 
-enum MIME { JPG, PNG, HTML, TXT}
+enum MIME { JPG, PNG, HTML, TXT, APP};
+
+enum	client_error
+{
+	bad_request = 400,
+	forbiden = 403,
+	not_found,
+	method_not_allowed,
+	payload_too_large = 415,
+	internal_server_error = 500
+};
 
 class HttpResponse {
 	public:

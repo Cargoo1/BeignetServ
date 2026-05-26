@@ -25,7 +25,7 @@ class locationConfig {
 		std::string &getUploadStore();
 		const std::string &getUploadStore() const;
 
-		bool &hasCMBS() const;
+		bool const& hasCMBS() const;
 
 		std::size_t &getCMBS();
 		const std::size_t &getCMBS() const;

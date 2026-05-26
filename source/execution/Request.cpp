@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/08 15:51:44 by acamargo          #+#    #+#             */
-/*   Updated: 2026/05/19 19:34:31 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/05/26 19:28:40 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,17 @@ const std::string			Request::getBody(void) {
 	return (this->_body);
 }
 
-const char*	Request::BadRequest::what() const throw()
+const char*	Request::ErrorRequest::what() const throw()
 {
 	return "Bad request.\n";
+}
+
+Request::ErrorRequest::ErrorRequest(int error_code)
+{
+	this->_error_code = error_code;
+}
+
+int		Request::ErrorRequest::getErrorCode(void) const
+{
+	return this->_error_code;
 }

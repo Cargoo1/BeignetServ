@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/12 15:15:33 by acamargo          #+#    #+#             */
-/*   Updated: 2026/05/21 22:34:09 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/05/26 16:14:55 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,9 +85,10 @@ std::vector<Client>&	Server::getClients(void)
 	return this->_clients;
 }
 
-void	Server::addClient(int fd, uint32_t events)
+Client&	Server::addClient(int fd, uint32_t events)
 {
 	this->setEinf(fd, EPOLLIN);
 	epoll_ctl(this->_epollfd, EPOLL_CTL_ADD, fd, &this->_einf);
 	this->_clients.push_back(Client(fd, events));
+	return this->_clients.back();
 }

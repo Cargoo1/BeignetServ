@@ -47,7 +47,7 @@ const std::string &locationConfig::getUploadStore() const {
 }
 
 
-bool &locationConfig::hasCMBS() const {
+bool const& locationConfig::hasCMBS() const {
 	return (this->_hasClientMaxBodySize);
 }
 

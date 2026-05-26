@@ -18,7 +18,7 @@ class serverConfig {
 		serverConfig &operator=(const serverConfig &rhs);
 
 	public:
-		std::string					_port;
+		std::string					_listen;
 		std::string					_serverName;
 		std::string					_index;
 		std::map<int, std::string>	_errorPages;

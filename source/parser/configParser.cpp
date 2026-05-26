@@ -352,7 +352,7 @@ void configParser::_parseDirective(serverConfig &toParse) {
 		case LISTEN: {
 			if (!parse_digitCode(_peek().getValue(), PORT_MIN, PORT_MAX))
 				throw configException("Error: listen port syntax error:", _peek().getLine(), _peek().getValue());
-			toParse._port = _consume().getValue();
+			toParse._listen = _consume().getValue();
 			_expect(";");
 			break;
 		}
@@ -408,11 +408,11 @@ void configParser::_validateAll() {
 	std::vector<std::string> path_dup;
 	for (std::size_t i = 0; i < this->_servers.size(); i++) {
 		const serverConfig &server = this->_servers[i];
-		if (server._port.empty()) {
+		if (server._listen.empty()) {
 			std::cerr << "Error: server " << server._serverName << " has no port define" << std::endl;
 			throw std::runtime_error("Aborting");
 		}
-		port_dup.push_back(server._port);
+		port_dup.push_back(server._listen);
 		if (!check_double(port_dup)) {
 			std::cerr << "Error: server " << server._serverName << " is listening an already assigned port" << std::endl;
 			throw std::runtime_error("Aborting");
@@ -474,7 +474,7 @@ void	configParser::DEBUG_printConf(void) {
 		
 		std::cout << "--- SERVER " << i + 1 << " ---" << std::endl;
 
-		std::cout << "  Port: " << server._port << std::endl;
+		std::cout << "  Port: " << server._listen << std::endl;
 		std::cout << "  Server Name: " << server._serverName << std::endl;
 		std::cout << "  Index: " << server._index << std::endl;
 		std::cout << "  Client Max Body Size: " << server._clientMaxBodySize << std::endl;

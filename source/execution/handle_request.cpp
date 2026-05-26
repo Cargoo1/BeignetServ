@@ -6,11 +6,11 @@
 /*   By: alejandrocamargo <acamargo@student.42.fr>  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/11 19:40:38 by alejandrocama     #+#    #+#             */
-/*   Updated: 2026/05/21 23:20:38 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/05/26 23:21:29 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Client.hpp"
+#include "Request.hpp"
 #include <cerrno>
 #include <cstring>
 #include <exception>
@@ -22,25 +22,33 @@
 #include <parse_request.hpp>
 #include <sys/socket.h>
 #include <vector>
+#include <Client.hpp>
 #include <serverConfig.hpp>
+#include <send_http_response.hpp>
 
-serverConfig const&	find_server_block(int fd, std::vector<serverConfig> const& serverConfig)
+serverConfig const&	find_server_block(Client& client, std::vector<serverConfig> const& serverConfig)
 {
-	struct	sockaddr_in	sock_info;
-	socklen_t			addr_len  = sizeof(sock_info);
-	if (getsockname(fd, (struct sockaddr *)&sock_info, &addr_len) < 0)
-		throw std::runtime_error(std::string("getsockname: ") + strerror(errno));
-	std::stringstream	ss;
-	ss << ntohs(sock_info.sin_port);
-	std::string	sock_port = ss.str();
-	return serverConfig.back();
+	std::string	ip_port = client.getIp() + ':' + client.getPort();
+	std::vector<class serverConfig>::const_iterator it;
+	for (it = serverConfig.begin(); it != serverConfig.end(); it++)
+	{
+		if (ip_port.compare(it->_listen) == 0)
+			return *it;
+	}
+	for (it = serverConfig.begin(); it != serverConfig.end(); it++)
+	{
+		if (client.getPort().compare(it->_listen) == 0)
+			return *it;
+	}
+	return serverConfig.front();
 }
 
 int	handle_request(Client& client, std::vector<serverConfig> const& serverConf)
 {
 	if (client.getMessage().find("\r\n\r\n") == std::string::npos)
 		return 0;
-	find_server_block(client.getFd(), serverConf);
+	serverConfig const& server_block = find_server_block(client, serverConf);
+	std::cout << "Server block: " + server_block._listen + '\n';
 	std::istringstream	request_stream(client.getMessage());
 	Request	&r = client.getRequest();
 	if (r.getHeader().getMethod().empty())
@@ -49,18 +57,16 @@ int	handle_request(Client& client, std::vector<serverConfig> const& serverConf)
 		{
 			parse_header(request_stream, r.getHeader());
 		}
-		catch(std::exception& e)
+		catch(Request::ErrorRequest& e)
 		{
+			send_response(client, e.getErrorCode(), server_block);
 			return -1;
 		}
 	}
-	if (r.getHeader().getFields().find("Content_Length") == r.getHeader().getFields().end())
+	send_response(client, 400, server_block);
+	if (r.getHeader().getFields().find("Content_Length") != r.getHeader().getFields().end())
 	{
-		//send_response
+		//
 	}
-	std::cout << r.getHeader().getMethod() << std::endl;
-	std::cout << r.getHeader().getProtocolV()<< std::endl;
-	std::cout << r.getHeader().getTargetResource() << std::endl;
-	std::cout << r.getHeader().getFields().at("Host") << '\n';
-	return 200;	
+	return 0;	
 }

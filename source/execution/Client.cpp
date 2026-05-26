@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/14 19:50:59 by acamargo          #+#    #+#             */
-/*   Updated: 2026/05/19 19:18:43 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/05/26 22:50:20 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,12 +58,28 @@ void			Client::setMessage(std::string& msg)
 	this->message = msg;
 }
 
+std::string const&	Client::getIp(void) const
+{
+	return this->_ip;
+}
+
+std::string const&	Client::getPort(void) const
+{
+	return this->_port;
+}
+
+void			Client::setIpPort(std::string const& ip, std::string const& port)
+{
+	this->_ip = ip;
+	this->_port = port;
+}
+
 void			Client::setResponse(std::string& response)
 {
 	this->response = response;
 }
 
-int		Client::getFd(void)
+int		Client::getFd(void) const
 {
 	return this->einf.data.fd;
 }

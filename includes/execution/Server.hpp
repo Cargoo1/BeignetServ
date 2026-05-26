@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/12 15:08:39 by acamargo          #+#    #+#             */
-/*   Updated: 2026/05/21 22:33:28 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/05/26 16:15:06 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ public:
 	void						setEinf(int fd, uint32_t events);
 	struct epoll_event*			getEventQueue(void);
 	std::vector<Client>&	getClients(void);
-	void						addClient(int fd, uint32_t events);
+	Client&						addClient(int fd, uint32_t events);
 private:
 	std::vector<int>			_sfds;
 	int							_epollfd;

@@ -11,15 +11,6 @@ namespace { bool fileExist (const std::string& name) {
 	return (stat (name.c_str(), &buffer) == 0); 
 } }
 
-enum	client_error
-{
-	bad_request = 400,
-	forbiden = 403,
-	not_found,
-	method_not_allowed,
-	payload_too_large = 415
-};
-
 namespace { const std::string getReasonPhrase(int code) {
 	std::string	ret;
 	switch (code)

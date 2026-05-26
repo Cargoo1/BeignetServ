@@ -24,6 +24,7 @@ HEADER = $(HEADER_DIR)/$(EXEP_DIR)/configException.hpp	\
 		 $(HEADER_DIR)/$(EXEC_DIR)/Client.hpp			\
 		 $(HEADER_DIR)/$(EXEC_DIR)/Header.hpp			\
 		 $(HEADER_DIR)/$(EXEC_DIR)/HttpResponse.hpp		\
+		 $(HEADER_DIR)/$(EXEC_DIR)/send_http_response.hpp	\
 
 SRCS_DIR = source
 CONF_DIR = configClass
@@ -43,6 +44,7 @@ SRCS = $(SRCS_DIR)/$(EXEP_DIR)/configException.cpp	\
 	   $(SRCS_DIR)/$(EXEC_DIR)/Client.cpp			\
 	   $(SRCS_DIR)/$(EXEC_DIR)/Header.cpp			\
 	   $(SRCS_DIR)/$(EXEC_DIR)/HttpResponse.cpp		\
+	   $(SRCS_DIR)/$(EXEC_DIR)/send_http_response.cpp	\
 	   $(SRCS_DIR)/main.cpp
 
 OBJ_DIR = obj
