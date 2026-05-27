@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/08 14:23:48 by acamargo          #+#    #+#             */
-/*   Updated: 2026/05/26 19:27:11 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/05/27 15:07:20 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,6 @@ public:
 	const std::string	getBody(void) const;
 	std::string	getBody(void);
 private:
-	int			status_code;
 	Header		_header;
 	std::string	_body;
 };

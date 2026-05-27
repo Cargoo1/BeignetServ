@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 18:35:09 by acamargo          #+#    #+#             */
-/*   Updated: 2026/05/26 15:37:04 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/05/27 15:08:05 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ class Header
 		std::string&							getContentLenght(void);
 		const std::string&							getContentLenght(void) const;
 		bool	setMethod(std::string& method);
-		bool	setTargetResource(std::string& uri);
+		void	setTargetResource(std::string& uri);
 		bool	setProtocolV(std::string& protocol);
 		void	setHost(std::string& host);
 		void	setContent_len(std::string& content_len);

@@ -6,7 +6,7 @@
 /*   By: alejandrocamargo <acamargo@student.42.fr>  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/11 19:40:38 by alejandrocama     #+#    #+#             */
-/*   Updated: 2026/05/26 23:21:29 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/05/27 16:42:34 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,7 @@ int	handle_request(Client& client, std::vector<serverConfig> const& serverConf)
 			return -1;
 		}
 	}
-	send_response(client, 400, server_block);
+	send_response(client, 200, server_block);
 	if (r.getHeader().getFields().find("Content_Length") != r.getHeader().getFields().end())
 	{
 		//

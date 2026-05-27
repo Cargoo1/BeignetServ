@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 21:54:03 by acamargo          #+#    #+#             */
-/*   Updated: 2026/05/26 23:20:41 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/05/27 16:44:37 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -140,7 +140,7 @@ void	create_error_response(HttpResponse& response, int error_code, std::string c
 	response.addField("Content-Type", find_content_type(file_name));
 }
 
-void	error_response(HttpResponse& response, serverConfig const& serverConf, int error_code)
+void	send_error_response(HttpResponse& response, serverConfig const& serverConf, int error_code)
 {
 	std::map<int, std::string>::const_iterator	it = serverConf._errorPages.find(response.getStatusCode());
 
@@ -189,10 +189,10 @@ int	send_response(Client const& client, int status_code, serverConfig const& ser
 	std::string		msg;
 	response.addField("Server", "Beignetserv/0.1");
 	if (status_code >= 400)
-		error_response(response, serverConf, status_code);
+		send_error_response(response, serverConf, status_code);
 	else
 	{
-		;
+		create_default_error_response(response, 200);
 	}
 	msg = response.toHttpString();
 	int	len = msg.length();

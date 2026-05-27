@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/21 15:12:53 by acamargo          #+#    #+#             */
-/*   Updated: 2026/05/26 23:19:57 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/05/27 16:39:56 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ int	main(int argc, char **argv)
 		exit(1);
 	}
 	char buff[100000];
-	std::string msg = "GET HTTP/1.1\r\nHost:localhost:9090\r\nContent-type:\r\n\r\n";
+	std::string msg = "GET /lol/si? HTTP/1.1\r\nHost:localhost:9090\r\nContent-type:\r\n\r\n";
 	send(sfd, msg.c_str(), msg.size(), 0);
 	recv(sfd, buff, 100000, 0);
 	std::cout << buff;
