@@ -6,14 +6,17 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 19:03:36 by acamargo          #+#    #+#             */
-/*   Updated: 2026/05/26 19:32:56 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/05/28 21:11:37 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Request.hpp"
 #include <Header.hpp>
+#include <cctype>
+#include <cerrno>
 #include <cstddef>
 #include <HttpResponse.hpp>
+#include <iostream>
 
 Header::Header()
 {
@@ -80,12 +83,52 @@ bool	Header::setMethod(std::string& method)
 	return true;
 }
 
-bool	Header::setTargetResource(std::string& uri)
+void	Header::setTargetResource(std::string& uri)
 {
 	if (uri.empty())
 		throw Request::ErrorRequest(bad_request);
-	this->_target_resource = uri;
-	return true;
+	int	deepness = 0;
+	size_t	i = 0;
+	while (i < uri.length())
+	{
+		if (std::isalnum(uri.at(i)))
+		{
+			while (i < uri.length() && uri.at(i) != '/')
+				i++;
+			deepness++;
+		}
+		else if (uri.at(i) == '/')
+		{
+			i++;
+			while (i < uri.length() && uri.at(i) == '/')
+				uri.erase(i, 1);
+		}
+		else if (uri.at(i) == '.')
+		{
+			if ((i + 1 == uri.length()) || (uri.at(i + 1) == '/'))
+			{
+				i++;
+				continue;
+			}
+			else if (uri.at(i + 1) == '.' && (i + 2 == uri.length() || uri.at(i + 2) == '/'))
+			{
+				deepness--;
+				i += 2;
+				continue;
+			}
+			while (i < uri.length() && uri.at(i) != '/' && uri.at(i) != '?')
+				i++;
+			deepness++;
+		}
+		else if (uri.at(i) == '?')
+			break;
+		else
+			throw Request::ErrorRequest(bad_request);
+	}
+	if (deepness < 0)
+		throw Request::ErrorRequest(bad_request);
+	this->_target_resource = uri.substr(0, i);
+	std::cout << "path parsed: " + this->_target_resource + '\n';
 }
 
 bool	Header::setProtocolV(std::string& protocol)
