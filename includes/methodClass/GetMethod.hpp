@@ -6,5 +6,5 @@ class GetMethod : public HttpMethod {
 	public:
 		GetMethod(ExecutionContext &context);
 		~GetMethod();
-		HttpResponse &executeMethod();
+		void executeMethod(HttpResponse &rsp);
 };

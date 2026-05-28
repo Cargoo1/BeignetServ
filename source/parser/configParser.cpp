@@ -22,6 +22,7 @@
 namespace { DIR			find_Dir(const std::string &directive) {
 	if (directive == "listen") return (LISTEN);
 	if (directive == "server_name") return (SERVER_NAME);
+	if (directive == "root") return (ROOT);
 	if (directive == "error_page") return (ERROR_PAGE);
 	if (directive == "index") return (INDEX);
 	if (directive == "client_max_body_size") return (CLIENT_MAX_BODY);
@@ -30,7 +31,7 @@ namespace { DIR			find_Dir(const std::string &directive) {
 
 namespace { L_CONF		find_LocDir(const std::string &local_confDir) {
 	if (local_confDir == "methods") return (METHOD);
-	if (local_confDir == "root") return (ROOT);
+	if (local_confDir == "root") return (L_ROOT);
 	if (local_confDir == "index") return (L_INDEX);
 	if (local_confDir == "autoindex") return (AUTO_I);
 	if (local_confDir == "upload_store") return (UPLD_S);
@@ -40,14 +41,46 @@ namespace { L_CONF		find_LocDir(const std::string &local_confDir) {
 	else return (L_NONE);
 } } 
 
-namespace { bool		parse_digitCode(const std::string &listenPort, int min, int max) {
-	if (!string_verifFunc(listenPort, isdigit) || listenPort.empty())
+namespace { bool		parse_digitCode(const std::string &digitStr, long min, long max) {
+	if (!string_verifFunc(digitStr, isdigit) || digitStr.empty())
 		return (false);
 	int verif;
-	std::stringstream ss(listenPort);
+	std::stringstream ss(digitStr);
 	ss >> verif;
 	if (verif < min || verif > max)
 		return (false);
+	return (true);
+} }
+
+namespace { bool parseIP(const std::string &ipstr) {
+	int parts[4] = {0};
+	int partIndex = 0;
+	std::string current;
+	std::string::size_type d_dot = ipstr.find(":", 0);
+	std::string ip = ipstr;
+	if (d_dot != std::string::npos)
+		ip = ipstr.substr(0, d_dot);
+	for (std::size_t i = 0; i < ip.size(); i++) {
+		if (ip[i] == '.') {
+			if (partIndex >= 4 || current.empty())
+				return false;
+			std::stringstream ss(current);
+			if (!(ss >> parts[partIndex]) || parts[partIndex] > 255)
+				return false;
+			partIndex++;
+			current.clear();
+		} 
+		else if (isdigit(ip[i]))
+			current += ip[i];
+
+		else
+			return false;
+	}
+	if (partIndex != 3 || current.empty())
+		return false;
+	std::stringstream ss(current);
+	if (!(ss >> parts[3]) || parts[3] > 255)
+		return false;
 	return (true);
 } }
 
@@ -278,7 +311,7 @@ void configParser::_parseLocationDir(locationConfig &locTo_pars) {
 			_expect(";");
 			break;
 		}
-		case ROOT: {
+		case L_ROOT: {
 			if (!isValid_path(_peek().getValue(), true))
 				throw configException("Error: root path syntax:", _peek().getLine(), _peek().getValue());
 			locTo_pars._root = _consume().getValue();
@@ -350,7 +383,7 @@ void configParser::_parseDirective(serverConfig &toParse) {
 	switch (find_Dir(_consume().getValue()))
 	{
 		case LISTEN: {
-			if (!parse_digitCode(_peek().getValue(), PORT_MIN, PORT_MAX))
+			if (!parse_digitCode(_peek().getValue(), PORT_MIN, PORT_MAX) && !parseIP(_peek().getValue()))
 				throw configException("Error: listen port syntax error:", _peek().getLine(), _peek().getValue());
 			toParse._listen = _consume().getValue();
 			_expect(";");
@@ -360,6 +393,13 @@ void configParser::_parseDirective(serverConfig &toParse) {
 				if (!string_verifFunc(_peek().getValue(), isspecial))
 					throw configException("Error: server name syntax error:", _peek().getLine(), _peek().getValue());
 			toParse._serverName = _consume().getValue();
+			_expect(";");
+			break;
+		}
+		case ROOT: {
+			if (!isValid_path(_peek().getValue(), true))
+				throw configException("Error: root syntax:", _peek().getLine(), _peek().getValue());
+			toParse._root = _consume().getValue();
 			_expect(";");
 			break;
 		}
@@ -408,10 +448,8 @@ void configParser::_validateAll() {
 	std::vector<std::string> path_dup;
 	for (std::size_t i = 0; i < this->_servers.size(); i++) {
 		const serverConfig &server = this->_servers[i];
-		if (server._listen.empty()) {
-			std::cerr << "Error: server " << server._serverName << " has no port define" << std::endl;
-			throw std::runtime_error("Aborting");
-		}
+		if (server._listen.empty())
+			this->_servers[i]._listen = "8080";
 		port_dup.push_back(server._listen);
 		if (!check_double(port_dup)) {
 			std::cerr << "Error: server " << server._serverName << " is listening an already assigned port" << std::endl;
@@ -432,6 +470,11 @@ void configParser::_validateAll() {
 			path_dup.push_back(location._path);
 			if (!check_double(path_dup)) {
 				std::cerr << "Error: server " << server._serverName << " have locations with duplicate path:" << location._path << std::endl;
+				throw std::runtime_error("Aborting");
+			}
+			if (location._root.empty() && server._root.empty()) {
+				std::cout << location._root.empty() << " - "  << server._root.empty() << std::endl;
+				std::cerr << "Error: server " << server._serverName << " have no root and so does location " << location._path << std::endl;
 				throw std::runtime_error("Aborting");
 			}
 			if (!parse_methods(location._methods, location._path))
@@ -478,6 +521,7 @@ void	configParser::DEBUG_printConf(void) {
 		std::cout << "  Server Name: " << server._serverName << std::endl;
 		std::cout << "  Index: " << server._index << std::endl;
 		std::cout << "  Client Max Body Size: " << server._clientMaxBodySize << std::endl;
+		std::cout << "  Root: " << server._root << std::endl;
 		
 		if (!server._errorPages.empty()) {
 			std::cout << "  Error Pages:" << std::endl;

@@ -37,7 +37,8 @@ public:
 
 	const Header&		getHeader(void) const;
 	Header&				getHeader(void);
-	const std::string	getBody(void);
+	const std::string	getBody(void) const;
+	std::string	getBody(void);
 private:
 	int			status_code;
 	Header		_header;

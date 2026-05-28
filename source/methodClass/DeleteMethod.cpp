@@ -9,30 +9,22 @@ DeleteMethod::DeleteMethod(ExecutionContext &context) : HttpMethod(context) {};
 
 DeleteMethod::~DeleteMethod() {};
 
-HttpResponse &DeleteMethod::executeMethod() {
-	HttpResponse ret(204);
-	std::string path = NormalizePath(this->_context.location.getRoot()) + NormalizePath(this->_context.request.getHeader().getTargetResource());
+void DeleteMethod::executeMethod(HttpResponse &rsp) {
+	
+	std::string path = this->_context.location.getRoot() + this->_context.request.getHeader().getTargetResource();
 	// std::string path = NormalizePath(this->_context.location.getRoot()) + NormalizePath(this->_context.location.getPath());
 	struct stat path_stat;
-	if (stat(path.c_str(), &path_stat) < 0) {
-		ret.setStatusCode(404);
-		return (ret);
-	}
-	if (access(path.c_str(), W_OK) != 0) {
-		ret.setStatusCode(403);
-		return (ret);
-	}
+	if (stat(path.c_str(), &path_stat) < 0)
+		throw Request::ErrorRequest(not_found);
+	if (access(path.c_str(), W_OK) != 0)
+		throw Request::ErrorRequest(forbiden);
 	if (S_ISDIR(path_stat.st_mode)) {
-		if (!_removeDirectoryRecursive(path)) {
-			ret.setStatusCode(500);
-			return (ret);
-		}
+		if (!_removeDirectoryRecursive(path))
+			throw Request::ErrorRequest(internal_server_error);
 	}
-	else if (!std::remove(path.c_str())) {
-		ret.setStatusCode(500);
-		return (ret);
-	}
-	return (ret);
+	else if (!std::remove(path.c_str()))
+		throw Request::ErrorRequest(internal_server_error);
+	
 }
 
 bool DeleteMethod::_removeDirectoryRecursive(const std::string &dirPath){

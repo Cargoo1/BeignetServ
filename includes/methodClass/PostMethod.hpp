@@ -6,6 +6,6 @@ class PostMethod : public HttpMethod {
 	public:
 		PostMethod(ExecutionContext &context);
 		~PostMethod();
-		HttpResponse &executeMethod();
+		void executeMethod(HttpResponse &rsp);
 	private:
 };

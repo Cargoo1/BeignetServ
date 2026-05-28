@@ -51,7 +51,7 @@ const Header&		Request::getHeader(void) const
 	return this->_header;
 }
 
-const std::string			Request::getBody(void) {
+const std::string			Request::getBody(void) const {
 	return (this->_body);
 }
 

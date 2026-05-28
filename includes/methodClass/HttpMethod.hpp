@@ -8,7 +8,7 @@ class HttpMethod {
 		HttpMethod(const ExecutionContext &context);
 		virtual ~HttpMethod(void);
 
-		virtual HttpResponse &executeMethod() = 0;
+		virtual void executeMethod(HttpResponse &rsp) = 0;
 	protected:
 		const ExecutionContext &_context;
 		std::string NormalizePath(std::string toNomalize);

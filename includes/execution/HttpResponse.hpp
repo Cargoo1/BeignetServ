@@ -6,6 +6,17 @@
 
 enum MIME { JPG, PNG, HTML, TXT, APP};
 
+/* 
+https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status
+je crois que le code 415 est pas le ref.  
+
+415 Unsupported Media Type
+    The media format of the requested data is not supported by the server, so the server is rejecting the request.
+
+413 Content Too Large
+    The request body is larger than limits defined by server. The server might close the connection or return a Retry-After header field.
+*/
+
 enum	client_error
 {
 	bad_request = 400,
@@ -13,6 +24,7 @@ enum	client_error
 	not_found,
 	method_not_allowed,
 	payload_too_large = 415,
+	content_too_large = 413,
 	internal_server_error = 500
 };
 
