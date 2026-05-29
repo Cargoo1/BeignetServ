@@ -6,12 +6,13 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/12 15:08:39 by acamargo          #+#    #+#             */
-/*   Updated: 2026/05/26 16:15:06 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/05/29 17:12:03 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 #include "Request.hpp"
+#include <cstddef>
 #include <serverConfig.hpp>
 #include <map>
 #include <sys/epoll.h>
@@ -36,12 +37,13 @@ public:
 	std::vector<serverConfig> const&	getServerConf(void) const;
 	void						setEinf(int fd, uint32_t events);
 	struct epoll_event*			getEventQueue(void);
-	std::vector<Client>&	getClients(void);
-	Client&						addClient(int fd, uint32_t events);
+	std::map<int, Client>&		getClients(void);
+	void						addClient(int fd, uint32_t events, std::string const& ip, std::string const& port);
+	void						deleteClient(int fd);
 private:
 	std::vector<int>			_sfds;
 	int							_epollfd;
 	std::vector<serverConfig> const&	_server_conf;
-	std::vector<Client>			_clients;
-	struct epoll_event	_einf, _eventQueue[MAX_EVENTS];
+	struct epoll_event			_einf, _eventQueue[MAX_EVENTS];
+	std::map<int, Client>		_clients;
 };

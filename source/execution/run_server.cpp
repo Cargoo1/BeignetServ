@@ -6,11 +6,11 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 19:10:40 by acamargo          #+#    #+#             */
-/*   Updated: 2026/05/26 23:32:30 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/05/29 17:25:47 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "HttpResponse.hpp"
+#include "Client.hpp"
 #include <configParser.hpp>
 #include <cstddef>
 #include <netinet/in.h>
@@ -24,8 +24,10 @@
 #include <handle_request.hpp>
 #include <Server.hpp>
 #include <sys/socket.h>
+#include <unistd.h>
 #include <vector>
 #include <sys/epoll.h>
+
 #define BUFF_SIZE 256
 
 int		getListenerSocket(const std::string &host, const std::string &port)
@@ -68,20 +70,26 @@ int		getListenerSocket(const std::string &host, const std::string &port)
 	return sfd;
 }
 
-void	close_servers(Server& servers)
+int	close_all_clients(Server& server)
+{
+	if (server.getClients().size() <= 0)
+		return 0;
+	for (size_t i = 0; i < server.getClients().size(); i++)
+		server.deleteClient(i);
+	return 1;
+}
+
+void	close_servers(Server& server)
 {
 	std::vector<int>::iterator	it_sfds;
 	std::vector<Client>::iterator	it_clients;
 
-	for (it_sfds = servers.getSfds().begin(); it_sfds != servers.getSfds().end(); it_sfds++)
+	for (it_sfds = server.getSfds().begin(); it_sfds != server.getSfds().end(); it_sfds++)
 	{
 		close(*it_sfds);
 	}
-	for (it_clients = servers.getClients().begin(); it_clients != servers.getClients().end(); it_clients++)
-	{
-		close(it_clients->getFd());
-	}
-	close(servers.getEpollfd());
+	close_all_clients(server);
+	close(server.getEpollfd());
 }
 /*
 void	add_client(int pfd, std::vector<struct pollfd> &pfds, std::vector<Server> &clients)
@@ -95,20 +103,20 @@ void	add_client(int pfd, std::vector<struct pollfd> &pfds, std::vector<Server> &
 }
 */
 
-bool	listen_msg(std::string& msg, int pfd)
+bool	listen_msg(Client& c, int cfd)
 {
 	char	buff[BUFF_SIZE];
 
-	memset(buff, 0, BUFF_SIZE);
-	int		size_read = recv(pfd, &buff, BUFF_SIZE, 0);
+	std::memset(buff, 0, BUFF_SIZE);
+	int		size_read = recv(cfd, &buff, BUFF_SIZE, 0);
 	if (size_read <= 0)
 		return false;
-	msg.append(buff, BUFF_SIZE);
-	std::cout << "READ {\n" << msg << "\n} END\n";
+	c.appendMessage(buff);
+	//std::cout << "READ {\n" << msg << "\n} END\n";
 	return true;
 }
 
-void	accept_client(Server& server, int i)
+void	accept_client(Server& server, int fd)
 {
 	struct sockaddr_in	client_info;
 	long	client_ip;
@@ -116,7 +124,7 @@ void	accept_client(Server& server, int i)
 	std::stringstream	ip;
 	std::stringstream	port;
 	socklen_t	client_info_len = sizeof(client_info);
-	int new_fd = accept(server.getEventQueue()[i].data.fd,
+	int new_fd = accept(fd,
 						(struct sockaddr*)&client_info,
 						&client_info_len);
 	client_ip = ntohl(client_info.sin_addr.s_addr);
@@ -129,40 +137,40 @@ void	accept_client(Server& server, int i)
 	{
 		std::cerr << strerror(errno);
 		std::cerr << "\nCould not accept socket: ";
-		std::cerr << server.getEventQueue()[i].data.fd << '\n';
+		std::cerr << fd << '\n';
 		return;
 	}
 	client_info_len = sizeof(client_info);
 	getsockname(new_fd, (struct sockaddr*)&client_info, &client_info_len);
 	port << ntohs(client_info.sin_port);
-	server.addClient(new_fd, EPOLLIN).setIpPort(ip.str(), port.str());
-	std::cout << "New client connected to: " <<
-				server.getClients().back().getIp() +
-				':' + server.getClients().back().getPort() << '\n';
+	server.addClient(new_fd, EPOLLIN | EPOLLHUP, ip.str(), port.str());
 }
 
-void	get_client_msg(Server& server, int i)
+void	get_client_msg(Server& server, int fd)
 {
-	size_t	client_index = server.getEventQueue()[i].data.fd - server.getClients().front().getFd();
-	if (!listen_msg(server.getClients().at(client_index).getMessage(),
-				server.getEventQueue()[i].data.fd))
+	if (!listen_msg(server.getClients().at(fd), fd))
 	{
-		std::cerr << "Client: " << server.getClients().at(client_index).getFd() << " hung up\n";
-		close(server.getClients().at(client_index).getFd());
-		server.getClients().erase(server.getClients().begin() + client_index);
+		std::cout << "Client: " << fd << " hang up, closing connection\n";
+		server.deleteClient(fd);
 		return;
 	}
-	handle_request(server.getClients().at(client_index), server.getServerConf());
+	handle_request(server.getClients().at(fd), server.getServerConf());
 }
 
 void	process_connection(Server&	server, int epollcount)
 {
 	for (int i = 0; i < epollcount; i++)
 	{
+		if (server.getEventQueue()[i].events & EPOLLHUP)
+		{
+			std::cout << "Client: " << server.getEventQueue()[i].data.fd << "hang up, closing connection\n";
+			server.deleteClient(server.getEventQueue()[i].data.fd);
+			continue;
+		}
 		if (server.getEventQueue()[i].data.fd <= server.getSfds().back())
-			accept_client(server, i);
+			accept_client(server, server.getEventQueue()[i].data.fd);
 		else
-			get_client_msg(server, i);
+			get_client_msg(server, server.getEventQueue()[i].data.fd);
 	}
 }
 
@@ -207,25 +215,25 @@ int	run(std::vector<serverConfig> const& servers_conf)
 		catch (std::exception &e)
 		{
 			std::cerr << e.what() << '\n';
-			return -1;
+			return 1;
 		}
 	}
 	if (set_epoll(server) < 0)
-		return -1;
-	std::cout << "Waiting for connections...\n";
-	for(;;)
+		return 1;
+	while(true)
 	{
-
+		std::cout << "Waiting for events...\n";
 		int epollcount = epoll_wait(server.getEpollfd(),
 									server.getEventQueue(),
-									MAX_EVENTS, 30000);
+									MAX_EVENTS, 60000);
 		if (epollcount < 0)
 			return -1;
 		if (epollcount == TIMEOUT)
 		{
-			close_servers(server);
-			std::cerr << "Timeout.\nEnding the comunication\n";
-			return TIMEOUT;
+			std::cerr << "Timeout.\nClosing the connection with all the clients\n";
+			if (!close_all_clients(server))
+				break;
+			continue;
 		}
 		else if (epollcount < 0)
 		{
@@ -235,6 +243,7 @@ int	run(std::vector<serverConfig> const& servers_conf)
 		}
 		process_connection(server, epollcount);
 	}
+	return 1;
 }
 /*
 int	main(void)

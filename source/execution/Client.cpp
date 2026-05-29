@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/14 19:50:59 by acamargo          #+#    #+#             */
-/*   Updated: 2026/05/26 22:50:20 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/05/29 17:01:26 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,9 @@
 
 Client::Client(int fd, uint32_t events)
 {
-	this->einf.data.fd = fd;
-	this->einf.events = events;
+	this->_einf.data.fd = fd;
+	this->_einf.events = events;
+	std::time(&this->_last_comunication);
 	return;
 }
 
@@ -27,10 +28,10 @@ Client::~Client()
 
 Client::Client(Client const& other)
 {
-	this->einf = other.einf;
+	this->_einf = other._einf;
 	this->_r = other._r;
-	this->message = other.message;
-	this->response = other.response;
+	this->_message = other._message;
+	this->_response = other._response;
 	return;
 }
 
@@ -43,19 +44,24 @@ Client&	Client::operator=(Client const& other)
 	return *this;
 }
 
-std::string&	Client::getMessage(void)
+std::string const&	Client::getMessage(void) const
 {
-	return this->message;
+	return this->_message;
 }
 
-std::string&	Client::getResponse(void)
+std::string const&	Client::getResponse(void) const
 {
-	return this->response;
+	return this->_response;
 }
 
-void			Client::setMessage(std::string& msg)
+void			Client::setMessage(std::string const& msg)
 {
-	this->message = msg;
+	this->_message = msg;
+}
+
+void			Client::appendMessage(std::string const& s)
+{
+	this->_message += s;
 }
 
 std::string const&	Client::getIp(void) const
@@ -76,12 +82,12 @@ void			Client::setIpPort(std::string const& ip, std::string const& port)
 
 void			Client::setResponse(std::string& response)
 {
-	this->response = response;
+	this->_response = response;
 }
 
 int		Client::getFd(void) const
 {
-	return this->einf.data.fd;
+	return this->_einf.data.fd;
 }
 
 Request&		Client::getRequest(void)

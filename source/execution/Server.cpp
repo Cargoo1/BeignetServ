@@ -6,15 +6,18 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/12 15:15:33 by acamargo          #+#    #+#             */
-/*   Updated: 2026/05/26 16:14:55 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/05/29 17:12:07 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <Client.hpp>
 #include <serverConfig.hpp>
+#include <iostream>
 #include <Server.hpp>
 #include <sys/epoll.h>
 #include <sys/poll.h>
+#include <unistd.h>
+#include <utility>
 #include <vector>
 
 Server::Server(Server const& other) : _server_conf(other._server_conf)
@@ -80,15 +83,24 @@ struct epoll_event*			Server::getEventQueue(void)
 	return this->_eventQueue;
 }
 
-std::vector<Client>&	Server::getClients(void)
+std::map<int, Client>&	Server::getClients(void)
 {
 	return this->_clients;
 }
 
-Client&	Server::addClient(int fd, uint32_t events)
+void	Server::addClient(int fd, uint32_t events, std::string const& ip, std::string const& port)
 {
-	this->setEinf(fd, EPOLLIN);
+	this->setEinf(fd, events);
 	epoll_ctl(this->_epollfd, EPOLL_CTL_ADD, fd, &this->_einf);
-	this->_clients.push_back(Client(fd, events));
-	return this->_clients.back();
+	this->_clients.insert(std::pair<int, Client>(fd, Client(fd, events)));
+	this->_clients.at(fd).setIpPort(ip, port);
+	std::cout << "New client connected to: " <<
+				this->_clients.at(fd).getIp() +
+				':' + this->_clients.at(fd).getPort() << '\n';
+}
+void	Server::deleteClient(int fd)
+{
+	epoll_ctl(this->_epollfd, EPOLL_CTL_DEL, fd, &this->_einf);
+	close(fd);
+	this->_clients.erase(fd);
 }
