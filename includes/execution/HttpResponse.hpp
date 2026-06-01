@@ -1,5 +1,7 @@
 #pragma once
 
+#include <UtilsMethod.hpp>
+
 #include <sstream>
 #include <string>
 #include <map>
@@ -56,11 +58,3 @@ class HttpResponse {
 		std::map<std:: string, std:: string>	_header;
 		std::string								_body;
 };
-
-/* ==== utils ==== */
-template <typename T>
-std::string toStr(const T &num) {
-	std::stringstream	oss;
-	oss << num;
-	return (oss.str());
-}
