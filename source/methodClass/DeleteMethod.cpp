@@ -10,7 +10,6 @@ DeleteMethod::DeleteMethod(ExecutionContext &context) : HttpMethod(context) {};
 DeleteMethod::~DeleteMethod() {};
 
 void DeleteMethod::executeMethod(HttpResponse &rsp) {
-	
 	std::string path = this->_context.location.getRoot() + this->_context.request.getHeader().getTargetResource();
 	// std::string path = NormalizePath(this->_context.location.getRoot()) + NormalizePath(this->_context.location.getPath());
 	struct stat path_stat;
@@ -24,7 +23,7 @@ void DeleteMethod::executeMethod(HttpResponse &rsp) {
 	}
 	else if (!std::remove(path.c_str()))
 		throw Request::ErrorRequest(internal_server_error);
-	
+	rsp.setStatusCode(204);
 }
 
 bool DeleteMethod::_removeDirectoryRecursive(const std::string &dirPath){

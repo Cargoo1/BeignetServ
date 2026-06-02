@@ -27,8 +27,16 @@ class locationConfig {
 
 		bool const& hasCMBS() const;
 
+		bool const& hasRedirect() const;
+
 		std::size_t &getCMBS();
 		const std::size_t &getCMBS() const;
+
+		int &getRedirectCode();
+		const int &getRedirectCode() const;
+
+		std::string &getRedirectUrl();
+		const std::string &getRedirectUrl() const;
 
 	private:
 		std::string							_path;

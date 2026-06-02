@@ -46,14 +46,35 @@ const std::string &locationConfig::getUploadStore() const {
 	return (this->_uploadStore);
 }
 
-
 bool const& locationConfig::hasCMBS() const {
 	return (this->_hasClientMaxBodySize);
+}
+
+bool const& locationConfig::hasCMBS() const {
+	return (this->_hasRedirect);
 }
 
 std::size_t &locationConfig::getCMBS() {
 	return (this->_clientMaxBodySize);
 }
+
 const std::size_t &locationConfig::getCMBS() const {
 	return (this->_clientMaxBodySize);
+}
+
+int &locationConfig::getRedirectCode() {
+	return (this->_redirectCode);
+}
+
+const int &locationConfig::getRedirectCode() const {
+	return (this->_redirectCode);
+}
+
+
+std::string &locationConfig::getRedirectUrl() {
+	return (this->_redirectUrl);
+}
+
+const std::string &locationConfig::getRedirectUrl() const {
+	return (this->_redirectUrl);
 }
