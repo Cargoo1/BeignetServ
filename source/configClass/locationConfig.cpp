@@ -50,7 +50,7 @@ bool const& locationConfig::hasCMBS() const {
 	return (this->_hasClientMaxBodySize);
 }
 
-bool const& locationConfig::hasCMBS() const {
+bool const& locationConfig::hasRedirect() const {
 	return (this->_hasRedirect);
 }
 
