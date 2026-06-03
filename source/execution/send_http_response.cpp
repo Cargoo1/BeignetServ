@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 21:54:03 by acamargo          #+#    #+#             */
-/*   Updated: 2026/05/29 13:55:57 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/03 17:52:05 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,49 +24,14 @@
 #include <iostream>
 #include <vector>
 #include <serverConfig.hpp>
+#include <utils.hpp>
 #include <Client.hpp>
 
-std::string const getReasonPhrase(int code)
-{
-	std::string	ret;
-	switch (code)
-	{
-		
-		case 201:
-			ret = " Created";
-			break;
-		case 301: case 302:
-			ret = " Redirect";
-			break;
-		case bad_request:
-			ret = " Bad Request";
-			break;
-		case forbiden:
-			ret = " Forbiden";
-			break;
-		case not_found:
-			ret = " Not Found";
-			break;
-		case method_not_allowed:
-			ret = " Method Not Allowed";
-			break;
-		case payload_too_large:
-			ret = " Payload Too Large";
-			break;
-		case 500:
-			ret = " Payload Too Large";
-			break;
-		default:
-			ret = " OK";
-			break;
-	}
-	return (ret);
-}
 
 std::string	generate_default_error_page(HttpResponse& response)
 {
 	std::stringstream	error_code;
-	error_code << response.getStatusCode() << getReasonPhrase(response.getStatusCode());
+	error_code << response.getStatusCode() << generate_reason_phrase(response.getStatusCode());
 	std::string error_page = "<html>\n<head><title>" + error_code.str() + "</title></head>\n<body>\n<center><h1>" + error_code.str() + "</h1></center>\n</body>\n</html>\n";
 	return error_page;
 }
@@ -78,26 +43,6 @@ void	create_default_error_response(HttpResponse& response, int error_code)
 	response.addField("Content-Length", toStr(response.getBody().length()));
 	response.addField("Content-Type", "text/html");
 }
-
-std::string	find_content_type(const std::string &filePath)
-{
-	MIME ext = find_type(filePath);
-	switch (ext)
-	{
-		case JPG:
-			return ("image/jpeg");
-		case PNG:
-			return ("image/png");
-		case HTML:
-			return ("text/html");
-		case TXT:
-			return ("text/plain");
-		default:
-			return ("application/octet-stream");
-	}
-}
-
-
 void	create_error_response(HttpResponse& response, int error_code, std::string const& file_name)
 {
 	std::ifstream	ifs;

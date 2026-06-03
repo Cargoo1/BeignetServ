@@ -6,18 +6,20 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/14 19:50:59 by acamargo          #+#    #+#             */
-/*   Updated: 2026/05/29 17:01:26 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/03 21:11:31 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <Client.hpp>
 #include <Request.hpp>
+#include <iostream>
 
 Client::Client(int fd, uint32_t events)
 {
 	this->_einf.data.fd = fd;
 	this->_einf.events = events;
-	std::time(&this->_last_comunication);
+	std::time(&this->_last_communication);
+	std::cout << fd << " " << this->_last_communication;
 	return;
 }
 
@@ -32,6 +34,7 @@ Client::Client(Client const& other)
 	this->_r = other._r;
 	this->_message = other._message;
 	this->_response = other._response;
+	this->_last_communication = other._last_communication;
 	return;
 }
 
@@ -67,6 +70,16 @@ void			Client::appendMessage(std::string const& s)
 std::string const&	Client::getIp(void) const
 {
 	return this->_ip;
+}
+
+time_t			Client::getLastComm(void) const
+{
+	return this->_last_communication;
+}
+
+void	Client::setLastComm(void)
+{
+	std::time(&this->_last_communication);
 }
 
 std::string const&	Client::getPort(void) const

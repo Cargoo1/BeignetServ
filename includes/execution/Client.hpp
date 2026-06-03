@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/14 19:47:36 by acamargo          #+#    #+#             */
-/*   Updated: 2026/05/29 17:01:21 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/03 21:11:27 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,8 @@ public:
 	std::string const&	getResponse(void) const;
 	std::string const&	getIp(void) const;
 	std::string const&	getPort(void) const;
+	time_t			getLastComm(void) const;
+	void			setLastComm(void);
 	Request&		getRequest(void);
 	void			setMessage(std::string const& msg);
 	void			appendMessage(std::string const& s);
@@ -37,7 +39,7 @@ public:
 	int				getFd(void) const;
 private:
 	Request		_r;
-	time_t		_last_comunication;
+	time_t		_last_communication;
 	std::string	_ip;
 	std::string	_port;
 	std::string	_message;

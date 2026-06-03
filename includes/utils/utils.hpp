@@ -1,0 +1,44 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   utils.hpp                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/06/03 17:39:25 by acamargo          #+#    #+#             */
+/*   Updated: 2026/06/03 17:52:46 by acamargo         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#pragma once
+#include <string>
+#include <sstream>
+
+enum MIME { JPG, PNG, HTML, TXT, APP};
+
+template <typename T> 
+std::string toStr(T nbr) {
+	std::ostringstream os;
+	os << nbr;
+	std::string ret = os.str();
+	return (ret);
+}
+
+enum	client_error
+{
+	bad_request = 400,
+	forbiden = 403,
+	not_found,
+	method_not_allowed,
+	payload_too_large = 415,
+	content_too_large = 413,
+	internal_server_error = 500
+};
+
+std::string findExt(const std::string &path);
+
+MIME find_type(const std::string &filePath);
+
+std::string	find_content_type(const std::string &filePath);
+
+std::string const generate_reason_phrase(int code);

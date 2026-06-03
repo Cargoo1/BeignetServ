@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 19:03:36 by acamargo          #+#    #+#             */
-/*   Updated: 2026/05/28 21:11:37 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/03 21:40:02 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include <cstddef>
 #include <HttpResponse.hpp>
 #include <iostream>
+#include <utils.hpp>
 
 Header::Header()
 {
@@ -100,7 +101,7 @@ void	Header::setTargetResource(std::string& uri)
 		throw Request::ErrorRequest(bad_request);
 	int	deepness = 0;
 	size_t	i = 0;
-	while (i < uri.length())
+	while (i < uri.length() && deepness >= 0)
 	{
 		if (std::isalnum(uri.at(i)))
 		{
@@ -121,7 +122,8 @@ void	Header::setTargetResource(std::string& uri)
 				i++;
 				continue;
 			}
-			else if (uri.at(i + 1) == '.' && (i + 2 == uri.length() || uri.at(i + 2) == '/'))
+			else if (uri.at(i + 1) == '.' && (i + 2 == uri.length() || uri.at(i + 2) == '/'
+												|| uri.at(i + 2) == '?'))
 			{
 				deepness--;
 				i += 2;

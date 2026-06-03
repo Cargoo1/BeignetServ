@@ -1,5 +1,7 @@
 #include <HttpResponse.hpp>
 
+#include <utils.hpp>
+
 #include <sstream>
 #include <fstream>
 #include <sys/stat.h>

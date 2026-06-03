@@ -1,6 +1,5 @@
 #pragma once
 
-#include <UtilsMethod.hpp>
 
 #include <sstream>
 #include <string>
@@ -16,17 +15,6 @@ je crois que le code 415 est pas le ref.
 413 Content Too Large
     The request body is larger than limits defined by server. The server might close the connection or return a Retry-After header field.
 */
-
-enum	client_error
-{
-	bad_request = 400,
-	forbiden = 403,
-	not_found,
-	method_not_allowed,
-	payload_too_large = 415,
-	content_too_large = 413,
-	internal_server_error = 500
-};
 
 class HttpResponse {
 	public:

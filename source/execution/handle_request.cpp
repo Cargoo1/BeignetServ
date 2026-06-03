@@ -6,7 +6,7 @@
 /*   By: alejandrocamargo <acamargo@student.42.fr>  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/11 19:40:38 by alejandrocama     #+#    #+#             */
-/*   Updated: 2026/05/29 14:09:46 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/03 22:02:11 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include <cstring>
 #include <exception>
 #include <iostream>
+#include <map>
 #include <netinet/in.h>
 #include <sstream>
 #include <stdexcept>
@@ -53,6 +54,7 @@ int	handle_request(Client& client, std::vector<serverConfig> const& serverConf)
 	Request	r;
 	if (r.getHeader().getMethod().empty())
 	{
+		client.setLastComm();
 		try
 		{
 			parse_header(request_stream, r.getHeader());
@@ -63,11 +65,8 @@ int	handle_request(Client& client, std::vector<serverConfig> const& serverConf)
 			return -1;
 		}
 	}
-	send_response(client, 200, server_block);
-	client.setMessage("");
-	if (r.getHeader().getFields().find("Content_Length") != r.getHeader().getFields().end())
-	{
-		//
-	}
+	std::map<std::string, std::string> const&	fields = r.getHeader().getFields();
+	if (fields.find("Content-Length") == fields.end())
+		return 0;
 	return 0;	
 }

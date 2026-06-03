@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/07 19:49:10 by acamargo          #+#    #+#             */
-/*   Updated: 2026/05/27 14:16:35 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/03 17:53:38 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@
 #include <string>
 #include <utility>
 #include <Request.hpp>
+#include <utils.hpp>
 
 typedef void(Header::*field_function)(std::string &);
 

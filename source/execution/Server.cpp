@@ -6,11 +6,12 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/12 15:15:33 by acamargo          #+#    #+#             */
-/*   Updated: 2026/05/29 17:12:07 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/03 20:29:54 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <Client.hpp>
+#include <ctime>
 #include <serverConfig.hpp>
 #include <iostream>
 #include <Server.hpp>
@@ -29,6 +30,7 @@ Server::Server(Server const& other) : _server_conf(other._server_conf)
 
 Server::Server(std::vector<serverConfig> const& servers_conf) : _server_conf(servers_conf)
 {
+	std::time(&this->_last_check);
 	this->_epollfd = -1;
 	return ;
 }
@@ -83,6 +85,16 @@ struct epoll_event*			Server::getEventQueue(void)
 	return this->_eventQueue;
 }
 
+time_t	Server::getLastCheck(void) const
+{
+	return this->_last_check;
+}
+
+void	Server::setLastCheck(void)
+{
+	std::time(&this->_last_check);
+}
+
 std::map<int, Client>&	Server::getClients(void)
 {
 	return this->_clients;
@@ -96,7 +108,7 @@ void	Server::addClient(int fd, uint32_t events, std::string const& ip, std::stri
 	this->_clients.at(fd).setIpPort(ip, port);
 	std::cout << "New client connected to: " <<
 				this->_clients.at(fd).getIp() +
-				':' + this->_clients.at(fd).getPort() << '\n';
+				':' + this->_clients.at(fd).getPort() + ", fd: " << fd << '\n';
 }
 void	Server::deleteClient(int fd)
 {

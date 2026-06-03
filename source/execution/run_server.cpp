@@ -6,13 +6,15 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 19:10:40 by acamargo          #+#    #+#             */
-/*   Updated: 2026/05/29 17:25:47 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/03 21:32:22 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
 #include <configParser.hpp>
 #include <cstddef>
+#include <ctime>
+#include <map>
 #include <netinet/in.h>
 # include <run_server.hpp>
 #include <cerrno>
@@ -146,6 +148,28 @@ void	accept_client(Server& server, int fd)
 	server.addClient(new_fd, EPOLLIN | EPOLLHUP, ip.str(), port.str());
 }
 
+void	check_idle_clients(Server& server)
+{
+	time_t	curr_time;
+
+	std::time(&curr_time);
+	if (curr_time - server.getLastCheck() < 1)
+		return;
+	std::map<int, Client>::iterator	it;
+	for (it = server.getClients().begin(); it != server.getClients().end();)
+	{
+		if (curr_time - it->second.getLastComm() < 30)
+		{
+			++it;
+			continue;
+		}
+		std::cout << "Closing connection with iddle client: " + it->second.getIp() + ":"
+					+ it->second.getPort() + " " << it->first << "\n";
+		server.deleteClient((it++)->first);
+	}
+	server.setLastCheck();
+}
+
 void	get_client_msg(Server& server, int fd)
 {
 	if (!listen_msg(server.getClients().at(fd), fd))
@@ -172,6 +196,7 @@ void	process_connection(Server&	server, int epollcount)
 		else
 			get_client_msg(server, server.getEventQueue()[i].data.fd);
 	}
+	check_idle_clients(server);
 }
 
 #define MAX_EVENTS 10
@@ -201,6 +226,7 @@ int		set_epoll(Server& server)
 	return 0;
 }
 
+
 int	run(std::vector<serverConfig> const& servers_conf)
 {
 	Server	server(servers_conf);
@@ -220,19 +246,20 @@ int	run(std::vector<serverConfig> const& servers_conf)
 	}
 	if (set_epoll(server) < 0)
 		return 1;
+	std::cout << "Waiting for events...\n";
 	while(true)
 	{
-		std::cout << "Waiting for events...\n";
 		int epollcount = epoll_wait(server.getEpollfd(),
 									server.getEventQueue(),
-									MAX_EVENTS, 60000);
+									MAX_EVENTS, 1000);
 		if (epollcount < 0)
 			return -1;
 		if (epollcount == TIMEOUT)
 		{
-			std::cerr << "Timeout.\nClosing the connection with all the clients\n";
-			if (!close_all_clients(server))
-				break;
+			//std::cerr << "Timeout.\nClosing the connection with all the clients\n";
+			//if (!close_all_clients(server))
+			//	break;
+			check_idle_clients(server);
 			continue;
 		}
 		else if (epollcount < 0)

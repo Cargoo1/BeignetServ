@@ -1,5 +1,5 @@
 CXX = c++
-CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -I$(HEADER_DIR)/$(EXEC_DIR) -I$(HEADER_DIR)/$(EXEP_DIR) -I$(HEADER_DIR)/$(PAR_DIR) -I$(HEADER_DIR)/$(CONF_DIR) -I$(HEADER_DIR)/$(MTD_DIR) -g3
+CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -I$(HEADER_DIR)/$(EXEC_DIR) -I$(HEADER_DIR)/$(EXEP_DIR) -I$(HEADER_DIR)/$(PAR_DIR) -I$(HEADER_DIR)/$(CONF_DIR) -I$(HEADER_DIR)/$(MTD_DIR) -I$(HEADER_DIR)/$(UTILS_DIR) -g3
 
 NAME = WebServ
 
@@ -9,13 +9,13 @@ EXEP_DIR = exception
 EXEC_DIR = execution
 PAR_DIR = parser
 MTD_DIR = methodClass
+UTILS_DIR = utils
 HEADER = $(HEADER_DIR)/$(EXEP_DIR)/configException.hpp		\
 		 $(HEADER_DIR)/$(PAR_DIR)/configParser.hpp			\
 		 $(HEADER_DIR)/$(PAR_DIR)/Token.hpp					\
 		 $(HEADER_DIR)/$(PAR_DIR)/parserUtils.hpp			\
 		 $(HEADER_DIR)/$(CONF_DIR)/serverConfig.hpp			\
 		 $(HEADER_DIR)/$(CONF_DIR)/locationConfig.hpp		\
-		 $(HEADER_DIR)/$(MTD_DIR)/UtilsMethod.hpp			\
 		 $(HEADER_DIR)/$(EXEC_DIR)/Server.hpp				\
 		 $(HEADER_DIR)/$(EXEC_DIR)/handle_request.hpp		\
 		 $(HEADER_DIR)/$(EXEC_DIR)/parse_request.hpp		\
@@ -25,6 +25,7 @@ HEADER = $(HEADER_DIR)/$(EXEP_DIR)/configException.hpp		\
 		 $(HEADER_DIR)/$(EXEC_DIR)/Header.hpp				\
 		 $(HEADER_DIR)/$(EXEC_DIR)/HttpResponse.hpp			\
 		 $(HEADER_DIR)/$(EXEC_DIR)/send_http_response.hpp	\
+		 $(HEADER_DIR)/$(UTILS_DIR)/utils.hpp				\
 
 
 SRCS_DIR = source
@@ -46,6 +47,7 @@ SRCS = $(SRCS_DIR)/$(EXEP_DIR)/configException.cpp		\
 	   $(SRCS_DIR)/$(EXEC_DIR)/Header.cpp				\
 	   $(SRCS_DIR)/$(EXEC_DIR)/HttpResponse.cpp			\
 	   $(SRCS_DIR)/$(EXEC_DIR)/send_http_response.cpp	\
+	   $(SRCS_DIR)/$(UTILS_DIR)/utils.cpp				\
 	   $(SRCS_DIR)/main.cpp
 
 OBJ_DIR = obj
