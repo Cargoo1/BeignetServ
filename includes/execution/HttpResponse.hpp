@@ -6,8 +6,6 @@
 #include <string>
 #include <map>
 
-enum MIME { JPG, PNG, HTML, TXT, APP};
-
 /* 
 https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status
 je crois que le code 415 est pas le ref.  

@@ -51,6 +51,12 @@ std::string&	Header::getMethod(void)
 	return this->_method;
 }
 
+const std::string&	Header::getMethod(void) const
+{
+	return this->_method;
+}
+
+
 std::string&	Header::getTargetResource(void)
 {
 	return this->_target_resource;
@@ -62,6 +68,11 @@ const std::string&	Header::getTargetResource(void) const
 }
 
 std::string&	Header::getProtocolV(void)
+{
+	return this->_protocol_v;
+}
+
+const std::string&	Header::getProtocolV(void) const
 {
 	return this->_protocol_v;
 }

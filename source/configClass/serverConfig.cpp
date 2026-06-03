@@ -16,3 +16,19 @@ serverConfig &serverConfig::operator=(const serverConfig &rhs) {
 	return (*this);
 }
 
+std::string serverConfig::listen() {
+	return (this->_listen);
+}
+
+const std::string serverConfig::listen() const {
+	return (this->_listen);
+}
+
+std::string serverConfig::serverName() {
+	return (this->_serverName);
+}
+
+const std::string serverConfig::serverName() const {
+	return (this->_serverName);
+}
+

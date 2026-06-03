@@ -15,30 +15,6 @@
 // 	return (path.substr(0, pos));
 // } }
 
-namespace { std::string findExt(const std::string &path) {
-	std::string ret = path;
-	std::string del = ".";
-	std::string::size_type pos = ret.find(del);
-	while (pos != std::string::npos) {
-		ret.erase(0, pos + del.length());
-		pos = ret.find(del);
-	}
-	return (ret);
-} }
-
-namespace { MIME switchType(const std::string &filePath){
-	std::string::size_type pos = filePath.find(".");
-	std::string ext = findExt(filePath);
-	if (ext == "jpeg")
-		return (JPG);
-	else if (ext == "png")
-		return (PNG);
-	else if (ext == "html")
-		return (HTML);
-	else if (ext == "txt")
-		return (TXT);
-} }
-
 HttpMethod::HttpMethod(const ExecutionContext &context) : _context(context) {}
 
 std::string HttpMethod::NormalizePath(std::string toNomalize) {
@@ -73,7 +49,7 @@ struct stat HttpMethod::getFileData(const std::string &filePath) {
 }
 
 std::string HttpMethod::getContentType(const std::string &filePath) {
-	MIME ext = switchType(filePath);
+	MIME ext = find_type(filePath);
 	switch (ext)
 	{
 		case JPG:

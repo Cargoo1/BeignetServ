@@ -25,9 +25,11 @@ class Header
 		Header&	operator=(Header const& other);
 
 		std::string&						getMethod(void);
+		const std::string&						getMethod(void) const;
 		std::string&						getTargetResource(void);
 		const std::string&					getTargetResource(void) const;
 		std::string&						getProtocolV(void);
+		const std::string&						getProtocolV(void) const;
 		std::map<std::string, std::string>&	getFields(void);
 		std::string&							getContentLenght(void);
 		const std::string&							getContentLenght(void) const;

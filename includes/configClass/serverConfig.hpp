@@ -17,6 +17,12 @@ class serverConfig {
 
 		serverConfig &operator=(const serverConfig &rhs);
 
+		std::string listen();
+		const std::string listen() const;
+
+		std::string serverName();
+		const std::string serverName() const;
+
 	public:
 		std::string					_listen;
 		std::string					_serverName;
