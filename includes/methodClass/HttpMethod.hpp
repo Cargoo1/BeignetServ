@@ -2,6 +2,7 @@
 
 #include <ExecutionContext.hpp>
 #include <HttpResponse.hpp>
+#include <utils.hpp>
 
 class HttpMethod {
 	public: 
@@ -10,9 +11,10 @@ class HttpMethod {
 
 		virtual void executeMethod(HttpResponse &rsp) = 0;
 	protected:
-		const ExecutionContext &_context;
-		std::string NormalizePath(std::string toNomalize);
-		struct stat getFileData(const std::string &filePath);
-		std::string getContentType(const std::string &filepath);
-		HttpResponse buildErrorResponse(HttpResponse &res, int code, std::string msg);
+		const ExecutionContext	&_context;
+		std::string				_NormalizePath(std::string toNomalize);
+		struct stat				_getFileData(const std::string &filePath);
+		std::string				_getContentType(const std::string &filepath);
+		HttpResponse			_buildErrorResponse(HttpResponse &res, int code, std::string msg);
+		void					_executeCGI(const ExecutionContext context);
 };

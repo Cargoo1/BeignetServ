@@ -34,29 +34,6 @@ namespace { bool isCgi(const std::string path){
 	return(false);
 } }
 
-namespace { char **buildEnv(const ExecutionContext &context, const std::string env){
-	std::map<std::string, std::string> mapEnv;
-	std::string tmp;
-	mapEnv["REQUEST_METHOD"] = context.request.getHeader().getMethod();
-	std::string targetR = context.request.getHeader().getTargetResource();
-	mapEnv["SCRIPT_NAME"] = getPath(targetR);
-	mapEnv["QUERY_STRING"] = getQuery(targetR);
-	mapEnv["SERVER_NAME"] = context.server.serverName();
-	std::string::size_type pos = context.server.listen().find_last_of(":");
-	mapEnv["SERVER_PORT"] = context.server.listen().substr(pos+1);
-	mapEnv["SERVER_PROTOCOL"] = context.request.getHeader().getProtocolV();
-	mapEnv["GATEWAY_INTERFACE"] = "CGI/1.1";
-	mapEnv["SERVER_SOFTWARE"] = "BeignetServ/1.0";
-	mapEnv["REMOTE_ADDR"] = ""; //Need ip adress of client
-	mapEnv["PATH_INFO"] = "";
-	mapEnv["PATH_TRANSLATED"] = "";
-
-} }
-
-namespace { char **builArgs(const std::string args){
-
-} }
-
 void GetMethod::executeMethod(HttpResponse &rsp) {
 	if (this->_context.location.hasRedirect()) {
 		rsp.setStatusCode(this->_context.location.getRedirectCode());
@@ -67,17 +44,7 @@ void GetMethod::executeMethod(HttpResponse &rsp) {
 	std::string query = getQuery(targetR);
 	std::string cgiPath = getPath(targetR);
 	if (isCgi(cgiPath)) {
-		char **envp = buildEnv(this->_context);
-		char **av = builArgs(cgiPath);
-
-		pipe();
-		fork();
-		pid_t pid = getpid();
-		if (pid == 0) {
-			dup2();
-			execve(cgiPath.c_str(), av, envp);
-		}
-		read();
+		
 	}
 	std::string root = this->_context.location.getRoot();
 	if (!root.empty() && root.back() != '/')
