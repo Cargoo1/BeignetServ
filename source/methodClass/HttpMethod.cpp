@@ -3,6 +3,7 @@
 #include <bits/stdc++.h>
 #include <vector>
 #include <sys/stat.h>
+#include <sys/wait.h>
 
 
 // namespace { std::string findRootDir(std::string path) {
@@ -31,11 +32,12 @@ namespace { char **buildEnv(const ExecutionContext &context){
 	mapEnv["REMOTE_ADDR"] = ""; //Need ip adress of client
 	mapEnv["PATH_INFO"] = "";
 	mapEnv["PATH_TRANSLATED"] = "";
+	char **ret = new 
 
 } }
 
 namespace { char **builArgs(const std::string args){
-
+	char **ret = new
 } }
 
 HttpMethod::HttpMethod(const ExecutionContext &context) : _context(context) {}
@@ -97,16 +99,30 @@ void HttpMethod::_executeCGI(const ExecutionContext context) {
 	std::string targetR = this->_context.request.getHeader().getTargetResource();
 	std::string query = getQuery(targetR);
 	std::string cgiPath = getQuery_path(targetR);
+	std::string scriptRet;
+	char buffer[4096];
+	ssize_t bytesRead;
+	int status;
 
 	char **envp = buildEnv(context);
 	char **av = builArgs(cgiPath);
+	int pipefd[2];
 
-	pipe();
-	fork();
-	pid_t pid = getpid();
+	if (pipe(pipefd) == -1)
+		throw Request::ErrorRequest(internal_server_error);
+	pid_t pid = fork();
 	if (pid == 0) {
-		dup2();
+		dup2(pipefd[1], STDOUT_FILENO);
 		execve(cgiPath.c_str(), av, envp);
 	}
-	read();
+	else if (pid == -1)
+		throw Request::ErrorRequest(internal_server_error);
+	else {
+		close(pipefd[1]);
+		while ((bytesRead = read(pipefd[0], buffer, sizeof(buffer))) > 0)
+			scriptRet.append(buffer, bytesRead);
+		waitpid(pid, &status, 0);
+		close(pipefd[0]);
+	}
+
 }
