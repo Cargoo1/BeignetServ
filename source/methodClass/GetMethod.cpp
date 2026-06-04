@@ -5,27 +5,9 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 
-#define NULL_STR ""
-
 GetMethod::GetMethod(ExecutionContext &context) : HttpMethod(context) {};
 
 GetMethod::~GetMethod() {};
-
-namespace { std::string getQuery(const std::string path) {
-	std::size_t found = path.find_first_of("?");
-	if (found == std::string::npos) {
-		return (NULL_STR);
-	}
-	std::string query = path.substr(found+1);
-	query = query.substr(0, query.find_first_of(" "));
-	return (query);
-} }
-
-namespace { std::string getPath(const std::string path) {
-	std::string newPath = path.substr(path.find_first_of("/"));
-	newPath = newPath.substr(0, newPath.find_first_of("?"));
-	return (newPath);
-} }
 
 namespace { bool isCgi(const std::string path){
 	std::string ext = findExt(path);
@@ -42,9 +24,9 @@ void GetMethod::executeMethod(HttpResponse &rsp) {
 	}
 	std::string targetR = this->_context.request.getHeader().getTargetResource();
 	std::string query = getQuery(targetR);
-	std::string cgiPath = getPath(targetR);
+	std::string cgiPath = getQuery_path(targetR);
 	if (isCgi(cgiPath)) {
-		
+		_executeCGI(this->_context);
 	}
 	std::string root = this->_context.location.getRoot();
 	if (!root.empty() && root.back() != '/')
@@ -66,7 +48,7 @@ void GetMethod::executeMethod(HttpResponse &rsp) {
 	}
 	if (!rsp.setBodyFromFile(path))
 		throw Request::ErrorRequest(not_found);
-	rsp.setContentType(this->getContentType(path));
+	rsp.setContentType(this->_getContentType(path));
 	rsp.addContentLength();
 	rsp.setStatusCode(200);
 }

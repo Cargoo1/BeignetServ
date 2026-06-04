@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include <utils.hpp>
+
 std::string const generate_reason_phrase(int code)
 {
 	std::string	ret;
@@ -89,4 +90,20 @@ std::string	find_content_type(const std::string &filePath)
 		default:
 			return ("application/octet-stream");
 	}
+}
+
+std::string getQuery(const std::string path) {
+	std::size_t found = path.find_first_of("?");
+	if (found == std::string::npos) {
+		return (NULL_STR);
+	}
+	std::string query = path.substr(found+1);
+	query = query.substr(0, query.find_first_of(" "));
+	return (query);
+}
+
+std::string getQuery_path(const std::string path) {
+	std::string newPath = path.substr(path.find_first_of("/"));
+	newPath = newPath.substr(0, newPath.find_first_of("?"));
+	return (newPath);
 }

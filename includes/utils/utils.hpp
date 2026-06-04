@@ -17,6 +17,8 @@
 
 enum MIME { JPG, PNG, HTML, TXT, APP};
 
+#define NULL_STR ""
+
 template <typename T> 
 std::string toStr(T nbr) {
 	std::ostringstream os;
@@ -43,3 +45,7 @@ MIME find_type(const std::string &filePath);
 std::string	find_content_type(const std::string &filePath);
 
 std::string const generate_reason_phrase(int code);
+
+std::string getQuery(const std::string path);
+
+std::string getQuery_path(const std::string path);

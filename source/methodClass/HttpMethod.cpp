@@ -15,12 +15,12 @@
 // 	return (path.substr(0, pos));
 // } }
 
-namespace { char **buildEnv(const ExecutionContext &context, const std::string env){
+namespace { char **buildEnv(const ExecutionContext &context){
 	std::map<std::string, std::string> mapEnv;
 	std::string tmp;
 	mapEnv["REQUEST_METHOD"] = context.request.getHeader().getMethod();
 	std::string targetR = context.request.getHeader().getTargetResource();
-	mapEnv["SCRIPT_NAME"] = getPath(targetR);
+	mapEnv["SCRIPT_NAME"] = getQuery_path(targetR);
 	mapEnv["QUERY_STRING"] = getQuery(targetR);
 	mapEnv["SERVER_NAME"] = context.server.serverName();
 	std::string::size_type pos = context.server.listen().find_last_of(":");
@@ -96,9 +96,9 @@ std::string HttpMethod::_getContentType(const std::string &filePath) {
 void HttpMethod::_executeCGI(const ExecutionContext context) {
 	std::string targetR = this->_context.request.getHeader().getTargetResource();
 	std::string query = getQuery(targetR);
-	std::string cgiPath = getPath(targetR);
+	std::string cgiPath = getQuery_path(targetR);
 
-	char **envp = buildEnv(this->_context);
+	char **envp = buildEnv(context);
 	char **av = builArgs(cgiPath);
 
 	pipe();
