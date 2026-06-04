@@ -6,10 +6,16 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/03 17:41:28 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/03 17:45:21 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/04 22:42:17 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <cctype>
+#include <cmath>
+#include <cstddef>
+#include <cstdlib>
+#include <map>
+#include <iostream>
 #include <utils.hpp>
 
 std::string const generate_reason_phrase(int code)
@@ -58,6 +64,55 @@ std::string findExt(const std::string &path) {
 		pos = ret.find(del);
 	}
 	return (ret);
+}
+
+char	hex_to_char(std::string str)
+{
+	int	c = 0;
+	size_t	found;
+	int		exponent = 0;
+	std::string	hexadecimal= "0123456789ABCDEF";
+	for (int i = str.length() - 1; i >= 0; --i)
+	{
+		found = hexadecimal.find(str.at(i));
+		if (found == std::string::npos)
+			return 0;
+		c = c + found * static_cast<int>(std::pow(16, exponent++));
+	}
+	if (c > 127 || c < 0)
+		return 0;
+	return c;
+}
+
+bool	is_hexadecimal(std::string const& str)
+{
+	for (size_t i = 0; i < str.length(); ++i)
+	{
+		if (std::isalpha(str.at(i)) && str.at(i) <= 'F')
+			return true;
+	}
+	return false;
+}
+
+bool	decode_percent_encoding(std::string& str, size_t pos)
+{
+	char	c;
+	if (str.at(pos) != '%')
+		return false;
+	if (!is_hexadecimal(str.substr(pos + 1, 2)))
+	{
+		c = std::atoi(str.substr(pos + 1, 2).c_str());
+		if (c < 0)
+			return false;
+	}
+	else
+	{
+		c = hex_to_char(str.substr(pos + 1, 2));
+		if (c == 0)
+			return false;
+	}
+	str.replace(pos, 2, 1, c);
+	return true;
 }
 
 MIME find_type(const std::string &filePath)

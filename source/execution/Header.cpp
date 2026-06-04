@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 19:03:36 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/03 21:40:02 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/04 22:44:17 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,17 +95,31 @@ bool	Header::setMethod(std::string& method)
 	return true;
 }
 
-void	Header::setTargetResource(std::string& uri)
+namespace
 {
-	if (uri.empty())
-		throw Request::ErrorRequest(bad_request);
+bool	is_not_reserved(char c)
+{
+	if (std::isalnum(c)
+		|| c == '-'
+		|| c == '_'
+		|| c ==	'~')
+		return true;
+	return false;
+}
+}
+
+namespace { size_t	parse_path(std::string& uri)
+{
 	int	deepness = 0;
 	size_t	i = 0;
 	while (i < uri.length() && deepness >= 0)
 	{
-		if (std::isalnum(uri.at(i)))
+		if (is_not_reserved(uri.at(i)))
 		{
-			while (i < uri.length() && uri.at(i) != '/')
+			while (i < uri.length()
+				&& uri.at(i) != '/'
+				&& uri.at(i) != '?'
+				&& uri.at(i) != '%')
 				i++;
 			deepness++;
 		}
@@ -135,13 +149,35 @@ void	Header::setTargetResource(std::string& uri)
 		}
 		else if (uri.at(i) == '?')
 			break;
+		/*
+		else if (uri.at(i) == '%' && i + 1 < uri.length())
+		{
+			if (!decode_percent_encoding(uri, i))
+				throw Request::ErrorRequest(bad_request);
+		}
+		*/
 		else
+		{
 			throw Request::ErrorRequest(bad_request);
+		}
 	}
 	if (deepness < 0)
 		throw Request::ErrorRequest(bad_request);
-	this->_target_resource = uri.substr(0, i);
+	return i;
+}
+}
+
+void	Header::setTargetResource(std::string& uri)
+{
+	if (uri.empty())
+		throw Request::ErrorRequest(bad_request);
+	size_t separator_pos = parse_path(uri);
+	this->_target_resource = uri.substr(0, separator_pos);
+	if (separator_pos < uri.length())
+		separator_pos++;
+	this->_query_string = uri.substr(separator_pos, std::string::npos);
 	std::cout << "path parsed: " + this->_target_resource + '\n';
+	std::cout << "query string parsed: " + this->_query_string + '\n';
 }
 
 bool	Header::setProtocolV(std::string& protocol)

@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 18:35:09 by acamargo          #+#    #+#             */
-/*   Updated: 2026/05/27 15:08:05 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/04 20:47:25 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@ class Header
 		const std::string&						getProtocolV(void) const;
 		std::map<std::string, std::string>&	getFields(void);
 		std::string&							getContentLenght(void);
+		std::string&						getQueryStr(void);
 		const std::string&							getContentLenght(void) const;
 		bool	setMethod(std::string& method);
 		void	setTargetResource(std::string& uri);
@@ -42,5 +43,6 @@ class Header
 		std::map<std::string, std::string>	_map_fields;
 		std::string							_method;
 		std::string							_target_resource; //path
+		std::string							_query_string;
 		std::string							_protocol_v;
 };

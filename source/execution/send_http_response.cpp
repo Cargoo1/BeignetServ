@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 21:54:03 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/03 17:52:05 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/04 19:56:33 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,7 +104,7 @@ int	sendall(int fd, char const* buf, int &len)
 	return 0;
 }
 
-int	send_response(Client const& client, int status_code, serverConfig const& serverConf)
+int	send_response(Client& client, int status_code, serverConfig const& serverConf)
 {
 	HttpResponse	response;
 	std::string		msg;
@@ -118,6 +118,7 @@ int	send_response(Client const& client, int status_code, serverConfig const& ser
 	msg = response.toHttpString();
 	int	len = msg.length();
 	sendall(client.getFd(), msg.c_str(), len);
+	client.setMessage("");
 	if (static_cast<size_t>(len) != msg.length())
 	{
 		std::cerr << "Failed sending all bytes in the response\n";

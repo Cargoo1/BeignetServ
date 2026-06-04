@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/03 17:39:25 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/03 17:52:46 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/04 22:22:06 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,8 @@ enum	client_error
 };
 
 std::string findExt(const std::string &path);
+
+bool	decode_percent_encoding(std::string& str, size_t pos);
 
 MIME find_type(const std::string &filePath);
 
