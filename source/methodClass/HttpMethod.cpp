@@ -32,7 +32,7 @@ namespace { char **buildEnv(const ExecutionContext &context){
 	mapEnv["REMOTE_ADDR"] = ""; //Need ip adress of client
 	mapEnv["PATH_INFO"] = "";
 	mapEnv["PATH_TRANSLATED"] = "";
-	char **ret = new 
+	char **ret 
 
 } }
 
