@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   handle_request.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alejandrocamargo <acamargo@student.42.fr>  +#+  +:+       +#+        */
+/*   By: ratel <ratel@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/05/11 19:40:38 by alejandrocama     #+#    #+#             */
-/*   Updated: 2026/06/04 18:47:33 by acamargo         ###   ########.fr       */
+/*   Created: 2026/05/11 19:40:38 by alejandroca       #+#    #+#             */
+/*   Updated: 2026/06/05 15:44:14 by ratel            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 

@@ -32,12 +32,12 @@ namespace { char **buildEnv(const ExecutionContext &context){
 	mapEnv["REMOTE_ADDR"] = ""; //Need ip adress of client
 	mapEnv["PATH_INFO"] = "";
 	mapEnv["PATH_TRANSLATED"] = "";
-	char **ret 
+	// char **ret 
 
 } }
 
 namespace { char **builArgs(const std::string args){
-	char **ret = new
+	// char **ret = new
 } }
 
 HttpMethod::HttpMethod(const ExecutionContext &context) : _context(context) {}

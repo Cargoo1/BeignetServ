@@ -23,6 +23,12 @@ class serverConfig {
 		std::string serverName();
 		const std::string serverName() const;
 
+		std::vector<locationConfig> locationBloc();
+		const std::vector<locationConfig> locationBloc() const;
+
+		std::string root();
+		const std::string root() const;
+
 	public:
 		std::string					_listen;
 		std::string					_serverName;

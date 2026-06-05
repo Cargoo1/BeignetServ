@@ -28,7 +28,7 @@ class locationConfig {
 		bool const& hasCMBS() const;
 
 		bool const& hasRedirect() const;
-
+		bool const& getAutoindex() const;
 		std::size_t &getCMBS();
 		const std::size_t &getCMBS() const;
 

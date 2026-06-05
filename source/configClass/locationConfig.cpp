@@ -54,6 +54,10 @@ bool const& locationConfig::hasRedirect() const {
 	return (this->_hasRedirect);
 }
 
+bool const& locationConfig::getAutoindex() const {
+	return (this->_autoindex);
+}
+
 std::size_t &locationConfig::getCMBS() {
 	return (this->_clientMaxBodySize);
 }
@@ -69,7 +73,6 @@ int &locationConfig::getRedirectCode() {
 const int &locationConfig::getRedirectCode() const {
 	return (this->_redirectCode);
 }
-
 
 std::string &locationConfig::getRedirectUrl() {
 	return (this->_redirectUrl);

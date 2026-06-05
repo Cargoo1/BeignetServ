@@ -4,6 +4,7 @@
 #include <limits.h>
 #include <stdlib.h>
 #include <sys/stat.h>
+#include <dirent.h>
 
 GetMethod::GetMethod(ExecutionContext &context) : HttpMethod(context) {};
 
@@ -35,13 +36,30 @@ void GetMethod::executeMethod(HttpResponse &rsp) {
 	struct stat path_stat;
 	if (stat(path.c_str(), &path_stat) < 0) 
 		throw Request::ErrorRequest(not_found);
-
 	if (S_ISDIR(path_stat.st_mode)) {
-		path += "index.html";
-		if (stat(path.c_str(), &path_stat) < 0)
-			throw Request::ErrorRequest(not_found);  // ← Changé: forbiden → not_found
-		if (!S_ISREG(path_stat.st_mode))
-			throw Request::ErrorRequest(forbiden);
+		if (targetR.back() != '/') {
+			rsp.setStatusCode(301);
+			rsp.addField("Location", targetR + "/");
+			return;
+		}
+		std::string indexPath = path + "index.html";
+		if (stat(indexPath.c_str(), &path_stat) == 0 && S_ISREG(path_stat.st_mode)) {
+			if (!rsp.setBodyFromFile(indexPath))
+				throw Request::ErrorRequest(not_found);
+			rsp.setContentType(this->_getContentType(indexPath));
+			rsp.addContentLength();
+			rsp.setStatusCode(200);
+			return;
+		}
+		if (this->_context.location.getAutoindex()) {
+			std::string htmlList = _generateAutoindex(path);
+			rsp.setBody(htmlList);
+			rsp.setContentType("text/html");
+			rsp.addContentLength();
+			rsp.setStatusCode(200);
+			return;
+		}
+		throw Request::ErrorRequest(forbiden);
 	}
 	else if (!S_ISREG(path_stat.st_mode)) {
 		throw Request::ErrorRequest(forbiden);
@@ -51,4 +69,29 @@ void GetMethod::executeMethod(HttpResponse &rsp) {
 	rsp.setContentType(this->_getContentType(path));
 	rsp.addContentLength();
 	rsp.setStatusCode(200);
+}
+
+std::string GetMethod::_generateAutoindex(const std::string &path) {
+	std::string html = "<!DOCTYPE html>\n<html>\n<head>\n";
+	html += "<title>Index of " + path + "</title>\n";
+	html += "</head>\n<body>\n";
+	html += "<h1>Index of " + path + "</h1>\n";
+	html += "<ul>\n";
+
+	DIR *dir = opendir(path.c_str());
+	if (!dir)
+		throw Request::ErrorRequest(not_found);
+	struct dirent *entry;
+	std::vector<std::string> entries;
+	while ((entry = readdir(dir))) {
+		std::string name = entry->d_name;
+		if (name == "." || name == "..")
+			continue;
+		entries.push_back("<li><a href=\"" + name + "\">" + name + "</a></li>\n");
+	}
+	closedir(dir);
+	for (size_t i = 0; i < entries.size(); ++i)
+		html += entries[i];
+	html += "</ul>\n</body>\n</html>\n";
+	return html;
 }

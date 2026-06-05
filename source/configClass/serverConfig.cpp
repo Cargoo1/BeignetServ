@@ -32,3 +32,19 @@ const std::string serverConfig::serverName() const {
 	return (this->_serverName);
 }
 
+std::vector<locationConfig> serverConfig::locationBloc() {
+	return (this->_locations);
+}
+
+const std::vector<locationConfig> serverConfig::locationBloc() const {
+	return (this->_locations);
+}
+
+std::string serverConfig::root() {
+	return (this->_root);
+}
+
+const std::string serverConfig::root() const {
+	return (this->_root);
+}
+

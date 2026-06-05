@@ -7,4 +7,6 @@ class GetMethod : public HttpMethod {
 		GetMethod(ExecutionContext &context);
 		~GetMethod();
 		void executeMethod(HttpResponse &rsp);
+	private:
+		std::string _generateAutoindex(const std::string &path);
 };

@@ -45,7 +45,6 @@ namespace { bool postFile(std::string path, const std::string &body){
 
 	if (found != std::string::npos) {
 		while (std::getline(iss, part, '/')) {
-			std::cout << part << std::endl;
 			if (part.empty())
 				continue;
 			current_path += part;
