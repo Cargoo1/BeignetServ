@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/03 17:41:28 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/04 22:42:17 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/05 20:27:18 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,10 +71,10 @@ char	hex_to_char(std::string str)
 	int	c = 0;
 	size_t	found;
 	int		exponent = 0;
-	std::string	hexadecimal= "0123456789ABCDEF";
+	std::string	hexadecimal= "0123456789abcdef";
 	for (int i = str.length() - 1; i >= 0; --i)
 	{
-		found = hexadecimal.find(str.at(i));
+		found = hexadecimal.find(std::tolower(str.at(i)));
 		if (found == std::string::npos)
 			return 0;
 		c = c + found * static_cast<int>(std::pow(16, exponent++));
@@ -94,24 +94,38 @@ bool	is_hexadecimal(std::string const& str)
 	return false;
 }
 
-bool	decode_percent_encoding(std::string& str, size_t pos)
+bool	is_unreserved(char c)
+{
+	if (std::isalnum(c)
+		|| c == '-'
+		|| c == '_'
+		|| c ==	'~'
+		|| c == '.')
+		return true;
+	return false;
+}
+
+bool	decode_percent_encoding(std::string& str, size_t& pos)
 {
 	char	c;
+	int		encoding_len = 0;
+	std::string	encoded_str;
 	if (str.at(pos) != '%')
 		return false;
-	if (!is_hexadecimal(str.substr(pos + 1, 2)))
+	size_t	i = pos + 1;
+	while (i < str.length() && i < pos + 3)
 	{
-		c = std::atoi(str.substr(pos + 1, 2).c_str());
-		if (c < 0)
-			return false;
+		if (!isalnum(str.at(i)))
+			break;
+		++i;
+		++encoding_len;
 	}
-	else
-	{
-		c = hex_to_char(str.substr(pos + 1, 2));
-		if (c == 0)
-			return false;
-	}
-	str.replace(pos, 2, 1, c);
+	encoded_str = str.substr(pos + 1, encoding_len);
+	c = hex_to_char(encoded_str);
+	if (c == 0)
+		return false;
+	str.replace(pos, 3, 1, c);
+	++pos;
 	return true;
 }
 
