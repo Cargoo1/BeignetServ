@@ -6,19 +6,16 @@
 /*   By: ratel <ratel@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/11 19:40:38 by alejandroca       #+#    #+#             */
-/*   Updated: 2026/06/05 15:44:14 by ratel            ###   ########.fr       */
+/*   Updated: 2026/06/09 18:30:26 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Request.hpp"
-#include <cerrno>
-#include <cstring>
-#include <exception>
+#include <cstdlib>
 #include <iostream>
 #include <map>
 #include <netinet/in.h>
 #include <sstream>
-#include <stdexcept>
 #include <string>
 #include <parse_request.hpp>
 #include <sys/socket.h>
@@ -44,15 +41,31 @@ serverConfig const&	find_server_block(Client& client, std::vector<serverConfig> 
 	return serverConfig.front();
 }
 
+int	read_body(Request& r, std::istringstream& request_stream)
+{
+	std::string	line;
+	while (r.getBytesRead() <= r.getBodyLen() && std::getline(request_stream, line))
+	{
+		std::cout << "Body Line read: " + line + '\n';
+		r.appendBody(line);
+		if (!r.addBytesRead(line.length()))
+		{
+			std::cerr << "Bytes read limit reached, couldnt add more\n";
+			return -1;
+		}
+	}
+	if (r.getBytesRead() == r.getBodyLen())
+		return 0;
+	return r.getBytesRead();
+}
+
 int	handle_request(Client& client, std::vector<serverConfig> const& serverConf)
 {
-	if (client.getMessage().find("\r\n\r\n") == std::string::npos)
-		return 0;
+	Request&	r = client.getRequest();
 	serverConfig const& server_block = find_server_block(client, serverConf);
 	std::cout << "Server block: " + server_block._listen + '\n';
-	std::istringstream	request_stream(client.getMessage());
-	Request	r;
-	if (r.getHeader().getMethod().empty())
+	std::istringstream	request_stream(client.getRequest().getMessage());
+	if (!r.getHeader().is_header_parsed())
 	{
 		client.setLastComm();
 		try
@@ -61,13 +74,37 @@ int	handle_request(Client& client, std::vector<serverConfig> const& serverConf)
 		}
 		catch(Request::ErrorRequest& e)
 		{
-			send_response(client, e.getErrorCode(), server_block);
+			send_response(r, e.getErrorCode(), server_block, client.getFd());
 			return -1;
 		}
 	}
-	send_response(client, 200, server_block);
 	std::map<std::string, std::string> const&	fields = r.getHeader().getFields();
 	if (fields.find("Content-Length") == fields.end())
+	{
+		send_response(r, 200, server_block, client.getFd());
 		return 0;
-	return 0;	
+	}
+	r.setBodyLen(std::atof(fields.at("Content-Length").c_str()));
+	if (read_body(r, request_stream) == 0)
+	{
+		std::cout << "sending response, done reading the body\n";
+		send_response(r, 200, server_block, client.getFd());
+	}
+	return 0;
+	/*
+	 three options:
+	 1. msg = .....\n\n {body}
+	 {
+		if content-length is found
+		keep reading and continue from the last time read (header)
+		if content-length > bytes_read, return and give 30 secs to user to complete msg
+		if not close connection
+	 }
+	 2. msg = ......\n\n {w content-length} (not all body sent)
+	 {
+		content-length found
+
+	 }
+	 3. msg = .....\n\n {no body}
+	*/
 }

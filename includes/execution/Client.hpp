@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/14 19:47:36 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/03 21:11:27 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/09 14:41:08 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,16 +25,11 @@ public:
 
 	Client&	operator=(Client const& other);
 
-	std::string const&	getMessage(void) const;
-	std::string const&	getResponse(void) const;
 	std::string const&	getIp(void) const;
 	std::string const&	getPort(void) const;
 	time_t			getLastComm(void) const;
 	void			setLastComm(void);
 	Request&		getRequest(void);
-	void			setMessage(std::string const& msg);
-	void			appendMessage(std::string const& s);
-	void			setResponse(std::string& response);
 	void			setIpPort(std::string const& ip, std::string const& port);
 	int				getFd(void) const;
 private:
@@ -42,7 +37,5 @@ private:
 	time_t		_last_communication;
 	std::string	_ip;
 	std::string	_port;
-	std::string	_message;
-	std::string	_response;
 	struct epoll_event	_einf;
 };

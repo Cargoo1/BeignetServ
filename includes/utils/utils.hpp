@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/03 17:39:25 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/05 19:54:45 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/09 14:32:17 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@
 #include <sstream>
 
 enum MIME { JPG, PNG, HTML, TXT, APP};
+
+#define BUFF_SIZE 256
 
 #define NULL_STR ""
 
@@ -53,3 +55,5 @@ std::string const generate_reason_phrase(int code);
 std::string getQuery(const std::string path);
 
 std::string getQuery_path(const std::string path);
+
+bool	listen_msg(std::string& str, int cfd);

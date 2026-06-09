@@ -6,13 +6,14 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/08 14:23:48 by acamargo          #+#    #+#             */
-/*   Updated: 2026/05/27 15:07:20 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/09 17:52:35 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
 #include "Header.hpp"
+#include <cstddef>
 #include <exception>
 #include <map>
 #include <string>
@@ -37,9 +38,26 @@ public:
 
 	const Header&		getHeader(void) const;
 	Header&				getHeader(void);
-	const std::string	getBody(void) const;
-	std::string	getBody(void);
+	std::string const&	getBody(void) const;
+	void				appendBody(std::string const& str);
+	std::string const&		getMessage(void) const;
+	std::string&		getNotConstMessage(void);
+	void					setMessage(std::string const& str);
+	std::string const&		getResponse(void) const;
+	void					setResponse(std::string const& str);
+	bool					getReqInProg(void) const;
+	void					setReqInProg(bool value);
+	size_t				getBytesRead(void) const;
+	size_t				getBodyLen(void) const;
+	bool				addBytesRead(size_t bytes);
+	void				setBodyLen(size_t len);
+
 private:
 	Header		_header;
+	bool		_request_in_progress;
 	std::string	_body;
+	size_t		_body_len;
+	size_t		_bytes_read;
+	std::string	_message;
+	std::string	_response;
 };

@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 19:10:40 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/04 19:59:34 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/09 18:15:34 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,8 +29,6 @@
 #include <unistd.h>
 #include <vector>
 #include <sys/epoll.h>
-
-#define BUFF_SIZE 256
 
 int		getListenerSocket(const std::string &host, const std::string &port)
 {
@@ -105,19 +103,6 @@ void	add_client(int pfd, std::vector<struct pollfd> &pfds, std::vector<Server> &
 }
 */
 
-bool	listen_msg(Client& c, int cfd)
-{
-	char	buff[BUFF_SIZE];
-
-	std::memset(buff, 0, BUFF_SIZE);
-	int		size_read = recv(cfd, &buff, BUFF_SIZE, 0);
-	if (size_read <= 0)
-		return false;
-	c.appendMessage(buff);
-	//std::cout << "READ {\n" << msg << "\n} END\n";
-	return true;
-}
-
 void	accept_client(Server& server, int fd)
 {
 	struct sockaddr_in	client_info;
@@ -172,13 +157,22 @@ void	check_idle_clients(Server& server)
 
 void	get_client_msg(Server& server, int fd)
 {
-	if (!listen_msg(server.getClients().at(fd), fd))
+	Client&	client = server.getClients().at(fd);
+	if (!listen_msg(client.getRequest().getNotConstMessage(), fd))
 	{
 		std::cout << "Client: " << fd << " hang up, closing connection\n";
 		server.deleteClient(fd);
 		return;
 	}
+	std::cout << client.getRequest().getMessage() + '\n';
+	if (!client.getRequest().getReqInProg())
+	{
+		if (client.getRequest().getMessage().find("\r\n\r\n") == std::string::npos)
+			return;
+		client.getRequest().setReqInProg(true);
+	}
 	handle_request(server.getClients().at(fd), server.getServerConf());
+
 }
 
 void	process_connection(Server&	server, int epollcount)

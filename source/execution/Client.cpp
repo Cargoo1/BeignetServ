@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/14 19:50:59 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/03 21:11:31 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/09 14:42:03 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,8 +32,6 @@ Client::Client(Client const& other)
 {
 	this->_einf = other._einf;
 	this->_r = other._r;
-	this->_message = other._message;
-	this->_response = other._response;
 	this->_last_communication = other._last_communication;
 	return;
 }
@@ -45,26 +43,6 @@ Client&	Client::operator=(Client const& other)
 	this->~Client();
 	new (this) Client(other);
 	return *this;
-}
-
-std::string const&	Client::getMessage(void) const
-{
-	return this->_message;
-}
-
-std::string const&	Client::getResponse(void) const
-{
-	return this->_response;
-}
-
-void			Client::setMessage(std::string const& msg)
-{
-	this->_message = msg;
-}
-
-void			Client::appendMessage(std::string const& s)
-{
-	this->_message += s;
 }
 
 std::string const&	Client::getIp(void) const
@@ -91,11 +69,6 @@ void			Client::setIpPort(std::string const& ip, std::string const& port)
 {
 	this->_ip = ip;
 	this->_port = port;
-}
-
-void			Client::setResponse(std::string& response)
-{
-	this->_response = response;
 }
 
 int		Client::getFd(void) const

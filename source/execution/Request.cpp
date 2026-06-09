@@ -6,18 +6,22 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/08 15:51:44 by acamargo          #+#    #+#             */
-/*   Updated: 2026/05/26 19:28:40 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/09 17:58:21 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Header.hpp"
 #include <Request.hpp>
 #include <cstddef>
+#include <limits>
 #include <map>
 #include <string>
 
 Request::Request()
 {
+	this->_request_in_progress = false;
+	this->_body_len = 0;
+	this->_bytes_read = 0;
 	return;
 }
 
@@ -29,6 +33,12 @@ Request::~Request()
 Request::Request(const Request& other)
 {
 	this->_header = other._header;
+	this->_body = other._body;
+	this->_response = other._response;
+	this->_message = other._message;
+	this->_request_in_progress = other._request_in_progress;
+	this->_body_len = other._body_len;
+	this->_bytes_read = other._bytes_read;
 	return ;
 }
 
@@ -51,8 +61,14 @@ const Header&		Request::getHeader(void) const
 	return this->_header;
 }
 
-const std::string			Request::getBody(void) const {
+std::string const&			Request::getBody(void) const {
 	return (this->_body);
+}
+
+void	Request::appendBody(std::string const& str)
+{
+	this->_body.append(str);
+	return;
 }
 
 const char*	Request::ErrorRequest::what() const throw()
@@ -68,4 +84,67 @@ Request::ErrorRequest::ErrorRequest(int error_code)
 int		Request::ErrorRequest::getErrorCode(void) const
 {
 	return this->_error_code;
+}
+
+std::string const&		Request::getMessage(void) const
+{
+	return this->_message;
+}
+
+std::string&		Request::getNotConstMessage(void) 
+{
+	return this->_message;
+}
+
+void					Request::setMessage(std::string const& str)
+{
+	this->_message = str;
+	return;
+}
+
+std::string const&		Request::getResponse(void) const
+{
+	return this->_response;
+}
+
+void					Request::setResponse(std::string const& str)
+{
+	this->_response = str;
+	return;
+}
+
+bool					Request::getReqInProg(void) const
+{
+	return this->_request_in_progress;
+}
+
+void					Request::setReqInProg(bool value)
+{
+	this->_request_in_progress = value;
+	return;
+}
+
+size_t	Request::getBytesRead(void) const
+{
+	return this->_bytes_read;
+}
+
+size_t	Request::getBodyLen(void) const
+{
+	return this->_body_len;
+}
+
+bool	Request::addBytesRead(size_t bytes)
+{
+	size_t	diff = std::numeric_limits<size_t>::max() - this->_bytes_read;
+	if (bytes > diff)
+		return false;
+	this->_bytes_read += bytes;
+	return true;
+}
+
+void	Request::setBodyLen(size_t len)
+{
+	this->_body_len = len;
+	return;
 }

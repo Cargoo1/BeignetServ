@@ -6,7 +6,7 @@
 /*   By: ratel <ratel@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 19:03:36 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/05 19:54:00 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/09 14:25:11 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 
 Header::Header()
 {
+	this->_is_header_parsed = false;
 	return;
 }
 
@@ -203,4 +204,14 @@ std::string	&Header::getContentLenght(void)
 const std::string&	Header::getContentLenght(void) const
 {
 	return (this->_map_fields.at("Content-Length"));
+}
+
+bool	Header::is_header_parsed(void) const
+{
+	return this->_is_header_parsed;
+}
+
+void	Header::set_is_header_parsed(bool value)
+{
+	this->_is_header_parsed = value;
 }

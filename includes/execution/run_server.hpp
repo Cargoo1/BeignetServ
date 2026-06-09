@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 19:14:10 by acamargo          #+#    #+#             */
-/*   Updated: 2026/05/21 22:30:02 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/09 14:36:43 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,8 @@
 #include <iostream>
 
 #include <serverConfig.hpp>
+
+#include <utils.hpp>
 
 #define TIMEOUT 0
 

@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/07 19:49:10 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/03 17:53:38 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/09 14:25:49 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,4 +131,5 @@ void	parse_header(std::istringstream& request, Header &header)
 	}
 	if (header.getFields().find("Host") == header.getFields().end())
 		throw Request::ErrorRequest(bad_request);
+	header.set_is_header_parsed(true);
 }

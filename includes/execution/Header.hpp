@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 18:35:09 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/04 20:47:25 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/09 14:24:35 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,8 +39,11 @@ class Header
 		bool	setProtocolV(std::string& protocol);
 		void	setHost(std::string& host);
 		void	setContent_len(std::string& content_len);
+		bool	is_header_parsed(void) const;
+		void	set_is_header_parsed(bool value);
 	private:
 		std::map<std::string, std::string>	_map_fields;
+		bool								_is_header_parsed;
 		std::string							_method;
 		std::string							_target_resource; //path
 		std::string							_query_string;

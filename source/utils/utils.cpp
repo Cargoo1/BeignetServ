@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/03 17:41:28 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/05 20:27:18 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/09 14:32:08 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,10 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdlib>
+#include <cstring>
 #include <map>
 #include <iostream>
+#include <sys/socket.h>
 #include <utils.hpp>
 
 std::string const generate_reason_phrase(int code)
@@ -175,4 +177,16 @@ std::string getQuery_path(const std::string path) {
 	std::string newPath = path.substr(path.find_first_of("/"));
 	newPath = newPath.substr(0, newPath.find_first_of("?"));
 	return (newPath);
+}
+
+bool	listen_msg(std::string& str, int cfd)
+{
+	char	buff[BUFF_SIZE];
+
+	std::memset(buff, 0, BUFF_SIZE);
+	int		size_read = recv(cfd, &buff, BUFF_SIZE, 0);
+	if (size_read <= 0)
+		return false;
+	str.append(buff);
+	return true;
 }
