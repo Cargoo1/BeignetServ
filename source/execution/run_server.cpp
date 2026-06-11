@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 19:10:40 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/09 18:15:34 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/11 22:19:51 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -164,7 +164,8 @@ void	get_client_msg(Server& server, int fd)
 		server.deleteClient(fd);
 		return;
 	}
-	std::cout << client.getRequest().getMessage() + '\n';
+	std::cout << "Client message :" + client.getRequest().getMessage() + '\n';
+	client.setLastComm();
 	if (!client.getRequest().getReqInProg())
 	{
 		if (client.getRequest().getMessage().find("\r\n\r\n") == std::string::npos)
@@ -172,7 +173,7 @@ void	get_client_msg(Server& server, int fd)
 		client.getRequest().setReqInProg(true);
 	}
 	handle_request(server.getClients().at(fd), server.getServerConf());
-
+	client.getRequest().getNotConstMessage().clear();
 }
 
 void	process_connection(Server&	server, int epollcount)

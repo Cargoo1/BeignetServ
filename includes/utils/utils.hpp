@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/03 17:39:25 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/09 14:32:17 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/11 22:53:02 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 #include <string>
 #include <sstream>
 
-enum MIME { JPG, PNG, HTML, TXT, APP};
+enum MIME { JPG, PNG, HTML, TXT, CGI_PY, APP};
 
 #define BUFF_SIZE 256
 
@@ -57,3 +57,5 @@ std::string getQuery(const std::string path);
 std::string getQuery_path(const std::string path);
 
 bool	listen_msg(std::string& str, int cfd);
+
+unsigned long long	ft_atoull(char const* str);

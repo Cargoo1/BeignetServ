@@ -6,7 +6,7 @@
 /*   By: ratel <ratel@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 19:03:36 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/09 14:25:11 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/11 21:52:38 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -193,6 +193,11 @@ void	Header::setContent_len(std::string& content_len)
 	if (colon_pos == std::string::npos)
 		throw Request::ErrorRequest(bad_request);
 	content_len.erase(0, colon_pos + 1);
+	for (size_t i = 0; i < content_len.length(); ++i)
+	{
+		if (!std::isdigit(content_len.at(i)))
+			throw Request::ErrorRequest(bad_request);
+	}
 	this->_map_fields["Content-Length"] = content_len;
 }
 

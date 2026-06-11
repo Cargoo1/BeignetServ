@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/03 17:41:28 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/09 14:32:08 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/11 22:59:16 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,7 @@ std::string const generate_reason_phrase(int code)
 std::string findExt(const std::string &path) {
 	std::string ret = path;
 	std::string del = ".";
-	std::string::size_type pos = ret.find(del);
+	std::string::size_type pos = ret.find_last_of(del);
 	while (pos != std::string::npos) {
 		ret.erase(0, pos + del.length());
 		pos = ret.find(del);
@@ -142,6 +142,8 @@ MIME find_type(const std::string &filePath)
 		return (HTML);
 	else if (ext == "txt")
 		return (TXT);
+	else if (ext == "py")
+		return (CGI_PY);
 	else
 		return (APP);
 }

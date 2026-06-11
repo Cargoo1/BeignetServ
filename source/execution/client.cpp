@@ -6,11 +6,13 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/21 15:12:53 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/09 18:23:55 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/11 23:33:07 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <climits>
 #include <cstddef>
+#include <cstdint>
 #include <cstdio>
 #include <cstring>
 #include <iostream>
@@ -38,6 +40,7 @@ int	main(int argc, char **argv)
 	addrinfo.ai_family = AF_INET;
 	addrinfo.ai_socktype = SOCK_STREAM;
 	addrinfo.ai_protocol = 0;
+	//int error = getaddrinfo("localhost", "8080", &addrinfo, &result);
 	int error = getaddrinfo("localhost", "8888", &addrinfo, &result);
 	if (error != 0)
 	{
@@ -51,18 +54,15 @@ int	main(int argc, char **argv)
 		exit(1);
 	}
 	char buff[100000];
-	std::string msg = "GET /..b/. HTTP/1.1\r\nHost:localhost:9090\r\nContent-Length:10\r\n\r\n1234567890";
-	size_t bytes_sent = send(sfd, msg.c_str(), msg.length(), 0);
-	sleep(2);
-	/*
-	while (bytes_sent <= msg.length())
+	std::string msg = "GET /pene/ Hsddasdadusa TTP/1.1\r\nHost:localhost:9090\r\nContent-Length:10\r\n\r\n1234567890";
+	int bytes_sent = send(sfd, msg.c_str(), 5, 0);
+	while (bytes_sent < (int)msg.length())
 	{
 		bytes_sent += send(sfd, msg.c_str() + bytes_sent, 5, 0);
 		if (bytes_sent < 0)
 			return -1;
-		sleep(2);
 	}
-	*/
+	memset(buff, 0, sizeof(buff));
 	recv(sfd, buff, 100000, 0);
 	std::cout << buff;
 	//listen(sfd, 10);

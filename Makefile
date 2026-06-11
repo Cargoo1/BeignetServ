@@ -48,6 +48,7 @@ SRCS = $(SRCS_DIR)/$(EXEP_DIR)/configException.cpp		\
 	   $(SRCS_DIR)/$(EXEC_DIR)/HttpResponse.cpp			\
 	   $(SRCS_DIR)/$(EXEC_DIR)/send_http_response.cpp	\
 	   $(SRCS_DIR)/$(UTILS_DIR)/utils.cpp				\
+	   $(SRCS_DIR)/$(UTILS_DIR)/ft_atoull.cpp			\
 	   $(SRCS_DIR)/main.cpp
 
 OBJ_DIR = obj

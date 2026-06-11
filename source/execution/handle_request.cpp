@@ -6,7 +6,7 @@
 /*   By: ratel <ratel@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/11 19:40:38 by alejandroca       #+#    #+#             */
-/*   Updated: 2026/06/09 18:30:26 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/11 22:20:17 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ serverConfig const&	find_server_block(Client& client, std::vector<serverConfig> 
 int	read_body(Request& r, std::istringstream& request_stream)
 {
 	std::string	line;
-	while (r.getBytesRead() <= r.getBodyLen() && std::getline(request_stream, line))
+	while (r.getBytesRead() < r.getBodyLen() && std::getline(request_stream, line))
 	{
 		std::cout << "Body Line read: " + line + '\n';
 		r.appendBody(line);
@@ -67,7 +67,6 @@ int	handle_request(Client& client, std::vector<serverConfig> const& serverConf)
 	std::istringstream	request_stream(client.getRequest().getMessage());
 	if (!r.getHeader().is_header_parsed())
 	{
-		client.setLastComm();
 		try
 		{
 			parse_header(request_stream, r.getHeader());
@@ -84,27 +83,11 @@ int	handle_request(Client& client, std::vector<serverConfig> const& serverConf)
 		send_response(r, 200, server_block, client.getFd());
 		return 0;
 	}
-	r.setBodyLen(std::atof(fields.at("Content-Length").c_str()));
+	r.setBodyLen(ft_atoull(fields.at("Content-Length").c_str()));
 	if (read_body(r, request_stream) == 0)
 	{
 		std::cout << "sending response, done reading the body\n";
 		send_response(r, 200, server_block, client.getFd());
 	}
 	return 0;
-	/*
-	 three options:
-	 1. msg = .....\n\n {body}
-	 {
-		if content-length is found
-		keep reading and continue from the last time read (header)
-		if content-length > bytes_read, return and give 30 secs to user to complete msg
-		if not close connection
-	 }
-	 2. msg = ......\n\n {w content-length} (not all body sent)
-	 {
-		content-length found
-
-	 }
-	 3. msg = .....\n\n {no body}
-	*/
 }

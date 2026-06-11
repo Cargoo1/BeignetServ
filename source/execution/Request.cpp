@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/08 15:51:44 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/09 17:58:21 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/11 17:42:48 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include <limits>
 #include <map>
 #include <string>
+#include <sys/types.h>
 
 Request::Request()
 {
@@ -129,7 +130,7 @@ size_t	Request::getBytesRead(void) const
 	return this->_bytes_read;
 }
 
-size_t	Request::getBodyLen(void) const
+unsigned long long const&	Request::getBodyLen(void) const
 {
 	return this->_body_len;
 }
@@ -143,7 +144,7 @@ bool	Request::addBytesRead(size_t bytes)
 	return true;
 }
 
-void	Request::setBodyLen(size_t len)
+void	Request::setBodyLen(unsigned long long const& len)
 {
 	this->_body_len = len;
 	return;

@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/08 14:23:48 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/09 17:52:35 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/11 17:41:51 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,15 +48,15 @@ public:
 	bool					getReqInProg(void) const;
 	void					setReqInProg(bool value);
 	size_t				getBytesRead(void) const;
-	size_t				getBodyLen(void) const;
+	unsigned long long const&	getBodyLen(void) const;
 	bool				addBytesRead(size_t bytes);
-	void				setBodyLen(size_t len);
+	void				setBodyLen(unsigned long long const& len);
 
 private:
 	Header		_header;
 	bool		_request_in_progress;
 	std::string	_body;
-	size_t		_body_len;
+	unsigned long long	_body_len;
 	size_t		_bytes_read;
 	std::string	_message;
 	std::string	_response;
