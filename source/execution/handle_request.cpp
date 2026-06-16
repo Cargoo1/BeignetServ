@@ -6,11 +6,13 @@
 /*   By: ratel <ratel@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/11 19:40:38 by alejandroca       #+#    #+#             */
-/*   Updated: 2026/06/11 22:20:17 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/16 16:07:16 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Request.hpp"
+#include "locationConfig.hpp"
+#include "utils.hpp"
 #include <cstdlib>
 #include <iostream>
 #include <map>
@@ -73,21 +75,23 @@ int	handle_request(Client& client, std::vector<serverConfig> const& serverConf)
 		}
 		catch(Request::ErrorRequest& e)
 		{
-			send_response(r, e.getErrorCode(), server_block, client.getFd());
+			//send_response(r, e.getErrorCode(), server_block, client.getFd(), loc_block);
 			return -1;
 		}
 	}
 	std::map<std::string, std::string> const&	fields = r.getHeader().getFields();
+	locationConfig const& loc_block = find_location_block(r.getHeader().getTargetResource(), server_block._locations);
 	if (fields.find("Content-Length") == fields.end())
 	{
-		send_response(r, 200, server_block, client.getFd());
+		send_response(r, 200, server_block, client.getFd(), loc_block);
 		return 0;
 	}
 	r.setBodyLen(ft_atoull(fields.at("Content-Length").c_str()));
 	if (read_body(r, request_stream) == 0)
 	{
+		send_response(r, 200, server_block, client.getFd(), loc_block);
 		std::cout << "sending response, done reading the body\n";
-		send_response(r, 200, server_block, client.getFd());
+		//send_response(r, 200, server_block, client.getFd());
 	}
 	return 0;
 }

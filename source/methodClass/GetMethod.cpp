@@ -31,7 +31,7 @@ void GetMethod::executeMethod(HttpResponse &rsp) {
 		return;
 	}
 	std::string root = this->_context.location.getRoot();
-	std::string path = root + targetR;
+	std::string path = "." + root + targetR;
 	struct stat path_stat;
 	if (stat(path.c_str(), &path_stat) < 0) 
 		throw Request::ErrorRequest(not_found);

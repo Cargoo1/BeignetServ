@@ -6,11 +6,14 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 21:54:03 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/09 14:51:15 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/16 15:52:58 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "ExecutionContext.hpp"
+#include "GetMethod.hpp"
 #include "Request.hpp"
+#include "locationConfig.hpp"
 #include <HttpResponse.hpp>
 
 #include <cerrno>
@@ -105,16 +108,20 @@ int	sendall(int fd, char const* buf, int &len)
 	return 0;
 }
 
-int	send_response(Request& r, int status_code, serverConfig const& serverConf, int cfd)
+int	send_response(Request& r, int status_code, serverConfig const& server_block, int cfd, 
+					locationConfig const& loc_block)
 {
 	HttpResponse	response;
 	std::string		msg;
 	response.addField("Server", "Beignetserv/0.1");
 	if (status_code >= 400)
-		send_error_response(response, serverConf, status_code);
+		send_error_response(response, server_block, status_code);
 	else
 	{
-		create_default_error_response(response, 200);
+		//create_default_error_response(response, 200);
+		ExecutionContext	context(r, loc_block, server_block);
+		GetMethod	method(context);
+		method.executeMethod(response);
 	}
 	msg = response.toHttpString();
 	int	len = msg.length();

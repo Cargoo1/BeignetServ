@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/03 17:41:28 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/16 13:37:48 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/16 16:06:30 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -232,11 +232,15 @@ locationConfig const&	find_location_block(std::string const& uri,
 	{
 		std::string	const& loc_path = loc_confs.at(i).getPath();
 		chars_matched = 0;
+		j = 0;
+		k = 0;
 		while (j < uri.length() && k < loc_path.length())
 		{
 			if (uri.at(j) != loc_path.at(k))
 				break;
 			chars_matched++;
+			++j;
+			++k;
 		}
 		if (chars_matched > longest_chars_matched)
 		{
