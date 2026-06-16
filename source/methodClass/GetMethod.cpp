@@ -31,8 +31,6 @@ void GetMethod::executeMethod(HttpResponse &rsp) {
 		return;
 	}
 	std::string root = this->_context.location.getRoot();
-	if (!root.empty() && root.at(root.size() - 1) != '/')
-		root += '/';
 	std::string path = root + targetR;
 	struct stat path_stat;
 	if (stat(path.c_str(), &path_stat) < 0) 
