@@ -6,7 +6,7 @@
 /*   By: ratel <ratel@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 19:03:36 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/11 21:52:38 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/16 15:39:06 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,9 +19,8 @@
 #include <iostream>
 #include <utils.hpp>
 
-Header::Header()
+Header::Header() : _is_header_parsed(false), _is_cgi(false)
 {
-	this->_is_header_parsed = false;
 	return;
 }
 
@@ -31,6 +30,8 @@ Header::Header(Header const& other)
 	this->_method = other._method;
 	this->_protocol_v = other._protocol_v;
 	this->_target_resource = other._target_resource;
+	this->_is_header_parsed = other._is_header_parsed;
+	this->_is_cgi = other._is_cgi;
 	return;
 }
 
@@ -145,7 +146,7 @@ namespace { size_t	parse_path(std::string& uri)
 	if (i >= uri.length())
 		return std::string::npos;
 	return i;
-}
+	}
 }
 
 void	Header::setTargetResource(std::string& uri)
@@ -153,8 +154,11 @@ void	Header::setTargetResource(std::string& uri)
 	if (uri.empty())
 		throw Request::ErrorRequest(bad_request);
 	size_t separator_pos = parse_path(uri);
+	
 	this->_target_resource = uri.substr(0, separator_pos);
 	std::cout << "path parsed: " + this->_target_resource + '\n';
+	if (find_type(this->_target_resource) == CGI_PY || is_in_cgi_dir(uri))
+		this->_is_cgi = true;
 	if (separator_pos == std::string::npos)
 		return;
 	if (separator_pos < uri.length())

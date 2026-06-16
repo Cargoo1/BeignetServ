@@ -6,15 +6,18 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/03 17:39:25 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/11 22:53:02 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/16 13:39:55 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
 #include <string>
+
 #include <sstream>
 #include <vector>
+
+#include <locationConfig.hpp>
 
 enum MIME { JPG, PNG, HTML, TXT, CGI_PY, APP};
 
@@ -61,4 +64,9 @@ std::string getQuery_path(const std::string path);
 
 bool	listen_msg(std::string& str, int cfd);
 
+bool	is_in_cgi_dir(std::string const& uri);
+
 unsigned long long	ft_atoull(char const* str);
+
+locationConfig const&	find_location_block(std::string const& uri,
+										std::vector<locationConfig> const& loc_confs);

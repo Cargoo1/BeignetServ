@@ -6,13 +6,14 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/08 14:23:48 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/11 17:41:51 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/16 13:47:28 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
 #include "Header.hpp"
+#include "locationConfig.hpp"
 #include <cstddef>
 #include <exception>
 #include <map>
@@ -51,12 +52,15 @@ public:
 	unsigned long long const&	getBodyLen(void) const;
 	bool				addBytesRead(size_t bytes);
 	void				setBodyLen(unsigned long long const& len);
+	locationConfig const*	getLocConf(void) const;
+	void					setLocConf(locationConfig const& loc_conf);
 
 private:
 	Header		_header;
 	bool		_request_in_progress;
 	std::string	_body;
 	unsigned long long	_body_len;
+	locationConfig const*	_loc_conf;
 	size_t		_bytes_read;
 	std::string	_message;
 	std::string	_response;

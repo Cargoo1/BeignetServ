@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 18:35:09 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/09 14:24:35 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/15 12:46:21 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,7 @@ class Header
 	private:
 		std::map<std::string, std::string>	_map_fields;
 		bool								_is_header_parsed;
+		bool								_is_cgi;
 		std::string							_method;
 		std::string							_target_resource; //path
 		std::string							_query_string;

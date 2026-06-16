@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/08 15:51:44 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/11 17:42:48 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/16 13:48:30 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ Request::Request()
 	this->_request_in_progress = false;
 	this->_body_len = 0;
 	this->_bytes_read = 0;
+	this->_loc_conf = NULL;
 	return;
 }
 
@@ -40,6 +41,7 @@ Request::Request(const Request& other)
 	this->_request_in_progress = other._request_in_progress;
 	this->_body_len = other._body_len;
 	this->_bytes_read = other._bytes_read;
+	this->_loc_conf = other._loc_conf;
 	return ;
 }
 
@@ -148,4 +150,14 @@ void	Request::setBodyLen(unsigned long long const& len)
 {
 	this->_body_len = len;
 	return;
+}
+
+locationConfig const*	Request::getLocConf(void) const
+{
+	return this->_loc_conf;
+}
+
+void	Request::setLocConf(locationConfig const& loc_conf)
+{
+	this->_loc_conf = &loc_conf;
 }

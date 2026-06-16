@@ -6,10 +6,11 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/03 17:41:28 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/11 22:59:16 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/16 13:37:48 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "locationConfig.hpp"
 #include <cctype>
 #include <cmath>
 #include <cstddef>
@@ -18,7 +19,11 @@
 #include <map>
 #include <iostream>
 #include <sys/socket.h>
+#include <sys/types.h>
 #include <utils.hpp>
+#include <vector>
+
+#define CGI_DIR "cgi_temp"
 
 std::string const generate_reason_phrase(int code)
 {
@@ -203,4 +208,41 @@ bool	listen_msg(std::string& str, int cfd)
 		return false;
 	str.append(buff);
 	return true;
+}
+
+bool	is_in_cgi_dir(std::string const& uri)
+{
+	size_t dir_pos = uri.find_last_of('/');
+	if (dir_pos == uri.length() - 1)
+		dir_pos = uri.find_last_of('/', dir_pos - 1);
+	if (uri.compare(dir_pos + 1, std::strlen(CGI_DIR) + 1, CGI_DIR) == 0)
+		return true;
+	return false;
+}
+
+locationConfig const&	find_location_block(std::string const& uri,
+										std::vector<locationConfig> const& loc_confs)
+{
+	size_t	longest_chars_matched = 0;
+	size_t	chars_matched;
+	int		longest_match = -1;
+	size_t	j = 0;
+	size_t	k = 0;
+	for (size_t i = 0; i < loc_confs.size(); ++i)
+	{
+		std::string	const& loc_path = loc_confs.at(i).getPath();
+		chars_matched = 0;
+		while (j < uri.length() && k < loc_path.length())
+		{
+			if (uri.at(j) != loc_path.at(k))
+				break;
+			chars_matched++;
+		}
+		if (chars_matched > longest_chars_matched)
+		{
+			longest_chars_matched = chars_matched;
+			longest_match = i;
+		}
+	}
+	return loc_confs.at(longest_match);
 }
