@@ -27,17 +27,18 @@ void GetMethod::executeMethod(HttpResponse &rsp) {
 	std::string query = getQuery(targetR);
 	std::string cgiPath = getQuery_path(targetR);
 	if (isCgi(cgiPath)) {
-		_executeCGI(this->_context);
+		// _executeCGI(this->_context);
+		return;
 	}
 	std::string root = this->_context.location.getRoot();
-	if (!root.empty() && root.back() != '/')
+	if (!root.empty() && root.at(root.size() - 1) != '/')
 		root += '/';
 	std::string path = root + targetR;
 	struct stat path_stat;
 	if (stat(path.c_str(), &path_stat) < 0) 
 		throw Request::ErrorRequest(not_found);
 	if (S_ISDIR(path_stat.st_mode)) {
-		if (targetR.back() != '/') {
+		if (targetR.at(targetR.size()-1) != '/') {
 			rsp.setStatusCode(301);
 			rsp.addField("Location", targetR + "/");
 			return;

@@ -3,7 +3,7 @@
 #include <Request.hpp>
 #include <serverConfig.hpp>
 
-typedef struct ExecutionContext
+struct ExecutionContext
 {
 	const Request&			request;
 	const locationConfig&	location;

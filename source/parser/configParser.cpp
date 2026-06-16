@@ -19,7 +19,7 @@
 
 /*============= UTILS SERVER =============*/
 
-namespace { DIR			find_Dir(const std::string &directive) {
+namespace { DIRC			find_Dir(const std::string &directive) {
 	if (directive == "listen") return (LISTEN);
 	if (directive == "server_name") return (SERVER_NAME);
 	if (directive == "root") return (ROOT);

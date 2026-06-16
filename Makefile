@@ -16,6 +16,10 @@ HEADER = $(HEADER_DIR)/$(EXEP_DIR)/configException.hpp		\
 		 $(HEADER_DIR)/$(PAR_DIR)/parserUtils.hpp			\
 		 $(HEADER_DIR)/$(CONF_DIR)/serverConfig.hpp			\
 		 $(HEADER_DIR)/$(CONF_DIR)/locationConfig.hpp		\
+		 $(HEADER_DIR)/$(MTD_DIR)/HttpMethod.hpp			\
+		 $(HEADER_DIR)/$(MTD_DIR)/DeleteMethod.hpp			\
+		 $(HEADER_DIR)/$(MTD_DIR)/GetMethod.hpp				\
+		 $(HEADER_DIR)/$(MTD_DIR)/PostMethod.hpp			\
 		 $(HEADER_DIR)/$(EXEC_DIR)/Server.hpp				\
 		 $(HEADER_DIR)/$(EXEC_DIR)/handle_request.hpp		\
 		 $(HEADER_DIR)/$(EXEC_DIR)/parse_request.hpp		\
@@ -32,6 +36,7 @@ SRCS_DIR = source
 CONF_DIR = configClass
 EXEP_DIR = exception
 PAR_DIR = parser
+MTD_DIR = methodClass
 SRCS = $(SRCS_DIR)/$(EXEP_DIR)/configException.cpp		\
 	   $(SRCS_DIR)/$(PAR_DIR)/configParser.cpp			\
 	   $(SRCS_DIR)/$(PAR_DIR)/Token.cpp					\
@@ -49,6 +54,10 @@ SRCS = $(SRCS_DIR)/$(EXEP_DIR)/configException.cpp		\
 	   $(SRCS_DIR)/$(EXEC_DIR)/send_http_response.cpp	\
 	   $(SRCS_DIR)/$(UTILS_DIR)/utils.cpp				\
 	   $(SRCS_DIR)/$(UTILS_DIR)/ft_atoull.cpp			\
+	   $(SRCS_DIR)/$(MTD_DIR)/HttpMethod.cpp			\
+	   $(SRCS_DIR)/$(MTD_DIR)/DeleteMethod.cpp			\
+	   $(SRCS_DIR)/$(MTD_DIR)/GetMethod.cpp				\
+	   $(SRCS_DIR)/$(MTD_DIR)/PostMethod.cpp			\
 	   $(SRCS_DIR)/main.cpp
 
 OBJ_DIR = obj

@@ -14,6 +14,7 @@
 
 #include <string>
 #include <sstream>
+#include <vector>
 
 enum MIME { JPG, PNG, HTML, TXT, CGI_PY, APP};
 
@@ -51,6 +52,8 @@ MIME find_type(const std::string &filePath);
 std::string	find_content_type(const std::string &filePath);
 
 std::string const generate_reason_phrase(int code);
+
+std::vector<std::string> splitPath(const std::string path);
 
 std::string getQuery(const std::string path);
 

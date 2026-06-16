@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-enum DIR { LISTEN, SERVER_NAME, ROOT, ERROR_PAGE, INDEX, CLIENT_MAX_BODY, NONE};
+enum DIRC { LISTEN, SERVER_NAME, ROOT, ERROR_PAGE, INDEX, CLIENT_MAX_BODY, NONE};
 
 class serverConfig {
 	friend class configParser;

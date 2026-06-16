@@ -1,5 +1,5 @@
 #include <PostMethod.hpp>
-#include <UtilsMethod.hpp>
+#include <utils.hpp>
 
 #include <dirent.h>
 #include <unistd.h>
@@ -99,7 +99,7 @@ void PostMethod::executeMethod(HttpResponse &rsp) {
 	}
 
 	std::string body = "";
-	if (targetResource.back() != '/')
+	if (targetResource.at(targetResource.size()-1) != '/')
 		body = this->_context.request.getBody();
 
 	if (!postFile(path, body))

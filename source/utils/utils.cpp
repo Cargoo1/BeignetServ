@@ -57,6 +57,18 @@ std::string const generate_reason_phrase(int code)
 	return (ret);
 }
 
+std::vector<std::string> splitPath(const std::string path) {
+	std::string part;
+	std::istringstream			iss(path);
+	std::vector<std::string>	ret;
+
+	while (std::getline(iss, part, '/'))
+		if (!part.empty()) {
+			ret.push_back(part);
+	}
+	return (ret);
+}
+
 std::string findExt(const std::string &path) {
 	std::string ret = path;
 	std::string del = ".";
