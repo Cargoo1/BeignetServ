@@ -11,8 +11,12 @@ DeleteMethod::DeleteMethod(ExecutionContext &context) : HttpMethod(context) {};
 DeleteMethod::~DeleteMethod() {};
 
 void DeleteMethod::executeMethod(HttpResponse &rsp) {
-	std::string path = this->_context.location.getRoot() + this->_context.request.getHeader().getTargetResource();
-	// std::string path = NormalizePath(this->_context.location.getRoot()) + NormalizePath(this->_context.location.getPath());
+	std::string root;
+	if (!this->_context.location.getRoot().empty())
+		root = "." + this->_context.location.getRoot();
+	else
+		root = "." + this->_context.server._root;
+	std::string path = root + this->_context.request.getHeader().getTargetResource();
 	struct stat path_stat;
 	if (stat(path.c_str(), &path_stat) < 0)
 		throw Request::ErrorRequest(not_found);

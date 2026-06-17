@@ -39,8 +39,8 @@ int	main(int argc, char **argv)
 	addrinfo.ai_family = AF_INET;
 	addrinfo.ai_socktype = SOCK_STREAM;
 	addrinfo.ai_protocol = 0;
-	//int error = getaddrinfo("localhost", "8080", &addrinfo, &result);
-	int error = getaddrinfo("localhost", "8888", &addrinfo, &result);
+	int error = getaddrinfo("localhost", "8080", &addrinfo, &result);
+	// int error = getaddrinfo("localhost", "8888", &addrinfo, &result);
 	if (error != 0)
 	{
 		perror("?\n");
@@ -53,9 +53,8 @@ int	main(int argc, char **argv)
 		exit(1);
 	}
 	char buff[100000];
-	std::string msg = "GET / HTTP/1.1\r\nHost:localhost:9090\r\nContent-Length:10\r\n\r\n1234567890";
+	std::string msg = "DELETE / HTTP/1.1\r\nHost:localhost:8080\r\nContent-Length:10\r\n\r\n1234567890";
 	int bytes_sent = send(sfd, msg.c_str(), msg.length(), 0);
-	/*
 	while (bytes_sent < (int)msg.length())
 	{
 		//jsleep(2);
@@ -63,7 +62,6 @@ int	main(int argc, char **argv)
 		if (bytes_sent < 0)
 			return -1;
 	}
-	*/
 	memset(buff, 0, sizeof(buff));
 	recv(sfd, buff, 100000, 0);
 	std::cout << buff;

@@ -1,0 +1,22 @@
+1-
+	valid.conf ->	listen					127.0.0.1; (l:2);
+	gai: Servname not supported for ai_socktype
+	Forcement un port (8080) ? Il n'y avait pas une histoire ou on pouvait mettre soit port soit IP ?
+
+2-
+	"POST / HTTP/1.1\r\nHost:localhost:8080\r\nContent-Length:10\r\n\r\n1234567890";
+	pas de throw bad_request.
+	Devrait être géré dans "int	handle_request(Client& client, std::vector<serverConfig> const& serverConf)"
+	Non ?
+
+3-
+	"GET /okaodjaiai HTTP/1.1\r\nHost:localhost:8080\r\nContent-Length:10\r\n\r\n1234567890"
+	Redirect old_page 301 ou 404 ?
+	Actuellement 301.
+
+Le rest:
+	POST et DELETE semble fonctionner. Attention cependant a DELETE qui supprime réellement les fichiers.
+	Il peut avoir des petit missfunction dans la gestion du path. il faudrait faire attention a ca.
+	Il est possible que qu'on se soit mal compris sur la gestion des requet. Il faudrait faire un point sur
+	qui fait quoi, et remettre le code a jour. Autrement la majorité de l'éxecution semble plus ou moins
+	fonctionelle.

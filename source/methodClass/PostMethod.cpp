@@ -88,9 +88,9 @@ void PostMethod::executeMethod(HttpResponse &rsp) {
 
 	std::string path;
 	if (this->_context.location.getUploadStore().empty())
-		path = this->_context.location.getRoot() + targetResource;
+		path = '.' + this->_context.location.getRoot() + targetResource;
 	else
-		path = this->_context.location.getUploadStore() + targetResource;
+		path = '.' + this->_context.location.getUploadStore() + targetResource;
 
 	std::size_t contentLenght = toSizeT(this->_context.request.getHeader().getContentLenght());
 	if (this->_context.location.hasCMBS()) {

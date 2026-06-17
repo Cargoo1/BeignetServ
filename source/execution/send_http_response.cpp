@@ -12,6 +12,8 @@
 
 #include "ExecutionContext.hpp"
 #include "GetMethod.hpp"
+#include "PostMethod.hpp"
+#include "DeleteMethod.hpp"
 #include "Request.hpp"
 #include "locationConfig.hpp"
 #include <HttpResponse.hpp>
@@ -118,10 +120,19 @@ int	send_response(Request& r, int status_code, serverConfig const& server_block,
 		send_error_response(response, server_block, status_code);
 	else
 	{
-		//create_default_error_response(response, 200);
-		ExecutionContext	context(r, loc_block, server_block);
-		GetMethod	method(context);
-		method.executeMethod(response);
+		try
+		{
+			//create_default_error_response(response, 200);
+			ExecutionContext	context(r, loc_block, server_block);
+			// GetMethod		method(context);
+			DeleteMethod	method(context);
+			// PostMethod	method(context);
+			method.executeMethod(response);
+		}
+		catch(const std::exception& e)
+		{
+			std::cerr << e.what() << '\n';
+		}
 	}
 	msg = response.toHttpString();
 	int	len = msg.length();

@@ -1,6 +1,7 @@
 #include <GetMethod.hpp>
 
- #include <unistd.h>
+#include <iostream>
+#include <unistd.h>
 #include <limits.h>
 #include <stdlib.h>
 #include <sys/stat.h>
@@ -30,8 +31,13 @@ void GetMethod::executeMethod(HttpResponse &rsp) {
 		// _executeCGI(this->_context);
 		return;
 	}
-	std::string root = this->_context.location.getRoot();
+	std::string root;
+	if (!this->_context.location.getRoot().empty())
+		root = this->_context.location.getRoot();
+	else
+		root = this->_context.server._root;
 	std::string path = "." + root + targetR;
+	std::cout << "path: " << path << std::endl;
 	struct stat path_stat;
 	if (stat(path.c_str(), &path_stat) < 0) 
 		throw Request::ErrorRequest(not_found);
