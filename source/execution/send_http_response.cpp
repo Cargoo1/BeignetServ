@@ -125,8 +125,8 @@ int	send_response(Request& r, int status_code, serverConfig const& server_block,
 			//create_default_error_response(response, 200);
 			ExecutionContext	context(r, loc_block, server_block);
 			// GetMethod		method(context);
-			DeleteMethod	method(context);
-			// PostMethod	method(context);
+			// DeleteMethod	method(context);
+			PostMethod	method(context);
 			method.executeMethod(response);
 		}
 		catch(const std::exception& e)
