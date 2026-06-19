@@ -41,9 +41,9 @@ locationConfig longestMatchingPath(const std::string path,const serverConfig ser
 	std::string												serverRoot = server_bloc.root();
 	int														bestScore = NOT_FOUND, tmp;
 	std::vector<locationConfig>::const_iterator				bestMatch;
-	std::vector<locationConfig>::const_iterator it =		server_bloc.locationBloc().begin();
+	std::vector<locationConfig>::const_iterator it =		server_bloc.locations().begin();
 
-	for (; it != server_bloc.locationBloc().end(); it++) {
+	for (; it != server_bloc.locations().end(); it++) {
 		if (!it->getRoot().empty())
 			absoluteLocPath = it->getRoot() + it->getPath();
 		else

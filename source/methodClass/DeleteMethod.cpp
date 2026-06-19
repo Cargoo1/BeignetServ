@@ -15,7 +15,7 @@ void DeleteMethod::executeMethod(HttpResponse &rsp) {
 	if (!this->_context.location.getRoot().empty())
 		root = "." + this->_context.location.getRoot();
 	else
-		root = "." + this->_context.server._root;
+		root = "." + this->_context.server.root();
 	std::string path = root + this->_context.request.getHeader().getTargetResource();
 	struct stat path_stat;
 	if (stat(path.c_str(), &path_stat) < 0)

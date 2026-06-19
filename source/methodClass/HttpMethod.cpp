@@ -64,23 +64,6 @@ struct stat HttpMethod::_getFileData(const std::string &filePath) {
 	return (buffer); 
 }
 
-std::string HttpMethod::_getContentType(const std::string &filePath) {
-	MIME ext = find_type(filePath);
-	switch (ext)
-	{
-		case JPG:
-			return ("image/jpeg");
-		case PNG:
-			return ("image/png");
-		case HTML:
-			return ("text/html");
-		case TXT:
-			return ("text/plain");
-		default:
-			return ("application/octet-stream");
-	}
-}
-
 // void HttpMethod::_executeCGI(const ExecutionContext context) {
 // 	std::string targetR = this->_context.request.getHeader().getTargetResource();
 // 	std::string query = getQuery(targetR);

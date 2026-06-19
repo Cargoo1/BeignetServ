@@ -14,7 +14,6 @@ class HttpMethod {
 		const ExecutionContext	&_context;
 		std::string				_NormalizePath(std::string toNomalize);
 		struct stat				_getFileData(const std::string &filePath);
-		std::string				_getContentType(const std::string &filepath);
 		HttpResponse			_buildErrorResponse(HttpResponse &res, int code, std::string msg);
 		void					_executeCGI(const ExecutionContext context);
 };

@@ -35,9 +35,8 @@ void GetMethod::executeMethod(HttpResponse &rsp) {
 	if (!this->_context.location.getRoot().empty())
 		root = this->_context.location.getRoot();
 	else
-		root = this->_context.server._root;
+		root = this->_context.server.root();
 	std::string path = "." + root + targetR;
-	std::cout << "path: " << path << std::endl;
 	struct stat path_stat;
 	if (stat(path.c_str(), &path_stat) < 0) 
 		throw Request::ErrorRequest(not_found);
@@ -51,7 +50,7 @@ void GetMethod::executeMethod(HttpResponse &rsp) {
 		if (stat(indexPath.c_str(), &path_stat) == 0 && S_ISREG(path_stat.st_mode)) {
 			if (!rsp.setBodyFromFile(indexPath))
 				throw Request::ErrorRequest(not_found);
-			rsp.setContentType(this->_getContentType(indexPath));
+			rsp.setContentType(find_content_type(indexPath));
 			rsp.addContentLength();
 			rsp.setStatusCode(200);
 			return;
@@ -71,7 +70,7 @@ void GetMethod::executeMethod(HttpResponse &rsp) {
 	}
 	if (!rsp.setBodyFromFile(path))
 		throw Request::ErrorRequest(not_found);
-	rsp.setContentType(this->_getContentType(path));
+	rsp.setContentType(find_content_type(path));
 	rsp.addContentLength();
 	rsp.setStatusCode(200);
 }

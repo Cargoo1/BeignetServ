@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "locationConfig.hpp"
+#include "serverConfig.hpp"
 #include <cctype>
 #include <cmath>
 #include <cstddef>
@@ -157,6 +157,8 @@ MIME find_type(const std::string &filePath)
 		return (PNG);
 	else if (ext == "html")
 		return (HTML);
+	else if (ext == "css")
+		return (CSS);
 	else if (ext == "txt")
 		return (TXT);
 	else if (ext == "py")
@@ -175,6 +177,8 @@ std::string	find_content_type(const std::string &filePath)
 			return ("image/png");
 		case HTML:
 			return ("text/html");
+		case CSS:
+			return ("text/css");
 		case TXT:
 			return ("text/plain");
 		default:
@@ -220,9 +224,9 @@ bool	is_in_cgi_dir(std::string const& uri)
 	return false;
 }
 
-locationConfig const&	find_location_block(std::string const& uri,
-										std::vector<locationConfig> const& loc_confs)
+locationConfig const&	find_location_block(std::string const& uri, serverConfig const& server)
 {
+	std::vector<locationConfig>	loc_confs = server.locations();
 	size_t	longest_chars_matched = 0;
 	size_t	chars_matched;
 	int		longest_match = -1;
@@ -231,6 +235,7 @@ locationConfig const&	find_location_block(std::string const& uri,
 	for (size_t i = 0; i < loc_confs.size(); ++i)
 	{
 		std::string	const& loc_path = loc_confs.at(i).getPath();
+
 		chars_matched = 0;
 		j = 0;
 		k = 0;
@@ -246,6 +251,7 @@ locationConfig const&	find_location_block(std::string const& uri,
 		{
 			longest_chars_matched = chars_matched;
 			longest_match = i;
+	
 		}
 	}
 	return loc_confs.at(longest_match);

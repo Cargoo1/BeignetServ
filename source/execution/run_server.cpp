@@ -231,7 +231,7 @@ int	run(std::vector<serverConfig> const& servers_conf)
 	{
 		try
 		{
-			server.getSfds().push_back(getListenerSocket(it_svrconf->_serverName, it_svrconf->_listen));
+			server.getSfds().push_back(getListenerSocket(it_svrconf->serverName(), it_svrconf->listen()));
 		}
 		catch (std::exception &e)
 		{

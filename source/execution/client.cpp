@@ -53,7 +53,7 @@ int	main(int argc, char **argv)
 		exit(1);
 	}
 	char buff[100000];
-	std::string msg = "DELETE / HTTP/1.1\r\nHost:localhost:8080\r\nContent-Length:10\r\n\r\n1234567890";
+	std::string msg = "GET /Proute HTTP/1.1\r\nHost:localhost:8080\r\nContent-Length:10\r\n\r\n1234567890";
 	int bytes_sent = send(sfd, msg.c_str(), msg.length(), 0);
 	while (bytes_sent < (int)msg.length())
 	{

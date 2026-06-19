@@ -33,9 +33,11 @@ class configParser {
 		void	_parseDirective(serverConfig &toParse);
 		void	_parseLocation(locationConfig &locTo_add);
 		void	_parseLocationDir(locationConfig &locTo_add);
+
 		void	_expect(const std::string &to_compare);
 		Token	_peek(void);
 		Token	_consume(void);
+		
 		void	_validateAll(void);
 		void	DEBUG_printConf(void);
 };

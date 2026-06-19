@@ -69,9 +69,9 @@ void	create_error_response(HttpResponse& response, int error_code, std::string c
 
 void	send_error_response(HttpResponse& response, serverConfig const& serverConf, int error_code)
 {
-	std::map<int, std::string>::const_iterator	it = serverConf._errorPages.find(response.getStatusCode());
+	std::map<int, std::string>::const_iterator	it = serverConf.errorPages().find(response.getStatusCode());
 
-	if (it == serverConf._errorPages.end())
+	if (it == serverConf.errorPages().end())
 	{
 		create_default_error_response(response, error_code);
 		return;
@@ -124,14 +124,15 @@ int	send_response(Request& r, int status_code, serverConfig const& server_block,
 		{
 			//create_default_error_response(response, 200);
 			ExecutionContext	context(r, loc_block, server_block);
-			// GetMethod		method(context);
+			GetMethod		method(context);
 			// DeleteMethod	method(context);
-			PostMethod	method(context);
+			// PostMethod	method(context);
 			method.executeMethod(response);
 		}
 		catch(const std::exception& e)
 		{
 			std::cerr << e.what() << '\n';
+			return (0);
 		}
 	}
 	msg = response.toHttpString();

@@ -17,9 +17,9 @@
 #include <sstream>
 #include <vector>
 
-#include <locationConfig.hpp>
+#include "serverConfig.hpp"
 
-enum MIME { JPG, PNG, HTML, TXT, CGI_PY, APP};
+enum MIME { JPG, PNG, HTML, CSS,TXT, CGI_PY, APP};
 
 #define BUFF_SIZE 256
 
@@ -68,5 +68,4 @@ bool	is_in_cgi_dir(std::string const& uri);
 
 unsigned long long	ft_atoull(char const* str);
 
-locationConfig const&	find_location_block(std::string const& uri,
-										std::vector<locationConfig> const& loc_confs);
+locationConfig const&	find_location_block(std::string const& uri, serverConfig const& server);
