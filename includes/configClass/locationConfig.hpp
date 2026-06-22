@@ -38,6 +38,9 @@ class locationConfig {
 		std::string &getRedirectUrl();
 		const std::string &getRedirectUrl() const;
 
+		std::vector<std::string> &getMethod();
+		const std::vector<std::string> &getMethod() const;
+
 	private:
 		std::string							_path;
 		std::vector<std::string>			_methods;

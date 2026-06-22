@@ -56,3 +56,10 @@ const std::map<int, std::string> serverConfig::errorPages() const {
 	return (this->_errorPages);
 }
 
+std::size_t &serverConfig::getCMBS() {
+	return (this->_clientMaxBodySize);
+}
+
+const std::size_t &serverConfig::getCMBS() const {
+	return (this->_clientMaxBodySize);
+}

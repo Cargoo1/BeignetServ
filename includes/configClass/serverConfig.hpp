@@ -32,6 +32,9 @@ class serverConfig {
 		std::map<int, std::string> errorPages();
 		const std::map<int, std::string> errorPages() const;
 
+	std::size_t &getCMBS();
+	const std::size_t &getCMBS() const;
+
 	private:
 		std::string					_listen;
 		std::string					_serverName;

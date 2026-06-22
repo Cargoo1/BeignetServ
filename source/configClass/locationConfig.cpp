@@ -81,3 +81,11 @@ std::string &locationConfig::getRedirectUrl() {
 const std::string &locationConfig::getRedirectUrl() const {
 	return (this->_redirectUrl);
 }
+
+std::vector<std::string> &locationConfig::getMethod() {
+	return (this->_methods);
+}
+
+const std::vector<std::string> &locationConfig::getMethod() const {
+	return (this->_methods);
+}
