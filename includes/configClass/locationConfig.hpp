@@ -54,4 +54,5 @@ class locationConfig {
 		std::string							_redirectUrl;
 		std::size_t							_clientMaxBodySize;
 		bool								_hasClientMaxBodySize;
+		bool								_isExactMatch;
 };

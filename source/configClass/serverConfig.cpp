@@ -16,43 +16,43 @@ serverConfig &serverConfig::operator=(const serverConfig &rhs) {
 	return (*this);
 }
 
-std::string serverConfig::listen() {
+std::string &serverConfig::listen() {
 	return (this->_listen);
 }
 
-const std::string serverConfig::listen() const {
+const std::string &serverConfig::listen() const {
 	return (this->_listen);
 }
 
-std::string serverConfig::serverName() {
+std::string &serverConfig::serverName() {
 	return (this->_serverName);
 }
 
-const std::string serverConfig::serverName() const {
+const std::string &serverConfig::serverName() const {
 	return (this->_serverName);
 }
 
-std::vector<locationConfig> serverConfig::locations() {
+std::vector<locationConfig> &serverConfig::locations() {
 	return (this->_locations);
 }
 
-const std::vector<locationConfig> serverConfig::locations() const {
+const std::vector<locationConfig> &serverConfig::locations() const {
 	return (this->_locations);
 }
 
-std::string serverConfig::root() {
+std::string &serverConfig::root() {
 	return (this->_root);
 }
 
-const std::string serverConfig::root() const {
+const std::string &serverConfig::root() const {
 	return (this->_root);
 }
 
-std::map<int, std::string> serverConfig::errorPages() {
+std::map<int, std::string> &serverConfig::errorPages() {
 	return (this->_errorPages);
 }
 
-const std::map<int, std::string> serverConfig::errorPages() const {
+const std::map<int, std::string> &serverConfig::errorPages() const {
 	return (this->_errorPages);
 }
 

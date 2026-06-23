@@ -17,20 +17,20 @@ class serverConfig {
 
 		serverConfig &operator=(const serverConfig &rhs);
 
-		std::string listen();
-		const std::string listen() const;
+		std::string &listen();
+		const std::string &listen() const;
 
-		std::string serverName();
-		const std::string serverName() const;
+		std::string &serverName();
+		const std::string &serverName() const;
 
-		std::vector<locationConfig> locations();
-		const std::vector<locationConfig> locations() const;
+		std::vector<locationConfig> &locations();
+		const std::vector<locationConfig> &locations() const;
 
-		std::string root();
-		const std::string root() const;
+		std::string &root();
+		const std::string &root() const;
 
-		std::map<int, std::string> errorPages();
-		const std::map<int, std::string> errorPages() const;
+		std::map<int, std::string> &errorPages();
+		const std::map<int, std::string> &errorPages() const;
 
 	std::size_t &getCMBS();
 	const std::size_t &getCMBS() const;

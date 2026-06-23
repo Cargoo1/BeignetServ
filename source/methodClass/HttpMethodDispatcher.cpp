@@ -87,7 +87,6 @@ bool checkClientMaxBodySize(const serverConfig server_bloc, const locationConfig
 		}
 		puis switch sur method qui renvoie une reponse HTTP ou qui la prenne en param
 	*/
-
 }
 
 void dispatcher_method(const ExecutionContext context) {

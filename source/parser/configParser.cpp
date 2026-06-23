@@ -19,7 +19,9 @@
 
 /*============= UTILS SERVER =============*/
 
-namespace { DIRC			find_Dir(const std::string &directive) {
+namespace {
+
+DIRC			find_Dir(const std::string &directive) {
 	if (directive == "listen") return (LISTEN);
 	if (directive == "server_name") return (SERVER_NAME);
 	if (directive == "root") return (ROOT);
@@ -27,9 +29,9 @@ namespace { DIRC			find_Dir(const std::string &directive) {
 	if (directive == "index") return (INDEX);
 	if (directive == "client_max_body_size") return (CLIENT_MAX_BODY);
 	else return (NONE);
-} } 
+}
 
-namespace { L_CONF		find_LocDir(const std::string &local_confDir) {
+L_CONF		find_LocDir(const std::string &local_confDir) {
 	if (local_confDir == "methods") return (METHOD);
 	if (local_confDir == "root") return (L_ROOT);
 	if (local_confDir == "index") return (L_INDEX);
@@ -39,9 +41,9 @@ namespace { L_CONF		find_LocDir(const std::string &local_confDir) {
 	if (local_confDir == "return") return (REDIR);
 	if (local_confDir == "client_max_body_size") return (L_CLIENT_MAX_BODY);
 	else return (L_NONE);
-} } 
+}
 
-namespace { bool		parse_digitCode(const std::string &digitStr, long min, long max) {
+bool		parse_digitCode(const std::string &digitStr, long min, long max) {
 	if (!string_verifFunc(digitStr, isdigit) || digitStr.empty())
 		return (false);
 	int verif;
@@ -50,9 +52,9 @@ namespace { bool		parse_digitCode(const std::string &digitStr, long min, long ma
 	if (verif < min || verif > max)
 		return (false);
 	return (true);
-} }
+}
 
-namespace { bool parseIP(const std::string &ipstr) {
+bool parseIP(const std::string &ipstr) {
 	int parts[4] = {0};
 	int partIndex = 0;
 	std::string current;
@@ -82,24 +84,20 @@ namespace { bool parseIP(const std::string &ipstr) {
 	if (!(ss >> parts[3]) || parts[3] > 255)
 		return false;
 	return (true);
-} }
+}
 
-namespace { bool		isValid_path(const std::string &token, bool absolute) {
-	if (absolute ? (token.at(0) != '/') : (token.at(0) == '/'))
-		return (false);
-	if (absolute && token.size() == 1) return (true);
+bool		isValid_path(const std::string &token) {
 	if (!string_verifFunc(token, isspecial)) return (false);
-	if (token.at(token.size()-1) == '/') return (false);
 	return (true);
-} }
+}
 
-namespace { bool		isValid_url(const std::string &token) {
+bool		isValid_url(const std::string &token) {
 	if (token.at(0) == '/')
-		return (isValid_path(token, true));
-	return(isValid_path(token, false));
-} }
+		return (isValid_path(token));
+	return(isValid_path(token));
+}
 
-namespace { bool		isValid_clientBodySize(const std::string &token) {
+bool		isValid_clientBodySize(const std::string &token) {
 		std::size_t i = 0;
 		while (isdigit(token.at(i)))
 			i++;
@@ -108,18 +106,17 @@ namespace { bool		isValid_clientBodySize(const std::string &token) {
 			i++;
 		return (i == token.length());
 	}
-}
 
-namespace { bool		isValid_extCgi(const std::string &token) {
+bool		isValid_extCgi(const std::string &token) {
 	std::size_t i = 1;
 	if (token.at(0) != '.')
 		return (false);
 	while (i < token.length() && islower(token.at(i)))
 		i++;
 	return (i == token.length() || i == 1);
-} }
+}
 
-namespace { bool		isValid_method(const std::vector<std::string> &methods) {
+bool		isValid_method(const std::vector<std::string> &methods) {
 	std::vector<std::string>::const_iterator it = methods.begin();
 	while (it != methods.end()) {
 		if (*it == "GET") it++;
@@ -133,9 +130,9 @@ namespace { bool		isValid_method(const std::vector<std::string> &methods) {
 			return false;
 	}
 	return (true);
-} }
+}
 
-namespace { std::size_t	convert_clientBodySize(const std::string &conv) {
+std::size_t	convert_clientBodySize(const std::string &conv) {
 		std::size_t ret = toInt(conv);
 		std::size_t max_size = (size_t)-1;
 
@@ -160,10 +157,9 @@ namespace { std::size_t	convert_clientBodySize(const std::string &conv) {
 				break;
 		}
 		return (ret);
-	}
 }
 
-namespace { bool		parse_methods(const std::vector<std::string> &methods, const std::string &path) {
+bool		parse_methods(const std::vector<std::string> &methods, const std::string &path) {
 	if (methods.empty()) {
 		std::cerr << "Error: location " << path << " has no methods" << std::endl;
 		return (false);
@@ -173,7 +169,28 @@ namespace { bool		parse_methods(const std::vector<std::string> &methods, const s
 		return (false);
 	}
 	return (true);
-} }
+}
+
+
+bool isIP(std::string listen) {
+	for (std::string::size_type i = 0; i < listen.size(); i++) {
+		if (listen.at(i) != '.' || !isdigit(listen.at(i)))
+			return (false);
+	}
+	return (true);
+}
+void managePortSyntax(std::string &port) {
+	if (isIP(port)) {
+		port += ":8080";
+		return ;
+	}
+	else {
+		std::string newPort = "0.0.0.0:" + port;
+		port = newPort;
+	}
+}
+
+}
 
 /*============= METHODE SERVER =============*/
 /*============= cnstr/dstr =============*/
@@ -285,7 +302,7 @@ void configParser::_parseServer(serverConfig &servTo_pars) {
 }
 
 void configParser::_parseLocation(locationConfig &locTo_add) {
-	if (!isValid_path(_peek().getValue(), true))
+	if (!isValid_path(_peek().getValue()))
 		throw configException("Error: location path syntax:", _peek().getLine(), _peek().getValue());
 	locTo_add._path = _consume().getValue();
 	_expect("{");
@@ -312,14 +329,14 @@ void configParser::_parseLocationDir(locationConfig &locTo_pars) {
 			break;
 		}
 		case L_ROOT: {
-			if (!isValid_path(_peek().getValue(), true))
+			if (!isValid_path(_peek().getValue()))
 				throw configException("Error: root path syntax:", _peek().getLine(), _peek().getValue());
 			locTo_pars._root = _consume().getValue();
 			_expect(";");
 			break;
 		}
 		case L_INDEX: {
-			if (!isValid_path(_peek().getValue(), false))
+			if (!isValid_path(_peek().getValue()))
 				throw configException("Error: index syntax:", _peek().getLine(), _peek().getValue());
 			locTo_pars._index = _consume().getValue();
 			_expect(";");
@@ -333,7 +350,7 @@ void configParser::_parseLocationDir(locationConfig &locTo_pars) {
 			break;
 		}
 		case UPLD_S: {
-			if (!isValid_path(_peek().getValue(), true))
+			if (!isValid_path(_peek().getValue()))
 				throw configException("Error: upload_store syntax:", _peek().getLine(), _peek().getValue());
 			locTo_pars._uploadStore = _consume().getValue();
 			_expect(";");
@@ -343,7 +360,7 @@ void configParser::_parseLocationDir(locationConfig &locTo_pars) {
 			if (!isValid_extCgi(_peek().getValue()))
 				throw configException("Error: cgi extention syntax:", _peek().getLine(), _peek().getValue());
 			std::string ext = _consume().getValue();
-			if (!isValid_path(_peek().getValue(), true))
+			if (!isValid_path(_peek().getValue()))
 				throw configException("Error: cgi path syntax:", _peek().getLine(), _peek().getValue());
 			locTo_pars._cgi[ext] = _consume().getValue();
 			_expect(";");
@@ -397,7 +414,7 @@ void configParser::_parseDirective(serverConfig &toParse) {
 			break;
 		}
 		case ROOT: {
-			if (!isValid_path(_peek().getValue(), true))
+			if (!isValid_path(_peek().getValue()))
 				throw configException("Error: root syntax:", _peek().getLine(), _peek().getValue());
 			toParse._root = _consume().getValue();
 			_expect(";");
@@ -405,15 +422,13 @@ void configParser::_parseDirective(serverConfig &toParse) {
 		}
 		case ERROR_PAGE: {
 			std::vector<unsigned int> codes;
-			while (!isValid_path(_peek().getValue(), true)) {
-				if (parse_digitCode(_peek().getValue(), ERRO_MIN, ERRO_MAX)) {
+			while (parse_digitCode(_peek().getValue(), ERRO_MIN, ERRO_MAX)) {
 					codes.push_back(toInt(_consume().getValue()));
-				}
-				else
-					throw configException("Error: error_codes syntax:", _peek().getLine(), _peek().getValue());
 			}
 			if (!check_double(codes))
 				throw configException("Error: duplicate error_codes", _peek().getLine());
+			if (!isValid_path(_peek().getValue()))
+				throw configException("Error: url error page syntax: ", _peek().getLine(), _peek().getValue());
 			std::string url = _consume().getValue();
 			for (std::size_t code = 0; code < codes.size(); code++)
 				toParse._errorPages[codes[code]] = url;
@@ -421,7 +436,7 @@ void configParser::_parseDirective(serverConfig &toParse) {
 			break;
 		}
 		case INDEX: {
-			if (!isValid_path(_peek().getValue(), false))
+			if (!isValid_path(_peek().getValue()))
 				throw configException("Error: index syntax:", _peek().getLine(), _peek().getValue());
 			toParse._index = _consume().getValue();
 			_expect(";");
@@ -449,7 +464,9 @@ void configParser::_validateAll() {
 	for (std::size_t i = 0; i < this->_servers.size(); i++) {
 		const serverConfig &server = this->_servers[i];
 		if (server._listen.empty())
-			this->_servers[i]._listen = "8080";
+			this->_servers[i]._listen = "0.0.0.0:8080";
+		else
+			managePortSyntax(this->_servers[i]._listen);
 		port_dup.push_back(server._listen);
 		if (!check_double(port_dup)) {
 			std::cerr << "Error: server " << server._serverName << " is listening an already assigned port" << std::endl;
