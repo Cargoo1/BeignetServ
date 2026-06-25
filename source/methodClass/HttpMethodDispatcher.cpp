@@ -1,4 +1,8 @@
 #include <HttpMethodDispatcher.hpp>
+#include <GetMethod.hpp>
+#include <PostMethod.hpp>
+#include <DeleteMethod.hpp>
+#include <iostream>
 
 #define NOT_FOUND -1
 
@@ -24,18 +28,27 @@ namespace {
 	}
 }
 
-void router(const Request request, const serverConfig server_bloc) {
+HttpResponse router(const Request &request, const serverConfig &server_bloc) {
+	locationConfig location_bloc;
+	HttpResponse rsp;
 	try {
-		locationConfig location_bloc = longestMatchingPath(request.getHeader().getTargetResource(), server_bloc);
+		location_bloc = server_bloc.locations().at(0)/*longestMatchingPath(request.getHeader().getTargetResource(), server_bloc)*/;
 		if (!checkAllowedMethods(location_bloc, request.getHeader().getMethod()))
 			throw Request::ErrorRequest(method_not_allowed);
+		if (!checkClientMaxBodySize(request, server_bloc, location_bloc))
+			throw Request::ErrorRequest(payload_too_large);
 	}
 	catch (const Request::ErrorRequest& e) {
-		
+		rsp.setStatusCode(e.getErrorCode());
+		std::cerr << e.what() << '\n';
+		return (rsp);
 	}
+	ExecutionContext execCont(request, location_bloc, server_bloc);
+	dispatcher_method(execCont, rsp);
+	return (rsp);
 }
 
-locationConfig longestMatchingPath(const std::string path,const serverConfig server_bloc) {
+locationConfig longestMatchingPath(const std::string path,const serverConfig &server_bloc) {
 	locationConfig										ret;
 	std::string											absoluteLocPath;
 	std::vector<std::string>							split_reqPath = splitPath(path), split_locPath;
@@ -72,24 +85,35 @@ bool checkAllowedMethods(const locationConfig location_block, const std::string 
 	return (false);
 }
 
-bool checkClientMaxBodySize(const serverConfig server_bloc, const locationConfig location_block) {
+bool checkClientMaxBodySize(const Request request, const serverConfig server, const locationConfig &location) {
+	if (request.getHeader().getFields().find("Content-Length") == request.getHeader().getFields().end())
+		return (true);
 	std::size_t clientMBS;
-	if (location_block.hasCMBS())
-		clientMBS = location_block.getCMBS();
+	std::size_t contentLenght;
+	toDigit(request.getHeader().getFields().find("Content-Length")->second, contentLenght);
+	if (location.hasCMBS())
+		clientMBS = location.getCMBS();
 	else
-		clientMBS = server_bloc.getCMBS();
-
-	/*
-		CHECKER SI LE CLIENT N'ENVOIE RIEN DE PLUS LOURDS QUE le C.M.B.S
-		if (r.haveBody()) {
-			if (r.getBodyL > clientMBS)
-				throw 413 ou 415
-		}
-		puis switch sur method qui renvoie une reponse HTTP ou qui la prenne en param
-	*/
+		clientMBS = server.getCMBS();
+	if (contentLenght > clientMBS)
+		return (false);
+	return (true);
 }
 
-void dispatcher_method(const ExecutionContext context) {
-	// Switch ou if dispath on r.getmethod
-		// create the right methd with context
+HttpResponse dispatcher_method(const ExecutionContext &context, HttpResponse &rsp) {
+	std::string reqMethod(context.request.getHeader().getMethod());
+
+	if (reqMethod == "GET"){
+		GetMethod	method(context);
+		method.executeMethod(rsp);
+	}
+	else if (reqMethod == "DELETE") {
+		DeleteMethod	method(context);
+		method.executeMethod(rsp);
+	}
+	else if (reqMethod == "POST") {
+		PostMethod	method(context);
+		method.executeMethod(rsp);
+	}
+	return (rsp);
 }

@@ -6,7 +6,7 @@
 #include <string.h>
 #include <sys/stat.h>
 
-DeleteMethod::DeleteMethod(ExecutionContext &context) : HttpMethod(context) {};
+DeleteMethod::DeleteMethod(const ExecutionContext &context) : HttpMethod(context) {};
 
 DeleteMethod::~DeleteMethod() {};
 

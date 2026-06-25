@@ -7,7 +7,7 @@
 #include <sys/stat.h>
 #include <dirent.h>
 
-GetMethod::GetMethod(ExecutionContext &context) : HttpMethod(context) {};
+GetMethod::GetMethod(const ExecutionContext &context) : HttpMethod(context) {};
 
 GetMethod::~GetMethod() {};
 

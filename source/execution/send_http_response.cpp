@@ -113,28 +113,12 @@ int	sendall(int fd, char const* buf, int &len)
 int	send_response(Request& r, int status_code, serverConfig const& server_block, int cfd, 
 					locationConfig const& loc_block)
 {
+	(void)loc_block;
 	HttpResponse	response;
 	std::string		msg;
 	response.addField("Server", "Beignetserv/0.1");
 	if (status_code >= 400)
 		send_error_response(response, server_block, status_code);
-	else
-	{
-		try
-		{
-			//create_default_error_response(response, 200);
-			ExecutionContext	context(r, loc_block, server_block);
-			GetMethod		method(context);
-			// DeleteMethod	method(context);
-			// PostMethod	method(context);
-			method.executeMethod(response);
-		}
-		catch(const std::exception& e)
-		{
-			std::cerr << e.what() << '\n';
-			return (0);
-		}
-	}
 	msg = response.toHttpString();
 	int	len = msg.length();
 	sendall(cfd, msg.c_str(), len);

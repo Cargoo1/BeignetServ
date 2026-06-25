@@ -85,6 +85,11 @@ std::map<std::string, std::string>&		Header::getFields(void)
 	return this->_map_fields;
 }
 
+const std::map<std::string, std::string>&		Header::getFields(void) const
+{
+	return this->_map_fields;
+}
+
 bool	Header::setMethod(std::string& method)
 {
 	if (method.empty())

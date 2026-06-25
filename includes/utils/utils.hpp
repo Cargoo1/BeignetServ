@@ -33,6 +33,13 @@ std::string toStr(T nbr) {
 	return (ret);
 }
 
+template <typename T> 
+void toDigit(std::string nbr, T &out) {
+	std::stringstream ss;
+	ss << nbr;
+	ss >> out;
+}
+
 enum	client_error
 {
 	bad_request = 400,

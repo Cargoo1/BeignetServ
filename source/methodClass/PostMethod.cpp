@@ -79,7 +79,7 @@ namespace { std::size_t toSizeT(const std::string &str) {
 	return (ret);
 } }
 
-PostMethod::PostMethod(ExecutionContext &context) : HttpMethod(context) {};
+PostMethod::PostMethod(const ExecutionContext &context) : HttpMethod(context) {};
 
 PostMethod::~PostMethod() {};
 

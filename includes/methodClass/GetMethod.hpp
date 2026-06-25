@@ -4,7 +4,7 @@
 
 class GetMethod : public HttpMethod {
 	public:
-		GetMethod(ExecutionContext &context);
+		GetMethod(const ExecutionContext &context);
 		~GetMethod();
 		void executeMethod(HttpResponse &rsp);
 	private:

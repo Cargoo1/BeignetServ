@@ -14,6 +14,7 @@
 #include "serverConfig.hpp"
 #include "ExecutionContext.hpp"
 #include "HttpResponse.hpp"
+#include "HttpMethodDispatcher.hpp"
 #include "utils.hpp"
 #include <cstdlib>
 #include <iostream>
@@ -71,7 +72,7 @@ int	read_body(Request& r, std::istringstream& request_stream)
 
 int	handle_request(Client& client, std::vector<serverConfig> const& serverConf)
 {
-	
+	HttpResponse rsp;
 	Request&	r = client.getRequest();
 	serverConfig const& server_block = find_server_block(client, serverConf);
 	std::cout << "Server block: " + server_block.listen() + '\n';
@@ -90,35 +91,16 @@ int	handle_request(Client& client, std::vector<serverConfig> const& serverConf)
 	}
 	std::map<std::string, std::string> const&	fields = r.getHeader().getFields();
 	locationConfig const&	loc_block = find_location_block(r.getHeader().getTargetResource(), server_block);
-	
-	if (fields.find("Content-Length") == fields.end())
+	rsp = router(r, server_block);
+	if (fields.find("Content-Length") != fields.end())
 	{
-		send_response(r, 200, server_block, client.getFd(), loc_block);
-		return 0;
+		r.setBodyLen(ft_atoull(fields.at("Content-Length").c_str()));
 	}
-	r.setBodyLen(ft_atoull(fields.at("Content-Length").c_str()));
 	if (read_body(r, request_stream) == 0)
 	{
-		send_response(r, 200, server_block, client.getFd(), loc_block);
+		// send_response(r, 200, server_block, client.getFd(), loc_block);
 		std::cout << "sending response, done reading the body\n";
-		//send_response(r, 200, server_block, client.getFd());
 	}
+	send_response(r, rsp.getStatusCode(), server_block, client.getFd(), loc_block);
 	return 0;
 }
-
-
-
-
-	// if (fields.find("Content-Length") == fields.end())
-	// {
-	// 	send_response(r, 200, server_block, client.getFd(), loc_block);
-	// 	return 0;
-	// }
-	// r.setBodyLen(ft_atoull(fields.at("Content-Length").c_str()));
-	// if (read_body(r, request_stream) == 0)
-	// {
-	// 	send_response(r, 200, server_block, client.getFd(), loc_block);
-	// 	std::cout << "sending response, done reading the body\n";
-	// 	//send_response(r, 200, server_block, client.getFd());
-	// }
-	// return 0;

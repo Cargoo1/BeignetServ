@@ -172,23 +172,24 @@ bool		parse_methods(const std::vector<std::string> &methods, const std::string &
 }
 
 
-bool isIP(std::string listen) {
-	for (std::string::size_type i = 0; i < listen.size(); i++) {
-		if (listen.at(i) != '.' || !isdigit(listen.at(i)))
-			return (false);
-	}
-	return (true);
-}
-void managePortSyntax(std::string &port) {
-	if (isIP(port)) {
-		port += ":8080";
-		return ;
-	}
-	else {
-		std::string newPort = "0.0.0.0:" + port;
-		port = newPort;
-	}
-}
+// bool isIP(std::string listen) {
+// 	for (std::string::size_type i = 0; i < listen.size(); i++) {
+// 		if (listen.at(i) != '.' || !isdigit(listen.at(i)))
+// 			return (false);
+// 	}
+// 	return (true);
+// }
+
+// void managePortSyntax(std::string &port) {
+// 	if (isIP(port)) {
+// 		port += ":8080";
+// 		return ;
+// 	}
+// 	else {
+// 		std::string newPort = "0.0.0.0:" + port;
+// 		port = newPort;
+// 	}
+// }
 
 }
 
@@ -465,8 +466,8 @@ void configParser::_validateAll() {
 		const serverConfig &server = this->_servers[i];
 		if (server._listen.empty())
 			this->_servers[i]._listen = "0.0.0.0:8080";
-		else
-			managePortSyntax(this->_servers[i]._listen);
+		// else
+		// 	managePortSyntax(this->_servers[i]._listen);
 		port_dup.push_back(server._listen);
 		if (!check_double(port_dup)) {
 			std::cerr << "Error: server " << server._serverName << " is listening an already assigned port" << std::endl;
@@ -490,7 +491,6 @@ void configParser::_validateAll() {
 				throw std::runtime_error("Aborting");
 			}
 			if (location._root.empty() && server._root.empty()) {
-				std::cout << location._root.empty() << " - "  << server._root.empty() << std::endl;
 				std::cerr << "Error: server " << server._serverName << " have no root and so does location " << location._path << std::endl;
 				throw std::runtime_error("Aborting");
 			}
@@ -501,7 +501,7 @@ void configParser::_validateAll() {
 		}
 		path_dup.clear();
 	}
-	DEBUG_printConf();
+	// DEBUG_printConf();
 }
 
 /*============= tokens =============*/

@@ -26,14 +26,21 @@ class Header
 
 		std::string&						getMethod(void);
 		const std::string&						getMethod(void) const;
+
 		std::string&						getTargetResource(void);
-		const std::string&					getTargetResource(void) const;
+		const std::string&						getTargetResource(void) const;
+
 		std::string&						getProtocolV(void);
 		const std::string&						getProtocolV(void) const;
+
 		std::map<std::string, std::string>&	getFields(void);
+		const std::map<std::string, std::string>&	getFields(void) const;
+
 		std::string&							getContentLenght(void);
-		std::string&						getQueryStr(void);
 		const std::string&							getContentLenght(void) const;
+
+		std::string&						getQueryStr(void);
+
 		bool	setMethod(std::string& method);
 		void	setTargetResource(std::string& uri);
 		bool	setProtocolV(std::string& protocol);

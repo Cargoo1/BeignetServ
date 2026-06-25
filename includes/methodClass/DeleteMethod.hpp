@@ -4,7 +4,7 @@
 
 class DeleteMethod : public HttpMethod {
 	public:
-		DeleteMethod(ExecutionContext &context);
+		DeleteMethod(const ExecutionContext &context);
 		~DeleteMethod();
 		void executeMethod(HttpResponse &rsp);
 	private:
