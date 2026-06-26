@@ -77,6 +77,10 @@ int	handle_request(Client& client, std::vector<serverConfig> const& serverConf)
 	serverConfig const& server_block = find_server_block(client, serverConf);
 	std::cout << "Server block: " + server_block.listen() + '\n';
 	std::istringstream	request_stream(client.getRequest().getMessage());
+	locationConfig	loc_block = find_location_block(r.getHeader().getTargetResource(), server_block);
+	// std::cout << "LOG: DEBUG:" << std::endl;
+	// std::cout << loc_block.getMethod().at(0) << std::endl;
+	ExecutionContext context(r, loc_block, server_block);
 	if (!r.getHeader().is_header_parsed())
 	{
 		try
@@ -85,22 +89,21 @@ int	handle_request(Client& client, std::vector<serverConfig> const& serverConf)
 		}
 		catch(Request::ErrorRequest& e)
 		{
-			//send_response(r, e.getErrorCode(), server_block, client.getFd(), loc_block);
+			send_response(context, rsp, client.getFd());
 			return -1;
 		}
 	}
 	std::map<std::string, std::string> const&	fields = r.getHeader().getFields();
-	locationConfig const&	loc_block = find_location_block(r.getHeader().getTargetResource(), server_block);
-	rsp = router(r, server_block);
 	if (fields.find("Content-Length") != fields.end())
 	{
 		r.setBodyLen(ft_atoull(fields.at("Content-Length").c_str()));
 	}
 	if (read_body(r, request_stream) == 0)
 	{
-		// send_response(r, 200, server_block, client.getFd(), loc_block);
+		send_response(context, rsp, client.getFd());
 		std::cout << "sending response, done reading the body\n";
 	}
-	send_response(r, rsp.getStatusCode(), server_block, client.getFd(), loc_block);
+	rsp = router(context);
+	send_response(context, rsp, client.getFd());
 	return 0;
 }

@@ -17,5 +17,7 @@
 #include <Client.hpp>
 #include <serverConfig.hpp>
 
-int	send_response(Request& r, int status_code, serverConfig const& serverConf,
-					int cfd, locationConfig const& loc_block);
+// int	send_response(Request& r, int status_code, serverConfig const& serverConf,
+					// int cfd, locationConfig const& loc_block);
+
+int	send_response(const ExecutionContext &context, HttpResponse &resp, int cfd);

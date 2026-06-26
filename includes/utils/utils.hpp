@@ -75,4 +75,4 @@ bool	is_in_cgi_dir(std::string const& uri);
 
 unsigned long long	ft_atoull(char const* str);
 
-locationConfig const&	find_location_block(std::string const& uri, serverConfig const& server);
+locationConfig	find_location_block(std::string const& uri, serverConfig const& server);

@@ -28,14 +28,13 @@ namespace {
 	}
 }
 
-HttpResponse router(const Request &request, const serverConfig &server_bloc) {
-	locationConfig location_bloc;
+HttpResponse router(const ExecutionContext &context) {
 	HttpResponse rsp;
 	try {
-		location_bloc = server_bloc.locations().at(0)/*longestMatchingPath(request.getHeader().getTargetResource(), server_bloc)*/;
-		if (!checkAllowedMethods(location_bloc, request.getHeader().getMethod()))
+		// location_bloc = server_bloc.locations().at(0)/*longestMatchingPath(request.getHeader().getTargetResource(), server_bloc)*/;
+		if (!checkAllowedMethods(context.location, context.request.getHeader().getMethod()))
 			throw Request::ErrorRequest(method_not_allowed);
-		if (!checkClientMaxBodySize(request, server_bloc, location_bloc))
+		if (!checkClientMaxBodySize(context))
 			throw Request::ErrorRequest(payload_too_large);
 	}
 	catch (const Request::ErrorRequest& e) {
@@ -43,12 +42,11 @@ HttpResponse router(const Request &request, const serverConfig &server_bloc) {
 		std::cerr << e.what() << '\n';
 		return (rsp);
 	}
-	ExecutionContext execCont(request, location_bloc, server_bloc);
-	dispatcher_method(execCont, rsp);
+	dispatcher_method(context, rsp);
 	return (rsp);
 }
 
-locationConfig longestMatchingPath(const std::string path,const serverConfig &server_bloc) {
+locationConfig longestMatchingPath(const std::string &path,const serverConfig &server_bloc) {
 	locationConfig										ret;
 	std::string											absoluteLocPath;
 	std::vector<std::string>							split_reqPath = splitPath(path), split_locPath;
@@ -74,7 +72,7 @@ locationConfig longestMatchingPath(const std::string path,const serverConfig &se
 	return (bestMatch);
 }
 
-bool checkAllowedMethods(const locationConfig location_block, const std::string method) {
+bool checkAllowedMethods(const locationConfig &location_block, const std::string &method) {
 	std::vector<std::string>					loc_method = location_block.getMethod();
 	std::vector<std::string>::const_iterator	it;
 
@@ -85,16 +83,16 @@ bool checkAllowedMethods(const locationConfig location_block, const std::string 
 	return (false);
 }
 
-bool checkClientMaxBodySize(const Request request, const serverConfig server, const locationConfig &location) {
-	if (request.getHeader().getFields().find("Content-Length") == request.getHeader().getFields().end())
+bool checkClientMaxBodySize(const ExecutionContext &context) {
+	if (context.request.getHeader().getFields().find("Content-Length") == context.request.getHeader().getFields().end())
 		return (true);
 	std::size_t clientMBS;
 	std::size_t contentLenght;
-	toDigit(request.getHeader().getFields().find("Content-Length")->second, contentLenght);
-	if (location.hasCMBS())
-		clientMBS = location.getCMBS();
+	toDigit(context.request.getHeader().getFields().find("Content-Length")->second, contentLenght);
+	if (context.location.hasCMBS())
+		clientMBS = context.location.getCMBS();
 	else
-		clientMBS = server.getCMBS();
+		clientMBS = context.server.getCMBS();
 	if (contentLenght > clientMBS)
 		return (false);
 	return (true);

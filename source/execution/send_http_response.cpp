@@ -67,20 +67,20 @@ void	create_error_response(HttpResponse& response, int error_code, std::string c
 	response.addField("Content-Type", find_content_type(file_name));
 }
 
-void	send_error_response(HttpResponse& response, serverConfig const& serverConf, int error_code)
+void	send_error_response(HttpResponse& response, serverConfig const& serverConf)
 {
 	std::map<int, std::string>::const_iterator	it = serverConf.errorPages().find(response.getStatusCode());
 
 	if (it == serverConf.errorPages().end())
 	{
-		create_default_error_response(response, error_code);
+		create_default_error_response(response, response.getStatusCode());
 		return;
 	}
 	if (access(it->second.c_str(), F_OK) == 0)
 	{
 		if (access(it->second.c_str(), R_OK) == 0)
 		{
-			create_error_response(response, error_code, it->second);
+			create_error_response(response, response.getStatusCode(), it->second);
 		}
 		else
 			create_default_error_response(response, forbiden);
@@ -110,19 +110,16 @@ int	sendall(int fd, char const* buf, int &len)
 	return 0;
 }
 
-int	send_response(Request& r, int status_code, serverConfig const& server_block, int cfd, 
-					locationConfig const& loc_block)
+int	send_response(const ExecutionContext &context, HttpResponse &resp, int cfd)
 {
-	(void)loc_block;
-	HttpResponse	response;
-	std::string		msg;
-	response.addField("Server", "Beignetserv/0.1");
-	if (status_code >= 400)
-		send_error_response(response, server_block, status_code);
-	msg = response.toHttpString();
+	std::string msg;
+	resp.addField("Server", "Beignetserv/0.1");
+	if (resp.getStatusCode() >= 400)
+		send_error_response(resp, context.server);
+	msg = resp.toHttpString();
 	int	len = msg.length();
 	sendall(cfd, msg.c_str(), len);
-	r = Request();
+	// r = Request();
 	if (static_cast<size_t>(len) != msg.length())
 	{
 		std::cerr << "Failed sending all bytes in the response\n";
@@ -130,3 +127,24 @@ int	send_response(Request& r, int status_code, serverConfig const& server_block,
 	}
 	return 0;
 }
+
+// int	send_response(Request& r, int status_code, serverConfig const& server_block, int cfd, 
+// 					locationConfig const& loc_block)
+// {
+// 	(void)loc_block;
+// 	HttpResponse	response;
+// 	std::string		msg;
+// 	response.addField("Server", "Beignetserv/0.1");
+// 	if (status_code >= 400)
+// 		send_error_response(response, server_block, status_code);
+// 	msg = response.toHttpString();
+// 	int	len = msg.length();
+// 	sendall(cfd, msg.c_str(), len);
+// 	r = Request();
+// 	if (static_cast<size_t>(len) != msg.length())
+// 	{
+// 		std::cerr << "Failed sending all bytes in the response\n";
+// 		return -1;
+// 	}
+// 	return 0;
+// }

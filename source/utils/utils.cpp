@@ -224,7 +224,7 @@ bool	is_in_cgi_dir(std::string const& uri)
 	return false;
 }
 
-locationConfig const&	find_location_block(std::string const& uri, serverConfig const& server)
+locationConfig	find_location_block(std::string const& uri, serverConfig const& server)
 {
 	std::vector<locationConfig>	loc_confs = server.locations();
 	size_t	longest_chars_matched = 0;

@@ -28,7 +28,9 @@ class locationConfig {
 		bool const& hasCMBS() const;
 
 		bool const& hasRedirect() const;
+
 		bool const& getAutoindex() const;
+
 		std::size_t &getCMBS();
 		const std::size_t &getCMBS() const;
 
@@ -54,5 +56,4 @@ class locationConfig {
 		std::string							_redirectUrl;
 		std::size_t							_clientMaxBodySize;
 		bool								_hasClientMaxBodySize;
-		bool								_isExactMatch;
 };

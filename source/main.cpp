@@ -9,7 +9,7 @@ int	main(int ac, char **av)
 	(void)av;
 	if (ac != 2)
 	{
-		std::cerr << "Error: args" << std::endl;
+		std::cerr << "Error: usage: " << av[0] << " <config.conf>" << std::endl;
 		return (EXIT_FAILURE);
 	}
 	configParser	server;
