@@ -26,8 +26,8 @@ class serverConfig {
 		std::vector<locationConfig> &locations();
 		const std::vector<locationConfig> &locations() const;
 
-		std::string &root();
-		const std::string &root() const;
+		std::string &getRoot();
+		const std::string &getRoot() const;
 
 		std::map<int, std::string> &errorPages();
 		const std::map<int, std::string> &errorPages() const;

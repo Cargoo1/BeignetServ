@@ -1,3 +1,4 @@
+#include "Request.hpp"
 #include <PostMethod.hpp>
 #include <utils.hpp>
 
@@ -79,28 +80,21 @@ namespace { std::size_t toSizeT(const std::string &str) {
 	return (ret);
 } }
 
-PostMethod::PostMethod(const ExecutionContext &context) : HttpMethod(context) {};
+PostMethod::PostMethod(Request const& r) : HttpMethod(r) {};
 
 PostMethod::~PostMethod() {};
 
 void PostMethod::executeMethod(HttpResponse &rsp) {
-	std::string targetResource = this->_context.request.getHeader().getTargetResource();
-
-	std::string path;
-	if (this->_context.location.getUploadStore().empty())
-		path = '.' + this->_context.location.getRoot() + targetResource;
-	else
-		path = '.' + this->_context.location.getUploadStore() + targetResource;
-
-	std::size_t contentLenght = toSizeT(this->_context.request.getHeader().getContentLenght());
-	if (this->_context.location.hasCMBS()) {
-		if (contentLenght > this->_context.location.getCMBS())
+	std::string path = this->_request.getHeader().getTargetResource();
+	std::size_t contentLenght = toSizeT(this->_request.getHeader().getContentLenght());
+	if (this->_request.getLocConfBlock()->hasCMBS()) {
+		if (contentLenght > this->_request.getLocConfBlock()->getCMBS())
 			throw Request::ErrorRequest(content_too_large);
 	}
 
 	std::string body = "";
-	if (targetResource.at(targetResource.size()-1) != '/')
-		body = this->_context.request.getBody();
+	if (path.at(path.size()-1) != '/')
+		body = this->_request.getBody();
 
 	if (!postFile(path, body))
 		throw Request::ErrorRequest(internal_server_error);

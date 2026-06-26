@@ -1,10 +1,11 @@
 #pragma once
 
+#include "Request.hpp"
 #include <HttpMethod.hpp>
 
 class GetMethod : public HttpMethod {
 	public:
-		GetMethod(const ExecutionContext &context);
+		GetMethod(Request const& r);
 		~GetMethod();
 		void executeMethod(HttpResponse &rsp);
 	private:

@@ -1,3 +1,9 @@
+#include "Header.hpp"
+#include "HttpResponse.hpp"
+#include "Request.hpp"
+#include "locationConfig.hpp"
+#include "serverConfig.hpp"
+#include "utils.hpp"
 #include <HttpMethodDispatcher.hpp>
 #include <GetMethod.hpp>
 #include <PostMethod.hpp>
@@ -28,29 +34,35 @@ namespace {
 	}
 }
 
-HttpResponse router(const ExecutionContext &context) {
-	HttpResponse rsp;
-	try {
-		// location_bloc = server_bloc.locations().at(0)/*longestMatchingPath(request.getHeader().getTargetResource(), server_bloc)*/;
-		if (!checkAllowedMethods(context.location, context.request.getHeader().getMethod()))
-			throw Request::ErrorRequest(method_not_allowed);
-		if (!checkClientMaxBodySize(context))
-			throw Request::ErrorRequest(payload_too_large);
+int router(Request const& r, HttpResponse& response) {
+	locationConfig const&	location_block = *r.getLocConfBlock();
+	if (!checkAllowedMethods(location_block, r.getHeader().getMethod()))
+	{
+		response.setStatusCode(method_not_allowed);
+		return -1;
 	}
-	catch (const Request::ErrorRequest& e) {
-		rsp.setStatusCode(e.getErrorCode());
-		std::cerr << e.what() << '\n';
-		return (rsp);
+	if (!checkClientMaxBodySize(r))
+	{
+		response.setStatusCode(payload_too_large);
+		return -1;
 	}
-	dispatcher_method(context, rsp);
-	return (rsp);
+	try
+	{
+		dispatcher_method(r, response);
+	}
+	catch (Request::ErrorRequest& e)
+	{
+		response.setStatusCode(e.getErrorCode());
+		return -1;
+	}
+	return (0);
 }
 
 locationConfig longestMatchingPath(const std::string &path,const serverConfig &server_bloc) {
 	locationConfig										ret;
 	std::string											absoluteLocPath;
 	std::vector<std::string>							split_reqPath = splitPath(path), split_locPath;
-	std::string											serverRoot = server_bloc.root();
+	std::string											serverRoot = server_bloc.getRoot();
 	int													bestScore = NOT_FOUND, tmp;
 	locationConfig										bestMatch;
 	std::vector<locationConfig>::const_iterator it =	server_bloc.locations().begin();
@@ -83,35 +95,36 @@ bool checkAllowedMethods(const locationConfig &location_block, const std::string
 	return (false);
 }
 
-bool checkClientMaxBodySize(const ExecutionContext &context) {
-	if (context.request.getHeader().getFields().find("Content-Length") == context.request.getHeader().getFields().end())
+bool checkClientMaxBodySize(Request const& r) {
+	Header const&	header = r.getHeader();
+	if (header.getFields().find("Content-Length") == header.getFields().end())
 		return (true);
 	std::size_t clientMBS;
 	std::size_t contentLenght;
-	toDigit(context.request.getHeader().getFields().find("Content-Length")->second, contentLenght);
-	if (context.location.hasCMBS())
-		clientMBS = context.location.getCMBS();
+	toDigit(header.getFields().find("Content-Length")->second, contentLenght);
+	if (r.getLocConfBlock()->hasCMBS())
+		clientMBS = r.getLocConfBlock()->getCMBS();
 	else
-		clientMBS = context.server.getCMBS();
+		clientMBS = r.getServerBlock()->getCMBS();
 	if (contentLenght > clientMBS)
 		return (false);
 	return (true);
 }
 
-HttpResponse dispatcher_method(const ExecutionContext &context, HttpResponse &rsp) {
-	std::string reqMethod(context.request.getHeader().getMethod());
+HttpResponse dispatcher_method(Request const& r, HttpResponse &response) {
+	std::string reqMethod(r.getHeader().getMethod());
 
 	if (reqMethod == "GET"){
-		GetMethod	method(context);
-		method.executeMethod(rsp);
+		GetMethod	method(r);
+		method.executeMethod(response);
 	}
 	else if (reqMethod == "DELETE") {
-		DeleteMethod	method(context);
-		method.executeMethod(rsp);
+		DeleteMethod	method(r);
+		method.executeMethod(response);
 	}
 	else if (reqMethod == "POST") {
-		PostMethod	method(context);
-		method.executeMethod(rsp);
+		PostMethod	method(r);
+		method.executeMethod(response);
 	}
-	return (rsp);
+	return (response);
 }

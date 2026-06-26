@@ -6,7 +6,7 @@
 /*   By: ratel <ratel@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 19:03:36 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/23 18:04:44 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/26 19:46:30 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -159,11 +159,18 @@ void	Header::setTargetResource(std::string& uri, Request& r)
 {
 	if (uri.empty())
 		throw Request::ErrorRequest(bad_request);
+	std::string	prefix = ".";
+	std::string	root;
 	size_t separator_pos = parse_path(uri);
 	r.setLocConfBlock(find_location_block(uri, *r.getServerBlock()));
 	this->_target_resource = uri.substr(0, separator_pos);
 	if (r.getLocConfBlock()->getRoot().empty())
-		this->_target_resource = '.' + r.getServerBlock()->root() + this->_target_resource;
+		root = r.getServerBlock()->getRoot();
+	else
+		root = r.getLocConfBlock()->getRoot();
+	if (root.at(0) != '/')
+		prefix += '/';
+	this->_target_resource = prefix + root + this->_target_resource;
 	std::cout << "path parsed: " + this->_target_resource + '\n';
 	if (find_type(this->_target_resource) == CGI_PY || is_in_cgi_dir(uri))
 		this->_is_cgi = true;

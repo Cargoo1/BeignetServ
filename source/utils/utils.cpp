@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/03 17:41:28 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/23 17:28:19 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/26 20:16:41 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -293,7 +293,7 @@ locationConfig const&	find_location_block(std::string const& uri, serverConfig c
 				slash_pos = loc_path.size();
 			else
 				++slash_pos;
-			while (j < slash_pos)
+			while (j < slash_pos && j < uri.length())
 			{
 				if (uri.at(j) != loc_path.at(k))
 					break;

@@ -6,7 +6,7 @@
 /*   By: ratel <ratel@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/11 19:40:38 by alejandroca       #+#    #+#             */
-/*   Updated: 2026/06/23 17:32:10 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/26 19:57:10 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,40 +55,36 @@ int	read_body(Request& r, std::istringstream& request_stream)
 
 int	handle_request(Client& client)
 {
-	HttpResponse rsp;
+	HttpResponse response;
 	Request&	r = client.getRequest();
 	std::istringstream	request_stream(client.getRequest().getMessage());
-	locationConfig	loc_block = find_location_block(r.getHeader().getTargetResource(), server_block);
-	// std::cout << "LOG: DEBUG:" << std::endl;
-	// std::cout << loc_block.getMethod().at(0) << std::endl;
-	ExecutionContext context(r, loc_block, server_block);
 	if (!r.getHeader().is_header_parsed())
 	{
 		try
 		{
-			parse_header(request_stream, r.getHeader());
+			parse_header(request_stream, r);
 		}
 		catch(Request::ErrorRequest& e)
 		{
-			send_response(context, rsp, client.getFd());
+			response.setStatusCode(e.getErrorCode());
+			send_response(r, response, client.getFd());
 			return -1;
 		}
 	}
 	if (!r.getLocConfBlock() || !r.getServerBlock())
+	{
+		response.setStatusCode(internal_server_error);
+		send_response(r, response, client.getFd());
 		return -1;
+	}
 	std::map<std::string, std::string> const&	fields = r.getHeader().getFields();
-	if (fields.find("Content-Length") == fields.end())
+	if (fields.find("Content-Length") != fields.end())
 	{
-		send_response(r, 200, *r.getServerBlock(), client.getFd(), *r.getLocConfBlock());
-		return 0;
+		if (read_body(r, request_stream) != 0)
+			return 0;
 	}
-	if (read_body(r, request_stream) == 0)
-	{
-		send_response(r, 200, *r.getServerBlock(), client.getFd(), *r.getLocConfBlock());
-		std::cout << "sending response, done reading the body\n";
-	}
-	rsp = router(context);
-	send_response(context, rsp, client.getFd());
+	router(r, response);
+	send_response(r, response, client.getFd());
 	return 0;
 }
 

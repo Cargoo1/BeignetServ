@@ -1,3 +1,4 @@
+#include "Request.hpp"
 #include <DeleteMethod.hpp>
 
 #include <dirent.h>
@@ -6,17 +7,12 @@
 #include <string.h>
 #include <sys/stat.h>
 
-DeleteMethod::DeleteMethod(const ExecutionContext &context) : HttpMethod(context) {};
+DeleteMethod::DeleteMethod(Request const& r) : HttpMethod(r) {};
 
 DeleteMethod::~DeleteMethod() {};
 
 void DeleteMethod::executeMethod(HttpResponse &rsp) {
-	std::string root;
-	if (!this->_context.location.getRoot().empty())
-		root = "." + this->_context.location.getRoot();
-	else
-		root = "." + this->_context.server.root();
-	std::string path = root + this->_context.request.getHeader().getTargetResource();
+	std::string path = this->_request.getHeader().getTargetResource();
 	struct stat path_stat;
 	if (stat(path.c_str(), &path_stat) < 0)
 		throw Request::ErrorRequest(not_found);

@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/07 19:49:10 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/09 14:25:49 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/26 18:25:32 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ void	remove_whitespace(std::string& line)
 	}
 }
 
-void	parse_method(std::string &line, Header& header)
+void	parse_method(std::string &line, Header& header, Request& r)
 {
 	size_t	pos = line.find_first_of(' ', 0);
 	std::string	buff_tmp;
@@ -58,7 +58,7 @@ void	parse_method(std::string &line, Header& header)
 		if (header.getMethod().empty())
 			header.setMethod(buff_tmp);
 		else if (header.getTargetResource().empty())
-			header.setTargetResource(buff_tmp);
+			header.setTargetResource(buff_tmp, r);
 		else if (header.getProtocolV().empty())
 			header.setProtocolV(buff_tmp);
 		else
@@ -83,11 +83,14 @@ size_t	check_field_line_syntax(std::string const& line)
 	return colon_pos;
 }	
 
-void	parse_line(std::string & line, Header& header, std::map<std::string, field_function> fields)
+void	parse_line(std::string & line,
+					Header& header,
+					std::map<std::string,field_function> fields,
+					Request& r)
 {
 	if (header.getMethod().empty())
 	{
-		parse_method(line, header);
+		parse_method(line, header, r);
 		return;
 	}
 	remove_whitespace(line);
@@ -119,15 +122,17 @@ void	init_map_fields(std::map<std::string, field_function>& map_fields)
 	}
 }
 
-void	parse_header(std::istringstream& request, Header &header)
+void	parse_header(std::istringstream& request,
+						Request& r)
 {
 	std::string	line;
+	Header&	header = r.getHeader();
 	std::map<std::string, field_function> map_fields;
 
 	init_map_fields(map_fields);
 	while (std::getline(request, line) && line.compare(0, 2, "\r"))
 	{
-		parse_line(line, header, map_fields);
+		parse_line(line, header, map_fields, r);
 	}
 	if (header.getFields().find("Host") == header.getFields().end())
 		throw Request::ErrorRequest(bad_request);

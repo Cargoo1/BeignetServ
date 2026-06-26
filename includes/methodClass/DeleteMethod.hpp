@@ -1,10 +1,11 @@
 #pragma once
 
+#include "Request.hpp"
 #include <HttpMethod.hpp>
 
 class DeleteMethod : public HttpMethod {
 	public:
-		DeleteMethod(const ExecutionContext &context);
+		DeleteMethod(Request const& r);
 		~DeleteMethod();
 		void executeMethod(HttpResponse &rsp);
 	private:

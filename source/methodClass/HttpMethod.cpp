@@ -1,3 +1,4 @@
+#include "Request.hpp"
 #include <HttpMethod.hpp>
 
 #include <bits/stdc++.h>
@@ -29,7 +30,7 @@
 // 	// char **ret = new
 // } }
 
-HttpMethod::HttpMethod(const ExecutionContext &context) : _context(context) {}
+HttpMethod::HttpMethod(Request const& r) : _request(r) {}
 
 HttpMethod::~HttpMethod(){}
 

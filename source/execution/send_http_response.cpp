@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 21:54:03 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/23 17:02:27 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/26 19:03:12 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,7 @@ void	create_default_error_response(HttpResponse& response, int error_code)
 	response.addField("Content-Length", toStr(response.getBody().length()));
 	response.addField("Content-Type", "text/html");
 }
+
 void	create_error_response(HttpResponse& response, int error_code, std::string const& file_name)
 {
 	std::ifstream	ifs;
@@ -67,11 +68,13 @@ void	create_error_response(HttpResponse& response, int error_code, std::string c
 	response.addField("Content-Type", find_content_type(file_name));
 }
 
-void	send_error_response(HttpResponse& response, serverConfig const& serverConf)
+void	send_error_response(HttpResponse& response, serverConfig const* serverConf)
 {
-	std::map<int, std::string>::const_iterator	it = serverConf.errorPages().find(response.getStatusCode());
+	if (!serverConf)
+		create_default_error_response(response, response.getStatusCode());
+	std::map<int, std::string>::const_iterator	it = serverConf->errorPages().find(response.getStatusCode());
 
-	if (it == serverConf.errorPages().end())
+	if (it == serverConf->errorPages().end())
 	{
 		create_default_error_response(response, response.getStatusCode());
 		return;
@@ -110,12 +113,12 @@ int	sendall(int fd, char const* buf, int &len)
 	return 0;
 }
 
-int	send_response(const ExecutionContext &context, HttpResponse &resp, int cfd)
+int	send_response(Request const& r, HttpResponse &resp, int cfd)
 {
 	std::string msg;
 	resp.addField("Server", "Beignetserv/0.1");
 	if (resp.getStatusCode() >= 400)
-		send_error_response(resp, context.server);
+		send_error_response(resp, r.getServerBlock());
 	msg = resp.toHttpString();
 	int	len = msg.length();
 	sendall(cfd, msg.c_str(), len);

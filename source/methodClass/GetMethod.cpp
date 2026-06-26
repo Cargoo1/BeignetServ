@@ -1,3 +1,4 @@
+#include "Request.hpp"
 #include <GetMethod.hpp>
 
 #include <iostream>
@@ -7,7 +8,7 @@
 #include <sys/stat.h>
 #include <dirent.h>
 
-GetMethod::GetMethod(const ExecutionContext &context) : HttpMethod(context) {};
+GetMethod::GetMethod(Request const& r) : HttpMethod(r) {};
 
 GetMethod::~GetMethod() {};
 
@@ -19,31 +20,25 @@ namespace { bool isCgi(const std::string path){
 } }
 
 void GetMethod::executeMethod(HttpResponse &rsp) {
-	if (this->_context.location.hasRedirect()) {
-		rsp.setStatusCode(this->_context.location.getRedirectCode());
-		rsp.addField("Location", this->_context.location.getRedirectUrl());
+	if (this->_request.getLocConfBlock()->hasRedirect()) {
+		rsp.setStatusCode(this->_request.getLocConfBlock()->getRedirectCode());
+		rsp.addField("Location", this->_request.getLocConfBlock()->getRedirectUrl());
 		return;
 	}
-	std::string targetR = this->_context.request.getHeader().getTargetResource();
-	std::string query = getQuery(targetR);
-	std::string cgiPath = getQuery_path(targetR);
+	std::string path = this->_request.getHeader().getTargetResource();
+	std::string query = getQuery(path);
+	std::string cgiPath = getQuery_path(path);
 	if (isCgi(cgiPath)) {
 		// _executeCGI(this->_context);
 		return;
 	}
-	std::string root;
-	if (!this->_context.location.getRoot().empty())
-		root = this->_context.location.getRoot();
-	else
-		root = this->_context.server.root();
-	std::string path = "." + root + targetR;
 	struct stat path_stat;
 	if (stat(path.c_str(), &path_stat) < 0) 
 		throw Request::ErrorRequest(not_found);
 	if (S_ISDIR(path_stat.st_mode)) {
-		if (targetR.at(targetR.size()-1) != '/') {
+		if (path.at(path.size()-1) != '/') {
 			rsp.setStatusCode(301);
-			rsp.addField("Location", targetR + "/");
+			rsp.addField("Location", path + "/");
 			return;
 		}
 		std::string indexPath = path + "index.html";
@@ -55,7 +50,7 @@ void GetMethod::executeMethod(HttpResponse &rsp) {
 			rsp.setStatusCode(200);
 			return;
 		}
-		if (this->_context.location.getAutoindex()) {
+		if (this->_request.getLocConfBlock()->getAutoindex()) {
 			std::string htmlList = _generateAutoindex(path);
 			rsp.setBody(htmlList);
 			rsp.setContentType("text/html");

@@ -40,11 +40,11 @@ const std::vector<locationConfig> &serverConfig::locations() const {
 	return (this->_locations);
 }
 
-std::string &serverConfig::root() {
+std::string &serverConfig::getRoot() {
 	return (this->_root);
 }
 
-const std::string &serverConfig::root() const {
+const std::string &serverConfig::getRoot() const {
 	return (this->_root);
 }
 
