@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/08 14:23:48 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/16 13:47:28 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/23 17:24:29 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,10 +14,12 @@
 
 #include "Header.hpp"
 #include "locationConfig.hpp"
+#include <serverConfig.hpp>
 #include <cstddef>
 #include <exception>
 #include <map>
 #include <string>
+
 
 class	Request
 {
@@ -52,15 +54,18 @@ public:
 	unsigned long long const&	getBodyLen(void) const;
 	bool				addBytesRead(size_t bytes);
 	void				setBodyLen(unsigned long long const& len);
-	locationConfig const*	getLocConf(void) const;
-	void					setLocConf(locationConfig const& loc_conf);
+	locationConfig const*	getLocConfBlock(void) const;
+	void					setLocConfBlock(locationConfig const& loc_conf);
+	serverConfig const*	getServerBlock(void) const;
+	int					setServerBlock(serverConfig const& server_block);
 
 private:
 	Header		_header;
 	bool		_request_in_progress;
 	std::string	_body;
 	unsigned long long	_body_len;
-	locationConfig const*	_loc_conf;
+	locationConfig const*	_locConf_block;
+	serverConfig const*	_server_block;
 	size_t		_bytes_read;
 	std::string	_message;
 	std::string	_response;

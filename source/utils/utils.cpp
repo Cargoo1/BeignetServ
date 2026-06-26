@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/03 17:41:28 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/16 16:06:30 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/23 17:28:19 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,10 @@
 #include <cstring>
 #include <map>
 #include <iostream>
+#include <sstream>
+#include <string>
 #include <sys/socket.h>
+#include <Client.hpp>
 #include <sys/types.h>
 #include <utils.hpp>
 #include <vector>
@@ -224,35 +227,90 @@ bool	is_in_cgi_dir(std::string const& uri)
 	return false;
 }
 
-locationConfig	find_location_block(std::string const& uri, serverConfig const& server)
+int	split_between_delimiter(std::vector<std::string>& vector, std::string const& str, char c)
 {
-	std::vector<locationConfig>	loc_confs = server.locations();
-	size_t	longest_chars_matched = 0;
-	size_t	chars_matched;
+	size_t	i = 0, k, j;
+	std::string	str_tmp;
+	while (i < str.size())
+	{
+		k = std::string::npos;
+		j = std::string::npos;
+		if (str.at(i) == c)
+		{
+			k = i++;
+			while (i < str.size() && str.at(i) != c)
+				++i;
+			j = i;
+			if (j >= str.size())
+				continue;
+			if (k + 1 >= str.size())
+				continue;
+			str_tmp = str.substr(k + 1, j);
+			vector.push_back(str_tmp);
+		}
+		++i;
+	}
+	return 0;
+}
+
+serverConfig const&	find_server_block(Client& client, std::vector<serverConfig> const& serverConfig)
+{
+	std::string	ip_port = client.getIp() + ':' + client.getPort();
+	std::vector<class serverConfig>::const_iterator it;
+	for (it = serverConfig.begin(); it != serverConfig.end(); it++)
+	{
+		if (ip_port.compare(it->listen()) == 0)
+			return *it;
+	}
+	for (it = serverConfig.begin(); it != serverConfig.end(); it++)
+	{
+		if (client.getPort().compare(it->listen()) == 0)
+			return *it;
+	}
+	return serverConfig.front();
+}
+
+locationConfig const&	find_location_block(std::string const& uri, serverConfig const& server)
+{
+	std::vector<locationConfig> const&	loc_confs = server.locations();
+	size_t	longest_dirs_matched = 0;
+	size_t	directories_matched = 0;
 	int		longest_match = -1;
+	size_t	slash_pos = std::string::npos;
 	size_t	j = 0;
 	size_t	k = 0;
 	for (size_t i = 0; i < loc_confs.size(); ++i)
 	{
 		std::string	const& loc_path = loc_confs.at(i).getPath();
 
-		chars_matched = 0;
+		directories_matched = 0;
 		j = 0;
 		k = 0;
 		while (j < uri.length() && k < loc_path.length())
 		{
-			if (uri.at(j) != loc_path.at(k))
+			slash_pos = loc_path.find('/', k);
+			if (slash_pos == std::string::npos)
+				slash_pos = loc_path.size();
+			else
+				++slash_pos;
+			while (j < slash_pos)
+			{
+				if (uri.at(j) != loc_path.at(k))
+					break;
+				++j;
+				++k;
+			}
+			if (j < slash_pos)
 				break;
-			chars_matched++;
-			++j;
-			++k;
+			++directories_matched;
 		}
-		if (chars_matched > longest_chars_matched)
+		if (directories_matched > longest_dirs_matched)
 		{
-			longest_chars_matched = chars_matched;
+			longest_dirs_matched = directories_matched;
 			longest_match = i;
-	
 		}
 	}
+	if (longest_match < 0)
+		return loc_confs.at(0);
 	return loc_confs.at(longest_match);
 }

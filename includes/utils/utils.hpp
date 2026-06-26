@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/03 17:39:25 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/16 13:39:55 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/23 17:28:45 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,9 @@
 #include <string>
 
 #include <sstream>
+
+#include <Client.hpp>
+
 #include <vector>
 
 #include "serverConfig.hpp"
@@ -75,4 +78,6 @@ bool	is_in_cgi_dir(std::string const& uri);
 
 unsigned long long	ft_atoull(char const* str);
 
-locationConfig	find_location_block(std::string const& uri, serverConfig const& server);
+locationConfig const&	find_location_block(std::string const& uri, serverConfig const& server);
+
+serverConfig const&	find_server_block(Client& client, std::vector<serverConfig> const& serverConfig);

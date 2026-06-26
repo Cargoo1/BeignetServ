@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/08 15:51:44 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/16 13:48:30 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/23 17:27:09 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,8 @@ Request::Request()
 	this->_request_in_progress = false;
 	this->_body_len = 0;
 	this->_bytes_read = 0;
-	this->_loc_conf = NULL;
+	this->_locConf_block = NULL;
+	this->_server_block = NULL;
 	return;
 }
 
@@ -41,7 +42,8 @@ Request::Request(const Request& other)
 	this->_request_in_progress = other._request_in_progress;
 	this->_body_len = other._body_len;
 	this->_bytes_read = other._bytes_read;
-	this->_loc_conf = other._loc_conf;
+	this->_locConf_block = other._locConf_block;
+	this->_server_block = other._server_block;
 	return ;
 }
 
@@ -152,12 +154,24 @@ void	Request::setBodyLen(unsigned long long const& len)
 	return;
 }
 
-locationConfig const*	Request::getLocConf(void) const
+locationConfig const*	Request::getLocConfBlock(void) const
 {
-	return this->_loc_conf;
+	return this->_locConf_block;
 }
 
-void	Request::setLocConf(locationConfig const& loc_conf)
+void	Request::setLocConfBlock(locationConfig const& loc_conf)
 {
-	this->_loc_conf = &loc_conf;
+	this->_locConf_block = &loc_conf;
+}
+
+serverConfig const*	Request::getServerBlock(void) const
+{
+	return this->_server_block;
+
+}
+
+int		Request::setServerBlock(serverConfig const& server_block)
+{
+	this->_server_block = &server_block;
+	return 0;
 }

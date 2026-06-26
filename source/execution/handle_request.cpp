@@ -6,7 +6,7 @@
 /*   By: ratel <ratel@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/11 19:40:38 by alejandroca       #+#    #+#             */
-/*   Updated: 2026/06/16 16:07:16 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/23 17:32:10 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,23 +35,6 @@
 // 	}
 // }
 
-serverConfig const&	find_server_block(Client& client, std::vector<serverConfig> const& serverConfig)
-{
-	std::string	ip_port = client.getIp() + ':' + client.getPort();
-	std::vector<class serverConfig>::const_iterator it;
-	for (it = serverConfig.begin(); it != serverConfig.end(); it++)
-	{
-		if (ip_port.compare(it->listen()) == 0)
-			return *it;
-	}
-	for (it = serverConfig.begin(); it != serverConfig.end(); it++)
-	{
-		if (client.getPort().compare(it->listen()) == 0)
-			return *it;
-	}
-	return serverConfig.front();
-}
-
 int	read_body(Request& r, std::istringstream& request_stream)
 {
 	std::string	line;
@@ -70,12 +53,10 @@ int	read_body(Request& r, std::istringstream& request_stream)
 	return r.getBytesRead();
 }
 
-int	handle_request(Client& client, std::vector<serverConfig> const& serverConf)
+int	handle_request(Client& client)
 {
 	HttpResponse rsp;
 	Request&	r = client.getRequest();
-	serverConfig const& server_block = find_server_block(client, serverConf);
-	std::cout << "Server block: " + server_block.listen() + '\n';
 	std::istringstream	request_stream(client.getRequest().getMessage());
 	locationConfig	loc_block = find_location_block(r.getHeader().getTargetResource(), server_block);
 	// std::cout << "LOG: DEBUG:" << std::endl;
@@ -93,17 +74,37 @@ int	handle_request(Client& client, std::vector<serverConfig> const& serverConf)
 			return -1;
 		}
 	}
+	if (!r.getLocConfBlock() || !r.getServerBlock())
+		return -1;
 	std::map<std::string, std::string> const&	fields = r.getHeader().getFields();
-	if (fields.find("Content-Length") != fields.end())
+	if (fields.find("Content-Length") == fields.end())
 	{
-		r.setBodyLen(ft_atoull(fields.at("Content-Length").c_str()));
+		send_response(r, 200, *r.getServerBlock(), client.getFd(), *r.getLocConfBlock());
+		return 0;
 	}
 	if (read_body(r, request_stream) == 0)
 	{
-		send_response(context, rsp, client.getFd());
+		send_response(r, 200, *r.getServerBlock(), client.getFd(), *r.getLocConfBlock());
 		std::cout << "sending response, done reading the body\n";
 	}
 	rsp = router(context);
 	send_response(context, rsp, client.getFd());
 	return 0;
 }
+
+
+
+
+	// if (fields.find("Content-Length") == fields.end())
+	// {
+	// 	send_response(r, 200, server_block, client.getFd(), loc_block);
+	// 	return 0;
+	// }
+	// r.setBodyLen(ft_atoull(fields.at("Content-Length").c_str()));
+	// if (read_body(r, request_stream) == 0)
+	// {
+	// 	send_response(r, 200, server_block, client.getFd(), loc_block);
+	// 	std::cout << "sending response, done reading the body\n";
+	// 	//send_response(r, 200, server_block, client.getFd());
+	// }
+	// return 0;

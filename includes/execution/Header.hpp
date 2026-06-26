@@ -6,14 +6,17 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 18:35:09 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/15 12:46:21 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/23 17:19:35 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
 #include <map>
+
 #include <string>
+
+class	Request;
 
 class Header
 {
@@ -42,7 +45,7 @@ class Header
 		std::string&						getQueryStr(void);
 
 		bool	setMethod(std::string& method);
-		void	setTargetResource(std::string& uri);
+		void	setTargetResource(std::string& uri, Request& r);
 		bool	setProtocolV(std::string& protocol);
 		void	setHost(std::string& host);
 		void	setContent_len(std::string& content_len);

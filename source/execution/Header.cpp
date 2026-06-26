@@ -6,10 +6,11 @@
 /*   By: ratel <ratel@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 19:03:36 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/16 15:39:06 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/23 18:04:44 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "Client.hpp"
 #include <Request.hpp>
 #include <Header.hpp>
 #include <cctype>
@@ -154,13 +155,15 @@ namespace { size_t	parse_path(std::string& uri)
 	}
 }
 
-void	Header::setTargetResource(std::string& uri)
+void	Header::setTargetResource(std::string& uri, Request& r)
 {
 	if (uri.empty())
 		throw Request::ErrorRequest(bad_request);
 	size_t separator_pos = parse_path(uri);
-	
+	r.setLocConfBlock(find_location_block(uri, *r.getServerBlock()));
 	this->_target_resource = uri.substr(0, separator_pos);
+	if (r.getLocConfBlock()->getRoot().empty())
+		this->_target_resource = '.' + r.getServerBlock()->root() + this->_target_resource;
 	std::cout << "path parsed: " + this->_target_resource + '\n';
 	if (find_type(this->_target_resource) == CGI_PY || is_in_cgi_dir(uri))
 		this->_is_cgi = true;

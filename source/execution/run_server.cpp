@@ -6,11 +6,12 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 19:10:40 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/11 22:19:51 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/23 17:32:18 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
+#include "utils.hpp"
 #include <configParser.hpp>
 #include <cstddef>
 #include <ctime>
@@ -171,8 +172,9 @@ void	get_client_msg(Server& server, int fd)
 		if (client.getRequest().getMessage().find("\r\n\r\n") == std::string::npos)
 			return;
 		client.getRequest().setReqInProg(true);
+		client.getRequest().setServerBlock(find_server_block(client, server.getServerConf()));
 	}
-	handle_request(server.getClients().at(fd), server.getServerConf());
+	handle_request(server.getClients().at(fd));
 	client.getRequest().getNotConstMessage().clear();
 }
 

@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/21 15:12:53 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/16 15:58:56 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/23 16:59:28 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ int	main(int argc, char **argv)
 		exit(1);
 	}
 	char buff[100000];
-	std::string msg = "POSTT /uploads HTTP/1.1\r\nHost:localhost:8080\r\nContent-Length:10\r\n\r\n1234567890";
+	std::string msg = "GET /upload asa s/yes/ HTTP/1.1\r\nHost:localhost:8080\r\nContent-Length:10\r\n\r\n1234567890";
 	int bytes_sent = send(sfd, msg.c_str(), msg.length(), 0);
 	while (bytes_sent < (int)msg.length())
 	{
