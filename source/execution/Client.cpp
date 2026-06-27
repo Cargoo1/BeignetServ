@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/14 19:50:59 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/09 14:42:03 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/27 15:42:03 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,4 +79,14 @@ int		Client::getFd(void) const
 Request&		Client::getRequest(void)
 {
 	return this->_r;
+}
+
+std::string&	Client::getNotConstMsg(void)
+{
+	return this->_message;
+}
+
+std::string const&	Client::getMsg(void) const
+{
+	return this->_message;
 }

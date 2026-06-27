@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/08 15:51:44 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/23 17:27:09 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/27 15:42:43 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,6 @@ Request::Request(const Request& other)
 	this->_header = other._header;
 	this->_body = other._body;
 	this->_response = other._response;
-	this->_message = other._message;
 	this->_request_in_progress = other._request_in_progress;
 	this->_body_len = other._body_len;
 	this->_bytes_read = other._bytes_read;
@@ -89,22 +88,6 @@ Request::ErrorRequest::ErrorRequest(int error_code)
 int		Request::ErrorRequest::getErrorCode(void) const
 {
 	return this->_error_code;
-}
-
-std::string const&		Request::getMessage(void) const
-{
-	return this->_message;
-}
-
-std::string&		Request::getNotConstMessage(void) 
-{
-	return this->_message;
-}
-
-void					Request::setMessage(std::string const& str)
-{
-	this->_message = str;
-	return;
 }
 
 std::string const&		Request::getResponse(void) const

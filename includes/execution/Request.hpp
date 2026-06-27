@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/08 14:23:48 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/26 19:14:42 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/27 15:42:25 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,9 +43,6 @@ public:
 	Header&				getHeader(void);
 	std::string const&	getBody(void) const;
 	void				appendBody(std::string const& str);
-	std::string const&		getMessage(void) const;
-	std::string&		getNotConstMessage(void);
-	void					setMessage(std::string const& str);
 	std::string const&		getResponse(void) const;
 	void					setResponse(std::string const& str);
 	bool					getReqInProg(void) const;
@@ -67,6 +64,5 @@ private:
 	locationConfig const*	_locConf_block;
 	serverConfig const*	_server_block;
 	size_t		_bytes_read;
-	std::string	_message;
 	std::string	_response;
 };

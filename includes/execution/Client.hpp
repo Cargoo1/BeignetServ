@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/14 19:47:36 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/09 14:41:08 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/27 15:41:23 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,11 +31,14 @@ public:
 	void			setLastComm(void);
 	Request&		getRequest(void);
 	void			setIpPort(std::string const& ip, std::string const& port);
+	std::string&	getNotConstMsg(void);
+	std::string const&	getMsg(void) const;
 	int				getFd(void) const;
 private:
 	Request		_r;
 	time_t		_last_communication;
 	std::string	_ip;
 	std::string	_port;
+	std::string	_message;
 	struct epoll_event	_einf;
 };

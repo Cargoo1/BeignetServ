@@ -6,7 +6,7 @@
 /*   By: ratel <ratel@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/11 19:40:38 by alejandroca       #+#    #+#             */
-/*   Updated: 2026/06/26 19:57:10 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/27 16:43:52 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ int	handle_request(Client& client)
 {
 	HttpResponse response;
 	Request&	r = client.getRequest();
-	std::istringstream	request_stream(client.getRequest().getMessage());
+	std::istringstream	request_stream(client.getMsg());
 	if (!r.getHeader().is_header_parsed())
 	{
 		try
@@ -66,25 +66,23 @@ int	handle_request(Client& client)
 		}
 		catch(Request::ErrorRequest& e)
 		{
-			response.setStatusCode(e.getErrorCode());
-			send_response(r, response, client.getFd());
+			send_response(r, response, client.getFd(), e.getErrorCode());
 			return -1;
 		}
 	}
 	if (!r.getLocConfBlock() || !r.getServerBlock())
 	{
-		response.setStatusCode(internal_server_error);
-		send_response(r, response, client.getFd());
+		send_response(r, response, client.getFd(), internal_server_error);
 		return -1;
 	}
 	std::map<std::string, std::string> const&	fields = r.getHeader().getFields();
 	if (fields.find("Content-Length") != fields.end())
 	{
+		r.setBodyLen(ft_atoull(fields.at("Content-Length").c_str()));
 		if (read_body(r, request_stream) != 0)
 			return 0;
 	}
-	router(r, response);
-	send_response(r, response, client.getFd());
+	send_response(r, response, client.getFd(), 0);
 	return 0;
 }
 

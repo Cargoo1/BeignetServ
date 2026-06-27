@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/03 17:41:28 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/26 20:16:41 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/27 15:15:27 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -210,9 +210,10 @@ bool	listen_msg(std::string& str, int cfd)
 	char	buff[BUFF_SIZE];
 
 	std::memset(buff, 0, BUFF_SIZE);
-	int		size_read = recv(cfd, &buff, BUFF_SIZE, 0);
+	int		size_read = recv(cfd, &buff, BUFF_SIZE - 1, 0);
 	if (size_read <= 0)
 		return false;
+	buff[size_read] = '\0';
 	str.append(buff);
 	return true;
 }

@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 19:10:40 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/26 20:19:29 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/27 15:45:35 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -159,23 +159,23 @@ void	check_idle_clients(Server& server)
 void	get_client_msg(Server& server, int fd)
 {
 	Client&	client = server.getClients().at(fd);
-	if (!listen_msg(client.getRequest().getNotConstMessage(), fd))
+	if (!listen_msg(client.getNotConstMsg(), fd))
 	{
 		std::cout << "Client: " << fd << " hang up, closing connection\n";
 		server.deleteClient(fd);
 		return;
 	}
-	std::cout << "Client message :" + client.getRequest().getMessage() + '\n';
+	std::cout << "Client message :" + client.getMsg() + '\n';
 	client.setLastComm();
 	if (!client.getRequest().getReqInProg())
 	{
-		if (client.getRequest().getMessage().find("\r\n\r\n") == std::string::npos)
+		if (client.getMsg().find("\r\n\r\n") == std::string::npos)
 			return;
 		client.getRequest().setReqInProg(true);
 		client.getRequest().setServerBlock(find_server_block(client, server.getServerConf()));
 	}
 	handle_request(server.getClients().at(fd));
-	client.getRequest().getNotConstMessage().clear();
+	client.getNotConstMsg() = "";
 }
 
 void	process_connection(Server&	server, int epollcount)

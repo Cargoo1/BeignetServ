@@ -6,12 +6,13 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 21:54:03 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/26 19:03:12 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/27 16:48:18 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ExecutionContext.hpp"
 #include "GetMethod.hpp"
+#include "HttpMethodDispatcher.hpp"
 #include "PostMethod.hpp"
 #include "DeleteMethod.hpp"
 #include "Request.hpp"
@@ -19,6 +20,7 @@
 #include <HttpResponse.hpp>
 
 #include <cerrno>
+#include <cstddef>
 #include <cstring>
 #include <fstream>
 #include <map>
@@ -68,13 +70,11 @@ void	create_error_response(HttpResponse& response, int error_code, std::string c
 	response.addField("Content-Type", find_content_type(file_name));
 }
 
-void	send_error_response(HttpResponse& response, serverConfig const* serverConf)
+void	send_error_response(HttpResponse& response, serverConfig const& serverConf)
 {
-	if (!serverConf)
-		create_default_error_response(response, response.getStatusCode());
-	std::map<int, std::string>::const_iterator	it = serverConf->errorPages().find(response.getStatusCode());
+	std::map<int, std::string>::const_iterator	it = serverConf.errorPages().find(response.getStatusCode());
 
-	if (it == serverConf->errorPages().end())
+	if (it == serverConf.errorPages().end())
 	{
 		create_default_error_response(response, response.getStatusCode());
 		return;
@@ -92,13 +92,13 @@ void	send_error_response(HttpResponse& response, serverConfig const* serverConf)
 		create_default_error_response(response, not_found);
 }
 
-int	sendall(int fd, char const* buf, int &len)
+int	sendall(int fd, char const* buf, size_t &len)
 {
 	int	bytes_sent = 0;
 	int	bytes_left = len;
 	int	total_bytes_sent = 0;
 
-	while (total_bytes_sent < len)
+	while (total_bytes_sent < static_cast<int>(len))
 	{
 		bytes_sent = send(fd, buf + total_bytes_sent, bytes_left, 0);
 		if (bytes_sent < 0)
@@ -113,17 +113,21 @@ int	sendall(int fd, char const* buf, int &len)
 	return 0;
 }
 
-int	send_response(Request const& r, HttpResponse &resp, int cfd)
+int	send_response(Request& r, HttpResponse &response, int cfd, int status_code)
 {
+	if (status_code)
+		response.setStatusCode(status_code);
+	else
+		router(r, response);
 	std::string msg;
-	resp.addField("Server", "Beignetserv/0.1");
-	if (resp.getStatusCode() >= 400)
-		send_error_response(resp, r.getServerBlock());
-	msg = resp.toHttpString();
-	int	len = msg.length();
+	response.addField("Server", "Beignetserv/0.1");
+	if (response.getStatusCode() >= 400)
+		send_error_response(response, *r.getServerBlock());
+	msg = response.toHttpString();
+	size_t	len = msg.length();
 	sendall(cfd, msg.c_str(), len);
-	// r = Request();
-	if (static_cast<size_t>(len) != msg.length())
+	r = Request();
+	if (len != msg.length())
 	{
 		std::cerr << "Failed sending all bytes in the response\n";
 		return -1;
