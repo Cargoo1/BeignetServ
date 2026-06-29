@@ -34,7 +34,7 @@ void GetMethod::executeMethod(HttpResponse &rsp) {
 	}
 	struct stat path_stat;
 	if (stat(path.c_str(), &path_stat) < 0) 
-		throw Request::ErrorRequest(not_found);
+		throw Request::ErrorRequest(not_found, "GET: no such file or directory (stat)");
 	if (S_ISDIR(path_stat.st_mode)) {
 		if (path.at(path.size()-1) != '/') {
 			rsp.setStatusCode(301);
@@ -44,7 +44,7 @@ void GetMethod::executeMethod(HttpResponse &rsp) {
 		std::string indexPath = path + "index.html";
 		if (stat(indexPath.c_str(), &path_stat) == 0 && S_ISREG(path_stat.st_mode)) {
 			if (!rsp.setBodyFromFile(indexPath))
-				throw Request::ErrorRequest(not_found);
+				throw Request::ErrorRequest(not_found, "GET: the index.html file does not exist");
 			rsp.setContentType(find_content_type(indexPath));
 			rsp.addContentLength();
 			rsp.setStatusCode(200);
@@ -58,13 +58,13 @@ void GetMethod::executeMethod(HttpResponse &rsp) {
 			rsp.setStatusCode(200);
 			return;
 		}
-		throw Request::ErrorRequest(forbiden);
+		throw Request::ErrorRequest(forbiden, "GET: does not have the access to the directory");
 	}
 	else if (!S_ISREG(path_stat.st_mode)) {
-		throw Request::ErrorRequest(forbiden);
+		throw Request::ErrorRequest(forbiden, "GET: does not have the access to the file");
 	}
 	if (!rsp.setBodyFromFile(path))
-		throw Request::ErrorRequest(not_found);
+		throw Request::ErrorRequest(not_found, "GET: the index.html is either empty or does not exist");
 	rsp.setContentType(find_content_type(path));
 	rsp.addContentLength();
 	rsp.setStatusCode(200);
@@ -79,7 +79,7 @@ std::string GetMethod::_generateAutoindex(const std::string &path) {
 
 	DIR *dir = opendir(path.c_str());
 	if (!dir)
-		throw Request::ErrorRequest(not_found);
+		throw Request::ErrorRequest(not_found, "GET: (auto-index) the directory does not exist");
 	struct dirent *entry;
 	std::vector<std::string> entries;
 	while ((entry = readdir(dir))) {

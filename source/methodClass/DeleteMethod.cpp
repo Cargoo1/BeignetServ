@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <cstdio>
 #include <string.h>
+#include <errno.h>
 #include <sys/stat.h>
 
 DeleteMethod::DeleteMethod(Request const& r) : HttpMethod(r) {};
@@ -14,16 +15,22 @@ DeleteMethod::~DeleteMethod() {};
 void DeleteMethod::executeMethod(HttpResponse &rsp) {
 	std::string path = this->_request.getHeader().getTargetResource();
 	struct stat path_stat;
-	if (stat(path.c_str(), &path_stat) < 0)
-		throw Request::ErrorRequest(not_found);
+	if (stat(path.c_str(), &path_stat) < 0) {
+		std::string error_msg = strerror(errno);
+		std::string msg = "DELETE: " + error_msg;
+		throw Request::ErrorRequest(not_found, msg.c_str());
+	}
 	if (access(path.c_str(), W_OK) != 0)
-		throw Request::ErrorRequest(forbiden);
+		throw Request::ErrorRequest(forbiden, "Access forbiden");
 	if (S_ISDIR(path_stat.st_mode)) {
 		if (!_removeDirectoryRecursive(path))
-			throw Request::ErrorRequest(internal_server_error);
+			throw Request::ErrorRequest(internal_server_error, "DELETE: removal function failed");
 	}
-	else if (!std::remove(path.c_str()))
-		throw Request::ErrorRequest(internal_server_error);
+	else if (!std::remove(path.c_str())) {
+		std::string error_msg = strerror(errno);
+		std::string msg = "DELETE: " + error_msg;
+		throw Request::ErrorRequest(internal_server_error, msg.c_str());
+	}
 	rsp.setStatusCode(204);
 }
 

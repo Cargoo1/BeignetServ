@@ -89,7 +89,7 @@ void PostMethod::executeMethod(HttpResponse &rsp) {
 	std::size_t contentLenght = toSizeT(this->_request.getHeader().getContentLenght());
 	if (this->_request.getLocConfBlock()->hasCMBS()) {
 		if (contentLenght > this->_request.getLocConfBlock()->getCMBS())
-			throw Request::ErrorRequest(content_too_large);
+			throw Request::ErrorRequest(content_too_large, "POST: the files is too heavy (> client max body size)");
 	}
 
 	std::string body = "";
@@ -97,7 +97,7 @@ void PostMethod::executeMethod(HttpResponse &rsp) {
 		body = this->_request.getBody();
 
 	if (!postFile(path, body))
-		throw Request::ErrorRequest(internal_server_error);
+		throw Request::ErrorRequest(internal_server_error, "POST: postFile(path, body) failed");
 
 	rsp.setStatusCode(201);
 }

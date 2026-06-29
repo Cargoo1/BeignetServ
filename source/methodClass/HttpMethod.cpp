@@ -24,11 +24,12 @@
 // 	mapEnv["PATH_TRANSLATED"] = "";
 // 	char **ret = n
 
-// } }
+// }
 
-// namespace { char **builArgs(const std::string args){
+// char **builArgs(const std::string args){
 // 	// char **ret = new
-// } }
+// }
+// }
 
 HttpMethod::HttpMethod(Request const& r) : _request(r) {}
 

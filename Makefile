@@ -1,5 +1,5 @@
 CXX = c++
-CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -fsanitize=address-I$(HEADER_DIR)/$(EXEC_DIR) -I$(HEADER_DIR)/$(EXEP_DIR) -I$(HEADER_DIR)/$(PAR_DIR) -I$(HEADER_DIR)/$(CONF_DIR) -I$(HEADER_DIR)/$(MTD_DIR) -I$(HEADER_DIR)/$(UTILS_DIR) -g3
+CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -fsanitize=address -I$(HEADER_DIR)/$(EXEC_DIR) -I$(HEADER_DIR)/$(EXEP_DIR) -I$(HEADER_DIR)/$(PAR_DIR) -I$(HEADER_DIR)/$(CONF_DIR) -I$(HEADER_DIR)/$(MTD_DIR) -I$(HEADER_DIR)/$(UTILS_DIR) -g3
 
 NAME = WebServ
 
@@ -31,6 +31,7 @@ HEADER = $(HEADER_DIR)/$(EXEP_DIR)/configException.hpp		\
 		 $(HEADER_DIR)/$(EXEC_DIR)/HttpResponse.hpp			\
 		 $(HEADER_DIR)/$(EXEC_DIR)/send_http_response.hpp	\
 		 $(HEADER_DIR)/$(UTILS_DIR)/utils.hpp				\
+		 $(HEADER_DIR)/$(UTILS_DIR)/utils_logs.hpp			\
 
 
 SRCS_DIR = source
@@ -54,8 +55,9 @@ SRCS = $(SRCS_DIR)/$(EXEP_DIR)/configException.cpp			\
 	   $(SRCS_DIR)/$(EXEC_DIR)/HttpResponse.cpp				\
 	   $(SRCS_DIR)/$(EXEC_DIR)/send_http_response.cpp		\
 	   $(SRCS_DIR)/$(UTILS_DIR)/utils.cpp					\
+	   $(SRCS_DIR)/$(UTILS_DIR)/utils_logs.cpp				\
 	   $(SRCS_DIR)/$(UTILS_DIR)/ft_atoull.cpp				\
-	   $(SRCS_DIR)/$(MTD_DIR)/HttpMethodDispatcher.cpp	\
+	   $(SRCS_DIR)/$(MTD_DIR)/HttpMethodDispatcher.cpp		\
 	   $(SRCS_DIR)/$(MTD_DIR)/HttpMethod.cpp				\
 	   $(SRCS_DIR)/$(MTD_DIR)/DeleteMethod.cpp				\
 	   $(SRCS_DIR)/$(MTD_DIR)/GetMethod.cpp					\
