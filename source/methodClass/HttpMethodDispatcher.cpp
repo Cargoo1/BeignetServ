@@ -80,7 +80,7 @@ locationConfig longestMatchingPath(const std::string &path,const serverConfig &s
 		}
 	}
 	if (bestScore == NOT_FOUND)
-		throw Request::ErrorRequest(not_found);
+		throw Request::ErrorRequest(not_found, "Path not found");
 	return (bestMatch);
 }
 

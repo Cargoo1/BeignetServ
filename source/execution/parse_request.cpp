@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/07 19:49:10 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/26 18:25:32 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/29 14:04:24 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,17 +69,17 @@ void	parse_method(std::string &line, Header& header, Request& r)
 	if (header.getMethod().empty() ||
 		header.getTargetResource().empty() ||
 		header.getProtocolV().empty())
-		throw Request::ErrorRequest(400);
+		throw Request::ErrorRequest(bad_request, "Not a complete request");
 }
 
 size_t	check_field_line_syntax(std::string const& line)
 {
 	size_t	colon_pos = line.find_first_of(':', 0);
 	if (colon_pos == std::string::npos)
-		throw Request::ErrorRequest(bad_request);
+		throw Request::ErrorRequest(bad_request, "Invalid field syntax");
 	size_t	whitespace_pos = line.find_first_of(' ', 0);
 	if (whitespace_pos < colon_pos)
-		throw Request::ErrorRequest(400);
+		throw Request::ErrorRequest(bad_request, "Invalid field syntax");
 	return colon_pos;
 }	
 
@@ -135,6 +135,6 @@ void	parse_header(std::istringstream& request,
 		parse_line(line, header, map_fields, r);
 	}
 	if (header.getFields().find("Host") == header.getFields().end())
-		throw Request::ErrorRequest(bad_request);
+		throw Request::ErrorRequest(bad_request, "Host field missing");
 	header.set_is_header_parsed(true);
 }

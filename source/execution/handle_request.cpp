@@ -6,17 +6,15 @@
 /*   By: ratel <ratel@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/11 19:40:38 by alejandroca       #+#    #+#             */
-/*   Updated: 2026/06/27 16:43:52 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/29 14:50:05 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Request.hpp"
-#include "serverConfig.hpp"
-#include "ExecutionContext.hpp"
+#include <send_http_response.hpp>
 #include "HttpResponse.hpp"
-#include "HttpMethodDispatcher.hpp"
 #include "utils.hpp"
-#include <cstdlib>
+#include "utils_logs.hpp"
 #include <iostream>
 #include <map>
 #include <netinet/in.h>
@@ -24,7 +22,6 @@
 #include <string>
 #include <parse_request.hpp>
 #include <sys/socket.h>
-#include <vector>
 #include <Client.hpp>
 #include <serverConfig.hpp>
 #include <send_http_response.hpp>
@@ -66,6 +63,7 @@ int	handle_request(Client& client)
 		}
 		catch(Request::ErrorRequest& e)
 		{
+			print_log(TEXT_RED, &e, e.what(), 1);
 			send_response(r, response, client.getFd(), e.getErrorCode());
 			return -1;
 		}

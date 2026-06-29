@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/03 17:41:28 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/27 15:15:27 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/29 13:36:09 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,31 +35,31 @@ std::string const generate_reason_phrase(int code)
 	{
 		
 		case 201:
-			ret = " Created";
+			ret = "Created";
 			break;
 		case 301: case 302:
-			ret = " Redirect";
+			ret = "Redirect";
 			break;
 		case bad_request:
-			ret = " Bad Request";
+			ret = "Bad Request";
 			break;
 		case forbiden:
-			ret = " Forbiden";
+			ret = "Forbiden";
 			break;
 		case not_found:
-			ret = " Not Found";
+			ret = "Not Found";
 			break;
 		case method_not_allowed:
-			ret = " Method Not Allowed";
+			ret = "Method Not Allowed";
 			break;
 		case payload_too_large:
-			ret = " Payload Too Large";
+			ret = "Payload Too Large";
 			break;
 		case 500:
-			ret = " Payload Too Large";
+			ret = "Payload Too Large";
 			break;
 		default:
-			ret = " OK";
+			ret = "OK";
 			break;
 	}
 	return (ret);

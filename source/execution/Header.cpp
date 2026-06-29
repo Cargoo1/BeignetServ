@@ -6,7 +6,7 @@
 /*   By: ratel <ratel@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 19:03:36 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/26 19:46:30 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/29 14:01:59 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,11 +94,11 @@ const std::map<std::string, std::string>&		Header::getFields(void) const
 bool	Header::setMethod(std::string& method)
 {
 	if (method.empty())
-		throw Request::ErrorRequest(bad_request);
-	if (method.compare(0, 4, "GET") &&
-		method.compare(0, 5, "POST") &&
-		method.compare(0, 7, "DELETE"))
-		throw Request::ErrorRequest(bad_request);
+		throw Request::ErrorRequest(bad_request, "No method to parse");
+	if (method.compare(0, 3, "GET") &&
+		method.compare(0, 4, "POST") &&
+		method.compare(0, 6, "DELETE"))
+		throw Request::ErrorRequest(bad_request, "Not a valid method");
 	this->_method = method;
 	return true;
 }
@@ -142,13 +142,13 @@ namespace { size_t	parse_path(std::string& uri)
 		else if (uri.at(i) == '%' && i + 1 < uri.length())
 		{
 			if (!decode_percent_encoding(uri, i))
-				throw Request::ErrorRequest(bad_request);
+				throw Request::ErrorRequest(bad_request, "Could not decode a PE char");
 		}
 		else
-			throw Request::ErrorRequest(bad_request);
+			throw Request::ErrorRequest(bad_request, "Found a not valid char");
 	}
 	if (deepness < 0)
-		throw Request::ErrorRequest(bad_request);
+		throw Request::ErrorRequest(bad_request, "Invalid path");
 	if (i >= uri.length())
 		return std::string::npos;
 	return i;
@@ -158,7 +158,7 @@ namespace { size_t	parse_path(std::string& uri)
 void	Header::setTargetResource(std::string& uri, Request& r)
 {
 	if (uri.empty())
-		throw Request::ErrorRequest(bad_request);
+		throw Request::ErrorRequest(bad_request, "Empty URI");
 	std::string	prefix = ".";
 	std::string	root;
 	size_t separator_pos = parse_path(uri);
@@ -185,10 +185,10 @@ void	Header::setTargetResource(std::string& uri, Request& r)
 bool	Header::setProtocolV(std::string& protocol)
 {
 	if (protocol.empty())
-		throw Request::ErrorRequest(bad_request);
+		throw Request::ErrorRequest(bad_request, "Empty protocol");
 	if (protocol.compare(0, 8, "HTTP/1.1") &&
 		protocol.compare(0, 9, "HTTP/1.1\r"))
-		throw Request::ErrorRequest(bad_request);
+		throw Request::ErrorRequest(bad_request, "Request function has a different http version");
 	this->_protocol_v= protocol;
 	return true;
 }
@@ -196,10 +196,10 @@ bool	Header::setProtocolV(std::string& protocol)
 void	Header::setHost(std::string& host)
 {
 	if (host.empty())
-		throw Request::ErrorRequest(bad_request);
+		throw Request::ErrorRequest(bad_request, "Empty host");
 	size_t	colon_pos = host.find_first_of(":");
 	if (colon_pos == std::string::npos)
-		throw Request::ErrorRequest(bad_request);
+		throw Request::ErrorRequest(bad_request, "Invalid host");
 	host.erase(0, colon_pos + 1);
 	this->getFields()["Host"] = host;
 }
@@ -207,15 +207,15 @@ void	Header::setHost(std::string& host)
 void	Header::setContent_len(std::string& content_len)
 {
 	if (content_len.empty())
-		throw Request::ErrorRequest(bad_request);
+		throw Request::ErrorRequest(bad_request, "Invalid Content-Length");
 	size_t	colon_pos = content_len.find_first_of(":");
 	if (colon_pos == std::string::npos)
-		throw Request::ErrorRequest(bad_request);
+		throw Request::ErrorRequest(bad_request, "Invalid Content-Length");
 	content_len.erase(0, colon_pos + 1);
 	for (size_t i = 0; i < content_len.length(); ++i)
 	{
 		if (!std::isdigit(content_len.at(i)))
-			throw Request::ErrorRequest(bad_request);
+			throw Request::ErrorRequest(bad_request, "Invalid Content-Length");
 	}
 	this->_map_fields["Content-Length"] = content_len;
 }

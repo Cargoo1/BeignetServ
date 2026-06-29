@@ -140,7 +140,7 @@ bool	HttpResponse::getField(const std::string &key, std::string& value) {
 
 std::string	HttpResponse::toHttpString() {
 	std::string response("HTTP/1.1 ");
-	response += toStr(this->_statusCode) + getReasonPhrase(this->_statusCode);
+	response += toStr(this->_statusCode) + ' ' + getReasonPhrase(this->_statusCode);
 	response += FieldsToResponse(this->_header);
 	response += "\r\n";
 	response += this->_body;

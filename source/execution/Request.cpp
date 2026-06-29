@@ -6,11 +6,12 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/08 15:51:44 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/27 15:42:43 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/29 14:13:59 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Header.hpp"
+#include "utils.hpp"
 #include <Request.hpp>
 #include <cstddef>
 #include <limits>
@@ -77,12 +78,14 @@ void	Request::appendBody(std::string const& str)
 
 const char*	Request::ErrorRequest::what() const throw()
 {
-	return "Bad request.\n";
+	return this->reason;
 }
 
-Request::ErrorRequest::ErrorRequest(int error_code)
+Request::ErrorRequest::ErrorRequest(int error_code, char const* reason)
 {
 	this->_error_code = error_code;
+	this->reason = reason;
+
 }
 
 int		Request::ErrorRequest::getErrorCode(void) const

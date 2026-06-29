@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 21:54:03 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/27 16:48:18 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/29 13:08:57 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@
 #include <serverConfig.hpp>
 #include <utils.hpp>
 #include <Client.hpp>
-
+#include <send_http_response.hpp>
 
 std::string	generate_default_error_page(HttpResponse& response)
 {

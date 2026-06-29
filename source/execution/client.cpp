@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/21 15:12:53 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/27 15:57:36 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/29 13:12:42 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ int	main(int argc, char **argv)
 		exit(1);
 	}
 	char buff[100000];
-	std::string msg = "POST /../../../ HTTP/1.1\r\nHost:localhost:8080\r\nContent-Length:10\r\n\r\n12345678";
+	std::string msg = "POST       /../../../ HTTP/1.1\r\nHost:localhost:8080\r\nContent-Length:10\r\n\r\n12345678";
 	int bytes_sent = send(sfd, msg.c_str(), msg.length(), 0);
 	while (bytes_sent < (int)msg.length())
 	{
