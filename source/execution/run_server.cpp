@@ -6,12 +6,13 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 19:10:40 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/27 15:45:35 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/30 21:35:27 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
 #include "utils.hpp"
+#include "utils_logs.hpp"
 #include <configParser.hpp>
 #include <cstddef>
 #include <ctime>
@@ -149,8 +150,6 @@ void	check_idle_clients(Server& server)
 			++it;
 			continue;
 		}
-		std::cout << "Closing connection with iddle client: " + it->second.getIp() + ":"
-					+ it->second.getPort() + " " << it->first << "\n";
 		server.deleteClient((it++)->first);
 	}
 	server.setLastCheck();
@@ -161,11 +160,9 @@ void	get_client_msg(Server& server, int fd)
 	Client&	client = server.getClients().at(fd);
 	if (!listen_msg(client.getNotConstMsg(), fd))
 	{
-		std::cout << "Client: " << fd << " hang up, closing connection\n";
 		server.deleteClient(fd);
 		return;
 	}
-	std::cout << "Client message :" + client.getMsg() + '\n';
 	client.setLastComm();
 	if (!client.getRequest().getReqInProg())
 	{
@@ -175,7 +172,7 @@ void	get_client_msg(Server& server, int fd)
 		client.getRequest().setServerBlock(find_server_block(client, server.getServerConf()));
 	}
 	handle_request(server.getClients().at(fd));
-	client.getNotConstMsg() = "";
+	client.getNotConstMsg().clear();
 }
 
 void	process_connection(Server&	server, int epollcount)
@@ -184,7 +181,6 @@ void	process_connection(Server&	server, int epollcount)
 	{
 		if (server.getEventQueue()[i].events & EPOLLHUP)
 		{
-			std::cout << "Client: " << server.getEventQueue()[i].data.fd << "hang up, closing connection\n";
 			server.deleteClient(server.getEventQueue()[i].data.fd);
 			continue;
 		}
@@ -243,7 +239,7 @@ int	run(std::vector<serverConfig> const& servers_conf)
 	}
 	if (set_epoll(server) < 0)
 		return 1;
-	std::cout << "Waiting for events...\n";
+	print_log(TEXT_BLUE, NULL, "Waiting connections...", 0);
 	while(true)
 	{
 		int epollcount = epoll_wait(server.getEpollfd(),
@@ -253,37 +249,16 @@ int	run(std::vector<serverConfig> const& servers_conf)
 			return -1;
 		if (epollcount == TIMEOUT)
 		{
-			//std::cerr << "Timeout.\nClosing the connection with all the clients\n";
-			//if (!close_all_clients(server))
-			//	break;
 			check_idle_clients(server);
 			continue;
 		}
 		else if (epollcount < 0)
 		{
 			close_servers(server);
-			std::cerr << "Poll: " << strerror(errno) << '\n';
+			print_log(TEXT_RED, NULL, std::string("Poll: ") + strerror(errno), 1);
 			return errno;
 		}
 		process_connection(server, epollcount);
 	}
 	return 1;
 }
-/*
-int	main(void)
-{
-	std::vector<int>ports;
-	for (int i = 0; i < 10; i++)
-	{
-		ports.push_back(i);
-	}
-	std::string name  = "a";
-	try {
-		run("localhost", "8888");
-	}
-	catch(std::exception &e) {
-		std::cout << e.what() << "\n";
-	}
-	return 0;
-}
-*/

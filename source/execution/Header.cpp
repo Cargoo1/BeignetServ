@@ -6,7 +6,7 @@
 /*   By: ratel <ratel@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 19:03:36 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/29 14:01:59 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/30 22:15:12 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@
 #include <iostream>
 #include <utils.hpp>
 
-Header::Header() : _is_header_parsed(false), _is_cgi(false)
+Header::Header() : _is_header_parsed(false), _is_script(false)
 {
 	return;
 }
@@ -32,7 +32,7 @@ Header::Header(Header const& other)
 	this->_protocol_v = other._protocol_v;
 	this->_target_resource = other._target_resource;
 	this->_is_header_parsed = other._is_header_parsed;
-	this->_is_cgi = other._is_cgi;
+	this->_is_script = other._is_script;
 	return;
 }
 
@@ -98,7 +98,7 @@ bool	Header::setMethod(std::string& method)
 	if (method.compare(0, 3, "GET") &&
 		method.compare(0, 4, "POST") &&
 		method.compare(0, 6, "DELETE"))
-		throw Request::ErrorRequest(bad_request, "Not a valid method");
+		throw Request::ErrorRequest(method_not_allowed, "method_not_allowed");
 	this->_method = method;
 	return true;
 }
@@ -171,15 +171,13 @@ void	Header::setTargetResource(std::string& uri, Request& r)
 	if (root.at(0) != '/')
 		prefix += '/';
 	this->_target_resource = prefix + root + this->_target_resource;
-	std::cout << "path parsed: " + this->_target_resource + '\n';
 	if (find_type(this->_target_resource) == CGI_PY || is_in_cgi_dir(uri))
-		this->_is_cgi = true;
+		this->_is_script = true;
 	if (separator_pos == std::string::npos)
 		return;
 	if (separator_pos < uri.length())
 		separator_pos++;
 	this->_query_string = uri.substr(separator_pos, std::string::npos);
-	std::cout << "query string parsed: " + this->_query_string + '\n';
 }
 
 bool	Header::setProtocolV(std::string& protocol)
@@ -220,6 +218,22 @@ void	Header::setContent_len(std::string& content_len)
 	this->_map_fields["Content-Length"] = content_len;
 }
 
+void	Header::setTransfer_encoding(std::string& transfer_encoding)
+{
+	if (transfer_encoding.empty())
+		throw Request::ErrorRequest(bad_request, "Incomplete transfer_encoding");
+	size_t	colon_pos = transfer_encoding.find_first_of(":");
+	if (colon_pos == std::string::npos)
+		throw Request::ErrorRequest(bad_request, "Invalid transfer_encoding");
+	transfer_encoding.erase(0, colon_pos + 1);
+	if (transfer_encoding == "gzip" || transfer_encoding == "chunked")
+	{
+		this->_map_fields["Transfer-Encoding"] = transfer_encoding;
+		return;
+	}
+	throw Request::ErrorRequest(bad_request, "Invalid transfer_encoding");
+}
+
 std::string	&Header::getContentLenght(void)
 {
 	return (this->_map_fields["Content-Length"]);
@@ -238,4 +252,9 @@ bool	Header::is_header_parsed(void) const
 void	Header::set_is_header_parsed(bool value)
 {
 	this->_is_header_parsed = value;
+}
+
+bool	Header::is_a_script(void) const
+{
+	return this->_is_script;
 }

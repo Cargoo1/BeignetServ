@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/21 15:12:53 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/29 13:12:42 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/30 23:17:08 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,17 +53,12 @@ int	main(int argc, char **argv)
 		exit(1);
 	}
 	char buff[100000];
-	std::string msg = "POST       /../../../ HTTP/1.1\r\nHost:localhost:8080\r\nContent-Length:10\r\n\r\n12345678";
+	std::string msg = "POST /uploads HTTP/1.1\r\nHost:localhost:8080\r\nTransfer-Encoding:chunked\r\n\r\n";
 	int bytes_sent = send(sfd, msg.c_str(), msg.length(), 0);
-	while (bytes_sent < (int)msg.length())
-	{
-		//jsleep(2);
-		bytes_sent += send(sfd, msg.c_str() + bytes_sent, 5, 0);
-		if (bytes_sent < 0)
-			return -1;
-	}
-	sleep(3);
-	bytes_sent = send(sfd, "10", 2, 0);
+	sleep(5);
+	send(sfd, "0\r\n", 3, 0);
+	sleep(5);
+	send(sfd, "\r\n", 2, 0);
 	memset(buff, 0, sizeof(buff));
 	recv(sfd, buff, 100000, 0);
 	std::cout << buff;

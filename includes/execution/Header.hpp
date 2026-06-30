@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 18:35:09 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/23 17:19:35 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/30 22:11:12 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,12 +49,14 @@ class Header
 		bool	setProtocolV(std::string& protocol);
 		void	setHost(std::string& host);
 		void	setContent_len(std::string& content_len);
+		void	setTransfer_encoding(std::string& transfer_encoding);
 		bool	is_header_parsed(void) const;
 		void	set_is_header_parsed(bool value);
+		bool	is_a_script(void) const;
 	private:
 		std::map<std::string, std::string>	_map_fields;
 		bool								_is_header_parsed;
-		bool								_is_cgi;
+		bool								_is_script;
 		std::string							_method;
 		std::string							_target_resource; //path
 		std::string							_query_string;

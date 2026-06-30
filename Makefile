@@ -57,6 +57,7 @@ SRCS = $(SRCS_DIR)/$(EXEP_DIR)/configException.cpp			\
 	   $(SRCS_DIR)/$(UTILS_DIR)/utils.cpp					\
 	   $(SRCS_DIR)/$(UTILS_DIR)/utils_logs.cpp				\
 	   $(SRCS_DIR)/$(UTILS_DIR)/ft_atoull.cpp				\
+	   $(SRCS_DIR)/$(UTILS_DIR)/itoa.cpp					\
 	   $(SRCS_DIR)/$(MTD_DIR)/HttpMethodDispatcher.cpp		\
 	   $(SRCS_DIR)/$(MTD_DIR)/HttpMethod.cpp				\
 	   $(SRCS_DIR)/$(MTD_DIR)/DeleteMethod.cpp				\

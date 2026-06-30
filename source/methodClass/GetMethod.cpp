@@ -12,12 +12,14 @@ GetMethod::GetMethod(Request const& r) : HttpMethod(r) {};
 
 GetMethod::~GetMethod() {};
 
+/*
 namespace { bool isCgi(const std::string path){
 	std::string ext = findExt(path);
 	if (ext == "cgi")
 		return (true);
 	return(false);
 } }
+*/
 
 void GetMethod::executeMethod(HttpResponse &rsp) {
 	if (this->_request.getLocConfBlock()->hasRedirect()) {
@@ -26,12 +28,14 @@ void GetMethod::executeMethod(HttpResponse &rsp) {
 		return;
 	}
 	std::string path = this->_request.getHeader().getTargetResource();
+	/* C deja fait dans le parsing, et je pense que c mieux de le faire avant d'appeller une method
 	std::string query = getQuery(path);
 	std::string cgiPath = getQuery_path(path);
 	if (isCgi(cgiPath)) {
 		// _executeCGI(this->_context);
 		return;
 	}
+	*/
 	struct stat path_stat;
 	if (stat(path.c_str(), &path_stat) < 0) 
 		throw Request::ErrorRequest(not_found, "GET: no such file or directory (stat)");

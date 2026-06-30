@@ -11,4 +11,4 @@ int router(Request const& r, HttpResponse& response);
 locationConfig longestMatchingPath(const std::string &path,const serverConfig &server_bloc);
 bool checkAllowedMethods(const locationConfig &location_block, const std::string &method);
 bool checkClientMaxBodySize(Request const& r);
-HttpResponse dispatcher_method(Request const& r, HttpResponse &rsp);
+void dispatcher_method(Request const& r, HttpResponse &rsp);

@@ -6,15 +6,18 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/12 15:15:33 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/03 20:29:54 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/30 15:56:57 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "utils_logs.hpp"
 #include <Client.hpp>
 #include <ctime>
 #include <serverConfig.hpp>
 #include <iostream>
 #include <Server.hpp>
+#include <sstream>
+#include <string>
 #include <sys/epoll.h>
 #include <sys/poll.h>
 #include <unistd.h>
@@ -102,16 +105,27 @@ std::map<int, Client>&	Server::getClients(void)
 
 void	Server::addClient(int fd, uint32_t events, std::string const& ip, std::string const& port)
 {
+	std::string	log;
+	std::stringstream	ss;
 	this->setEinf(fd, events);
 	epoll_ctl(this->_epollfd, EPOLL_CTL_ADD, fd, &this->_einf);
 	this->_clients.insert(std::pair<int, Client>(fd, Client(fd, events)));
 	this->_clients.at(fd).setIpPort(ip, port);
-	std::cout << "New client connected to: " <<
-				this->_clients.at(fd).getIp() +
-				':' + this->_clients.at(fd).getPort() + ", fd: " << fd << '\n';
+	ss << fd;
+	log = "New client connected to: " + this->_clients.at(fd).getIp() +
+				':' + this->_clients.at(fd).getPort() +
+				", listen fd: " + ss.str() + '\n';
+	print_log(TEXT_GREEN, NULL, log, 0);
 }
 void	Server::deleteClient(int fd)
 {
+	std::string	fd_str;
+	ft_itoa(fd, fd_str);
+	print_log(TEXT_YELLOW, NULL, "Closing connection and deleting client: "+
+			this->_clients.at(fd)._ip+
+			":" +
+			this->_clients.at(fd)._port+
+			" " + fd_str, 0);
 	epoll_ctl(this->_epollfd, EPOLL_CTL_DEL, fd, &this->_einf);
 	close(fd);
 	this->_clients.erase(fd);

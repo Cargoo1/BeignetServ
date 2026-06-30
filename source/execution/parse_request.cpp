@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/07 19:49:10 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/29 14:04:24 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/30 22:36:59 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@
 #include <utility>
 #include <Request.hpp>
 #include <utils.hpp>
+#include <vector>
 
 typedef void(Header::*field_function)(std::string &);
 
@@ -49,7 +50,15 @@ void	remove_whitespace(std::string& line)
 
 void	parse_method(std::string &line, Header& header, Request& r)
 {
-	size_t	pos = line.find_first_of(' ', 0);
+	//size_t	pos = line.find_first_of(' ', 0);
+	std::vector<std::string>	vector;
+	split(vector, line, ' ');
+	if (vector.empty() || vector.size() < 3 || vector.size() > 3)
+		throw  Request::ErrorRequest(bad_request, "Invalid request");
+	header.setMethod(vector.at(0));
+	header.setTargetResource(vector.at(1), r);
+	header.setProtocolV(vector.at(2));
+	/*
 	std::string	buff_tmp;
 
 	while (pos != std::string::npos || !line.empty())
@@ -66,6 +75,7 @@ void	parse_method(std::string &line, Header& header, Request& r)
 		remove_spaces(line, pos);
 		pos = line.find_first_of(' ', 0);
 	}
+	*/
 	if (header.getMethod().empty() ||
 		header.getTargetResource().empty() ||
 		header.getProtocolV().empty())
@@ -104,15 +114,17 @@ void	parse_line(std::string & line,
 	(header.*(it->second))(line);
 }
 
-#define FIELDS_SIZE 2
+#define FIELDS_SIZE 3
 
 void	init_map_fields(std::map<std::string, field_function>& map_fields)
 {
 	std::pair<std::string, field_function>	field;
 	std::string		name_fields[FIELDS_SIZE] = {"Host",
-												"Content-Length"};
+												"Content-Length",
+												"Transfer-Encoding"};
 	field_function	fn_fields[FIELDS_SIZE] = {&Header::setHost,
-												&Header::setContent_len};
+												&Header::setContent_len,
+												&Header::setTransfer_encoding};
 
 	for (size_t i = 0; i < FIELDS_SIZE; i++)
 	{
@@ -132,6 +144,8 @@ void	parse_header(std::istringstream& request,
 	init_map_fields(map_fields);
 	while (std::getline(request, line) && line.compare(0, 2, "\r"))
 	{
+		if (line.at(line.length() - 1))
+			line.erase(line.length() - 1);
 		parse_line(line, header, map_fields, r);
 	}
 	if (header.getFields().find("Host") == header.getFields().end())

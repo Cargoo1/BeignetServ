@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/03 17:39:25 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/23 17:28:45 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/30 22:30:36 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,3 +81,9 @@ unsigned long long	ft_atoull(char const* str);
 locationConfig const&	find_location_block(std::string const& uri, serverConfig const& server);
 
 serverConfig const&	find_server_block(Client& client, std::vector<serverConfig> const& serverConfig);
+
+void	ft_itoa(int n, std::string& str);
+
+int	split(std::vector<std::string>& vector, std::string const& str, char c);
+
+int	hex_to_int(std::string str);

@@ -111,9 +111,12 @@ bool checkClientMaxBodySize(Request const& r) {
 	return (true);
 }
 
-HttpResponse dispatcher_method(Request const& r, HttpResponse &response) {
+void dispatcher_method(Request const& r, HttpResponse &response) {
 	std::string reqMethod(r.getHeader().getMethod());
-
+	if (r.getHeader().is_a_script())
+	{
+		;
+	}
 	if (reqMethod == "GET"){
 		GetMethod	method(r);
 		method.executeMethod(response);
@@ -126,5 +129,4 @@ HttpResponse dispatcher_method(Request const& r, HttpResponse &response) {
 		PostMethod	method(r);
 		method.executeMethod(response);
 	}
-	return (response);
 }

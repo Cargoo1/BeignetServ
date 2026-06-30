@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/14 19:50:59 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/27 15:42:03 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/29 16:13:41 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,6 @@ Client::Client(int fd, uint32_t events)
 	this->_einf.data.fd = fd;
 	this->_einf.events = events;
 	std::time(&this->_last_communication);
-	std::cout << fd << " " << this->_last_communication;
 	return;
 }
 

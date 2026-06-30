@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/03 17:41:28 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/29 13:36:09 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/30 22:22:07 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@
 #include <utils.hpp>
 #include <vector>
 
-#define CGI_DIR "cgi_temp"
+#define CGI_DIR "/cgi_bin\0"
 
 std::string const generate_reason_phrase(int code)
 {
@@ -104,6 +104,22 @@ char	hex_to_char(std::string str)
 	if (c > 127 || c < 0)
 		return 0;
 	return c;
+}
+
+int	hex_to_int(std::string str)
+{
+	int	n = 0;
+	size_t	found;
+	int		exponent = 0;
+	std::string	hexadecimal= "0123456789abcdef";
+	for (int i = str.length() - 1; i >= 0; --i)
+	{
+		found = hexadecimal.find(std::tolower(str.at(i)));
+		if (found == std::string::npos)
+			return 0;
+		n = n + found * static_cast<int>(std::pow(16, exponent++));
+	}
+	return n;
 }
 
 bool	is_hexadecimal(std::string const& str)
@@ -220,14 +236,54 @@ bool	listen_msg(std::string& str, int cfd)
 
 bool	is_in_cgi_dir(std::string const& uri)
 {
+	/*
+	   /cgi_bin 
+	 /cgi_bin/
+	 /cgi_bin/yes.py
+	 */
+	size_t dir_pos = uri.find(CGI_DIR, 0);
+	if (dir_pos == std::string::npos)
+		return false;
+	dir_pos += std::strlen(CGI_DIR);
+	if (dir_pos > uri.length())
+		return false;
+	if (dir_pos < uri.length() && uri.at(dir_pos) != '/')
+		return false;
+	/*
 	size_t dir_pos = uri.find_last_of('/');
 	if (dir_pos == uri.length() - 1)
 		dir_pos = uri.find_last_of('/', dir_pos - 1);
 	if (uri.compare(dir_pos + 1, std::strlen(CGI_DIR) + 1, CGI_DIR) == 0)
 		return true;
 	return false;
+	*/
+	return true;
 }
 
+int	split(std::vector<std::string>& vector, std::string const& str, char c)
+{
+	size_t	i = 0, k;
+	std::string	str_tmp;
+	k = i;
+	while (i < str.size())
+	{
+		if (str.at(i) == c)
+		{
+			if (i == 0)
+			{
+				++i;
+				continue;
+			}
+			vector.push_back(str.substr(k, (i  - k)));
+			while (i < str.length() && str.at(i) == c)
+				++i;
+			k = i;
+		}
+		++i;
+	}
+	vector.push_back(str.substr(k, (i  - k)));
+	return 0;
+}
 int	split_between_delimiter(std::vector<std::string>& vector, std::string const& str, char c)
 {
 	size_t	i = 0, k, j;

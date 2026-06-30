@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 21:54:03 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/29 13:08:57 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/06/30 21:38:29 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include "DeleteMethod.hpp"
 #include "Request.hpp"
 #include "locationConfig.hpp"
+#include "utils_logs.hpp"
 #include <HttpResponse.hpp>
 
 #include <cerrno>
@@ -39,7 +40,7 @@
 std::string	generate_default_error_page(HttpResponse& response)
 {
 	std::stringstream	error_code;
-	error_code << response.getStatusCode() << generate_reason_phrase(response.getStatusCode());
+	error_code << response.getStatusCode() << ' ' << generate_reason_phrase(response.getStatusCode());
 	std::string error_page = "<html>\n<head><title>" + error_code.str() + "</title></head>\n<body>\n<center><h1>" + error_code.str() + "</h1></center>\n</body>\n</html>\n";
 	return error_page;
 }
@@ -125,6 +126,9 @@ int	send_response(Request& r, HttpResponse &response, int cfd, int status_code)
 		send_error_response(response, *r.getServerBlock());
 	msg = response.toHttpString();
 	size_t	len = msg.length();
+	print_log(TEXT_MAGENTA, NULL, "SERVER OUTPUT:\n------------------------\n" +
+								msg +
+								"\n------------------------\n\n", 0);
 	sendall(cfd, msg.c_str(), len);
 	r = Request();
 	if (len != msg.length())
