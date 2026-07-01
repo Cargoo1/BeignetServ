@@ -53,12 +53,9 @@ int	main(int argc, char **argv)
 		exit(1);
 	}
 	char buff[100000];
-	std::string msg = "POST /uploads HTTP/1.1\r\nHost:localhost:8080\r\nTransfer-Encoding:chunked\r\n\r\n";
-	int bytes_sent = send(sfd, msg.c_str(), msg.length(), 0);
-	sleep(5);
-	send(sfd, "0\r\n", 3, 0);
-	sleep(5);
-	send(sfd, "\r\n", 2, 0);
+	std::string msg = "POST /uploads/test/machin/ok.html HTTP/1.1\r\nHost:localhost:8080\r\nContent-Lenght:10\r\n\r\n0123456789";
+	// int bytes_sent = send(sfd, msg.c_str(), msg.length(), 0);
+	send(sfd, msg.c_str(), msg.length(), 0);
 	memset(buff, 0, sizeof(buff));
 	recv(sfd, buff, 100000, 0);
 	std::cout << buff;

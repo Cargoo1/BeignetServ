@@ -43,6 +43,9 @@ class locationConfig {
 		std::vector<std::string> &getMethod();
 		const std::vector<std::string> &getMethod() const;
 
+		std::map<std::string, std::string> &getCGI();
+		const std::map<std::string, std::string> &getCGI() const;
+
 	private:
 		std::string							_path;
 		std::vector<std::string>			_methods;

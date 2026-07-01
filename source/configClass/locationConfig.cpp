@@ -89,3 +89,11 @@ std::vector<std::string> &locationConfig::getMethod() {
 const std::vector<std::string> &locationConfig::getMethod() const {
 	return (this->_methods);
 }
+
+std::map<std::string, std::string> &locationConfig::getCGI() {
+	return (this->_cgi);
+}
+
+const std::map<std::string, std::string> &locationConfig::getCGI() const {
+	return (this->_cgi);
+}

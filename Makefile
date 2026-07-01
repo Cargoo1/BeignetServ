@@ -1,5 +1,5 @@
 CXX = c++
-CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -fsanitize=address -I$(HEADER_DIR)/$(EXEC_DIR) -I$(HEADER_DIR)/$(EXEP_DIR) -I$(HEADER_DIR)/$(PAR_DIR) -I$(HEADER_DIR)/$(CONF_DIR) -I$(HEADER_DIR)/$(MTD_DIR) -I$(HEADER_DIR)/$(UTILS_DIR) -g3
+CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -I$(HEADER_DIR)/$(EXEC_DIR) -I$(HEADER_DIR)/$(EXEP_DIR) -I$(HEADER_DIR)/$(PAR_DIR) -I$(HEADER_DIR)/$(CONF_DIR) -I$(HEADER_DIR)/$(MTD_DIR) -I$(HEADER_DIR)/$(UTILS_DIR) -g3
 
 NAME = WebServ
 
@@ -7,7 +7,7 @@ HEADER_DIR = includes
 CONF_DIR = configClass
 EXEP_DIR = exception
 EXEC_DIR = execution
-PAR_DIR = parser
+PAR_DIR = parsermake
 MTD_DIR = methodClass
 UTILS_DIR = utils
 HEADER = $(HEADER_DIR)/$(EXEP_DIR)/configException.hpp		\

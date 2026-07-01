@@ -10,14 +10,17 @@
 #include <ctime>
 #include <sys/stat.h>
 
-namespace { std::string generateTimestampFilename(std::string filename){
-	std::string::size_type pos = filename.find(".");
-	std::cout << filename << std::endl;
-	if (pos == std::string::npos)
-		return (filename);
-	std::string tmp = filename.substr(0, pos);
+namespace { std::string generateTimestampFilename(std::string filename) {
 	std::time_t resultTime = std::time(0);
 	std::string timestamp = toStr(resultTime);
+	if (filename.empty()) {
+		return (timestamp);
+	}
+	std::string tmp;
+	std::string::size_type pos = filename.find(".");
+	if (pos == std::string::npos)
+		return (filename);
+	tmp = filename.substr(0, pos);
 	std::string newFileName = tmp + "-" + timestamp;
 	tmp = filename.substr(pos);
 	newFileName += tmp;
@@ -58,7 +61,9 @@ namespace { bool postFile(std::string path, const std::string &body){
 			current_path += "/";
 		}
 	}
-	if (!file.empty()) {
+	if (!body.empty()) {
+		if (file.empty())
+			file = generateTimestampFilename(file);
 		std::string tmp(current_path);
 		current_path += file;
 		int ret = stat(current_path.c_str(), &path_stat);
@@ -66,9 +71,8 @@ namespace { bool postFile(std::string path, const std::string &body){
 			file = generateTimestampFilename(file);
 		tmp += file;
 		current_path = tmp;
-		if (!createFile(current_path, body)) {
-			return (false);
-		}
+			if (!createFile(current_path, body))
+				return (false);
 	}
 	return (true);
 } }
@@ -86,16 +90,17 @@ PostMethod::~PostMethod() {};
 
 void PostMethod::executeMethod(HttpResponse &rsp) {
 	std::string path = this->_request.getHeader().getTargetResource();
+	const locationConfig *loc = this->_request.getLocConfBlock();
+	if (loc->getUploadStore().empty())
+		throw Request::ErrorRequest(internal_server_error, "POST: no Upload store avaliable");
 	std::size_t contentLenght = toSizeT(this->_request.getHeader().getContentLenght());
 	if (this->_request.getLocConfBlock()->hasCMBS()) {
 		if (contentLenght > this->_request.getLocConfBlock()->getCMBS())
 			throw Request::ErrorRequest(content_too_large, "POST: the files is too heavy (> client max body size)");
 	}
-
 	std::string body = "";
 	if (path.at(path.size()-1) != '/')
 		body = this->_request.getBody();
-
 	if (!postFile(path, body))
 		throw Request::ErrorRequest(internal_server_error, "POST: postFile(path, body) failed");
 

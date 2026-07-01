@@ -116,18 +116,26 @@ bool		isValid_extCgi(const std::string &token) {
 	return (i == token.length() || i == 1);
 }
 
-bool		isValid_method(const std::vector<std::string> &methods) {
+bool		isValid_method(const std::vector<std::string> &methods, const locationConfig &loc) {
 	std::vector<std::string>::const_iterator it = methods.begin();
 	while (it != methods.end()) {
 		if (*it == "GET") it++;
-		else if (*it == "POST") it++;
+		else if (*it == "POST") {
+			if (loc.getUploadStore().empty() && loc.getCGI().empty()) {
+				std::cerr << "Error: " << loc.getPath() << " has method 'POST' but no upload store or cgi" << std::endl;
+				return (false);
+			}
+			it++;
+		}
 		else if (*it == "DELETE") it++;
 		else if (*it == "PUT") it++;
 		else if (*it == "HEAD") it++;
 		else if (*it == "OPION") it++;
 		else if (*it == "PATCH") it++;
-		else
+		else {
+			std::cerr << "Error: location " << loc.getPath() << " has unknown methods" << std::endl;
 			return false;
+		}
 	}
 	return (true);
 }
@@ -159,15 +167,13 @@ std::size_t	convert_clientBodySize(const std::string &conv) {
 		return (ret);
 }
 
-bool		parse_methods(const std::vector<std::string> &methods, const std::string &path) {
+bool		parse_methods(const std::vector<std::string> &methods, const locationConfig &loc) {
 	if (methods.empty()) {
-		std::cerr << "Error: location " << path << " has no methods" << std::endl;
+		std::cerr << "Error: location " << loc.getPath() << " has no methods" << std::endl;
 		return (false);
 	}
-	if (!isValid_method(methods)) {
-		std::cerr << "Error: location " << path << " has unknown methods" << std::endl;
+	if (!isValid_method(methods, loc))
 		return (false);
-	}
 	return (true);
 }
 
@@ -494,7 +500,7 @@ void configParser::_validateAll() {
 				std::cerr << "Error: server " << server._serverName << " have no root and so does location " << location._path << std::endl;
 				throw std::runtime_error("Aborting");
 			}
-			if (!parse_methods(location._methods, location._path))
+			if (!parse_methods(location._methods, location))
 				throw std::runtime_error("Aborting");
 			if (!location._hasClientMaxBodySize)
 				this->_servers[i]._locations[j]._clientMaxBodySize = this->_servers[i]._clientMaxBodySize;
