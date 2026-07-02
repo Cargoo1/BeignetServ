@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload Page</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main>
+    <section class="hero">
+      <span class="eyebrow">POST /uploads et /upload/yes</span>
+      <h1>Zone de test pour les uploads.</h1>
+      <p>
+        Cette page sert de point d&apos;entrée visuel pour tester la méthode POST, les tailles maximales et le stockage des fichiers.
+      </p>
+      <div class="links">
+        <a class="button" href="/">Retour à l&apos;accueil</a>
+        <a class="button secondary" href="/new-page">Voir la page de redirection</a>
+      </div>
+    </section>
+
+    <section class="shell">
+      <div class="panel">
+        <h2>Formulaire de test</h2>
+        <p>
+          Le formulaire ci-dessous reste volontairement minimal. Il permet de valider le chemin réseau avant d&apos;ajouter une logique serveur plus avancée.
+        </p>
+
+        <form method="post" action="/uploads" enctype="multipart/form-data">
+          <div class="form-grid">
+            <label>
+              Nom du fichier
+              <input type="text" name="file_name" placeholder="ex: photo.jpg">
+            </label>
+
+            <label>
+              Catégorie
+              <select name="category">
+                <option value="debug">debug</option>
+                <option value="images">images</option>
+                <option value="docs">docs</option>
+              </select>
+            </label>
+
+            <label class="span-2">
+              Commentaire
+              <textarea name="comment" placeholder="Décrivez rapidement ce que vous testez."></textarea>
+            </label>
+          </div>
+
+          <div class="links">
+            <button class="button" type="submit">Envoyer vers /uploads</button>
+            <a class="button secondary" href="/uploads">Tester /uploads</a>
+          </div>
+        </form>
+
+        <div class="status">
+          Côté serveur, ce point doit surtout vous aider à vérifier: méthode autorisée, body size, et stockage du fichier.
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

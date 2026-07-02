@@ -1,1 +1,188 @@
-fsdf
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Webserv Debug Home</title>
+	<style>
+		:root {
+			color-scheme: light;
+			--bg: #f5efe6;
+			--panel: rgba(255, 255, 255, 0.88);
+			--panel-border: rgba(33, 25, 18, 0.12);
+			--text: #1f1a17;
+			--muted: #6f6258;
+			--accent: #1f6f78;
+			--accent-2: #b35c2e;
+			--shadow: 0 18px 50px rgba(33, 25, 18, 0.12);
+		}
+
+		* { box-sizing: border-box; }
+
+		body {
+			margin: 0;
+			min-height: 100vh;
+			font-family: Arial, Helvetica, sans-serif;
+			color: var(--text);
+			background:
+				radial-gradient(circle at top left, rgba(179, 92, 46, 0.18), transparent 30%),
+				radial-gradient(circle at right top, rgba(31, 111, 120, 0.16), transparent 26%),
+				linear-gradient(180deg, #fbf7f2 0%, var(--bg) 100%);
+			display: grid;
+			place-items: center;
+			padding: 32px;
+		}
+
+		main {
+			width: min(960px, 100%);
+			background: var(--panel);
+			border: 1px solid var(--panel-border);
+			border-radius: 28px;
+			box-shadow: var(--shadow);
+			overflow: hidden;
+		}
+
+		.hero {
+			padding: 40px;
+			border-bottom: 1px solid var(--panel-border);
+		}
+
+		.eyebrow {
+			display: inline-flex;
+			gap: 10px;
+			align-items: center;
+			padding: 8px 14px;
+			border-radius: 999px;
+			background: rgba(31, 111, 120, 0.10);
+			color: var(--accent);
+			font-size: 0.85rem;
+			font-weight: 700;
+			letter-spacing: 0.04em;
+			text-transform: uppercase;
+		}
+
+		h1 {
+			margin: 18px 0 12px;
+			font-size: clamp(2.2rem, 5vw, 4.2rem);
+			line-height: 1;
+		}
+
+		p {
+			margin: 0;
+			line-height: 1.6;
+			color: var(--muted);
+			max-width: 70ch;
+		}
+
+		.grid {
+			display: grid;
+			grid-template-columns: repeat(12, 1fr);
+			gap: 18px;
+			padding: 24px;
+		}
+
+		.card {
+			grid-column: span 6;
+			padding: 22px;
+			border-radius: 22px;
+			background: rgba(255, 255, 255, 0.78);
+			border: 1px solid rgba(33, 25, 18, 0.08);
+		}
+
+		.card h2 {
+			margin: 0 0 10px;
+			font-size: 1.15rem;
+		}
+
+		.card ul {
+			margin: 0;
+			padding-left: 18px;
+			color: var(--muted);
+			line-height: 1.8;
+		}
+
+		.links {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 12px;
+			margin-top: 18px;
+		}
+
+		a {
+			color: inherit;
+			text-decoration: none;
+		}
+
+		.button {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			min-height: 46px;
+			padding: 0 18px;
+			border-radius: 999px;
+			font-weight: 700;
+			background: var(--accent);
+			color: white;
+		}
+
+		.button.secondary {
+			background: rgba(179, 92, 46, 0.12);
+			color: var(--accent-2);
+		}
+
+		.footer {
+			padding: 0 24px 24px;
+			color: var(--muted);
+			font-size: 0.95rem;
+		}
+
+		@media (max-width: 760px) {
+			.hero { padding: 28px 22px; }
+			.grid { grid-template-columns: 1fr; }
+			.card { grid-column: auto; }
+		}
+	</style>
+</head>
+<body>
+	<main>
+		<section class="hero">
+			<span class="eyebrow">Webserv debug site</span>
+			<h1>Home page simple, lisible et facile à modifier.</h1>
+			<p>
+				Cette page sert de point d’entrée pour tester le serveur, valider les routes de
+				<code>valid.conf</code> et garder une base HTML propre pour le debug.
+			</p>
+			<div class="links">
+				<a class="button" href="/uploads">Ouvrir la zone d&apos;accueil</a>
+				<a class="button secondary" href="/upload/yes">Tester l&apos;upload</a>
+			</div>
+		</section>
+
+		<section class="grid">
+			<article class="card">
+				<h2>Routes utiles</h2>
+				<ul>
+					<li><a href="/">/</a> ou <a href="/uploads">/uploads</a></li>
+					<li><a href="/upload/yes">/upload/yes</a></li>
+					<li><a href="/new-page">/new-page</a></li>
+					<li><a href="/errors/404.html">/errors/404.html</a> et <a href="/errors/50x.html">/errors/50x.html</a></li>
+				</ul>
+			</article>
+
+			<article class="card">
+				<h2>Ce que la page couvre</h2>
+				<ul>
+					<li>Page d&apos;accueil claire pour les tests de lecture</li>
+					<li>Page dédiée à l&apos;upload, sans logique complexe</li>
+					<li>Page de redirection cible pour vérifier le retour 301</li>
+					<li>Pages d&apos;erreur simples pour vérifier le code HTTP affiché</li>
+				</ul>
+			</article>
+		</section>
+
+		<div class="footer">
+			Astuce: gardez ce fichier comme hub de debug, puis modifiez uniquement les blocs HTML nécessaires.
+		</div>
+	</main>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uploads Home</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main>
+    <section class="hero">
+      <span class="eyebrow">Route /</span>
+      <h1>Page d&apos;accueil du site de debug.</h1>
+      <p>
+        Cette page vit dans le répertoire qui sert de base au site principal. Elle reste volontairement simple
+        pour que le comportement du serveur soit facile à vérifier.
+      </p>
+      <div class="links">
+        <a class="button" href="/upload/yes">Aller vers la page d&apos;upload</a>
+        <a class="button secondary" href="/new-page">Voir la destination du 301</a>
+      </div>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h2>Utilisation</h2>
+        <ul>
+          <li>Le contenu est en HTML lisible et modifiable sans JavaScript.</li>
+          <li>Les blocs sont séparés pour faciliter le debug.</li>
+          <li>La mise en page reste stable en desktop et mobile.</li>
+        </ul>
+      </article>
+
+      <article class="card">
+        <h2>Routes liées</h2>
+        <ul>
+          <li><a href="/uploads">/uploads</a> et <a href="/upload/yes">/upload/yes</a></li>
+          <li><a href="/new-page">/new-page</a></li>
+          <li><a href="/errors/404.html">/errors/404.html</a></li>
+          <li><a href="/errors/50x.html">/errors/50x.html</a></li>
+        </ul>
+      </article>
+    </section>
+
+    <div class="footer">
+      Conseil: si vous modifiez la structure, gardez les sections et les liens principaux identiques pour comparer les comportements du serveur.
+    </div>
+  </main>
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Page</title>
+  <link rel="stylesheet" href="/uploads/styles.css">
+</head>
+<body>
+  <main>
+    <section class="hero">
+      <span class="eyebrow">Cible de /old-page</span>
+      <h1>Nouvelle page après la redirection 301.</h1>
+      <p>
+        Cette page sert de destination simple pour confirmer que la redirection fonctionne et que le chemin cible répond correctement.
+      </p>
+      <div class="links">
+        <a class="button" href="/">Retour à l&apos;accueil</a>
+        <a class="button secondary" href="/upload/yes">Tester l&apos;upload</a>
+      </div>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h2>Pourquoi elle existe</h2>
+        <ul>
+          <li>Permet de valider une redirection simple sans complexité de rendu.</li>
+          <li>Garde un contenu clair pour la lecture du comportement HTTP.</li>
+          <li>Évite toute ambiguïté sur le chemin cible.</li>
+        </ul>
+      </article>
+
+      <article class="card">
+        <h2>Test rapide</h2>
+        <ul>
+          <li>Ouvrir <a href="/old-page">/old-page</a>.</li>
+          <li>Vérifier que le serveur renvoie bien un 301.</li>
+          <li>Confirmer l&apos;arrivée sur cette page.</li>
+        </ul>
+      </article>
+    </section>
+  </main>
+</body>
+</html>
