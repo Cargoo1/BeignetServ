@@ -66,6 +66,13 @@ p {
   max-width: 70ch;
 }
 
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 18px;
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(12, 1fr);
@@ -91,13 +98,6 @@ p {
   padding-left: 18px;
   color: var(--muted);
   line-height: 1.8;
-}
-
-.links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 18px;
 }
 
 a {
@@ -128,6 +128,12 @@ a {
   font-size: 0.95rem;
 }
 
+@media (max-width: 760px) {
+  main { width: calc(100% - 18px); margin: 9px auto; }
+  .hero, .shell { padding: 28px 22px; }
+  .form-grid { grid-template-columns: 1fr; }
+}
+
 .shell {
   padding: 40px;
 }
@@ -153,7 +159,7 @@ label {
   color: var(--text);
 }
 
-input, textarea, select {
+input, textarea {
   width: 100%;
   border-radius: 14px;
   border: 1px solid rgba(31, 26, 23, 0.14);
@@ -164,7 +170,7 @@ input, textarea, select {
 }
 
 textarea {
-  min-height: 160px;
+  min-height: 140px;
   resize: vertical;
 }
 
@@ -180,10 +186,6 @@ textarea {
   color: var(--accent);
 }
 
-@media (max-width: 760px) {
-  main { width: calc(100% - 18px); margin: 9px auto; }
-  .hero, .shell { padding: 28px 22px; }
-  .grid, .form-grid { grid-template-columns: 1fr; }
-  .card { grid-column: auto; }
-  .span-2 { grid-column: auto; }
+.section-title {
+  margin-top: 28px;
 }
