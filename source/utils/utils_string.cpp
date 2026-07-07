@@ -1,21 +1,26 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   parse_request.hpp                                  :+:      :+:    :+:   */
+/*   utils_string.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alejandrocamargo <acamargo@student.42.fr>  +#+  +:+       +#+        */
+/*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/05/11 19:29:40 by alejandrocama     #+#    #+#             */
-/*   Updated: 2026/07/07 15:51:59 by acamargo         ###   ########.fr       */
+/*   Created: 2026/07/01 13:06:56 by acamargo          #+#    #+#             */
+/*   Updated: 2026/07/01 13:55:01 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#pragma once
-#include <istream>
-
 #include <utils.hpp>
 
-#include "Request.hpp"
+bool	remove_cr(std::string& str)
+{
+	if (str.empty())
+		return false;
+	size_t	cr_pos = str.find_last_of('\r');
+	if (cr_pos != str.npos)
+		str.erase(cr_pos);
+	if (str.empty())
+		return false;
+	return true;
+}
 
-void	parse_header(std::stringstream& request,
-						Request& r);

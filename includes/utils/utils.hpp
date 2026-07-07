@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/03 17:39:25 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/30 22:30:36 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/01 13:55:35 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,3 +87,5 @@ void	ft_itoa(int n, std::string& str);
 int	split(std::vector<std::string>& vector, std::string const& str, char c);
 
 int	hex_to_int(std::string str);
+
+bool	remove_cr(std::string& str);

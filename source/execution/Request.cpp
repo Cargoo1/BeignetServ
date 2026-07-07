@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/08 15:51:44 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/29 14:13:59 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/07 15:04:20 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,8 @@ Request::Request()
 	this->_bytes_read = 0;
 	this->_locConf_block = NULL;
 	this->_server_block = NULL;
+	this->_is_body_read = false;
+	this->_waiting_chunk = false;
 	return;
 }
 
@@ -44,6 +46,8 @@ Request::Request(const Request& other)
 	this->_bytes_read = other._bytes_read;
 	this->_locConf_block = other._locConf_block;
 	this->_server_block = other._server_block;
+	this->_is_body_read = other._is_body_read;
+	this->_waiting_chunk = other._waiting_chunk;
 	return ;
 }
 
@@ -160,4 +164,27 @@ int		Request::setServerBlock(serverConfig const& server_block)
 {
 	this->_server_block = &server_block;
 	return 0;
+}
+
+bool	Request::is_body_read(void) const
+{
+	return this->_is_body_read;
+}
+void	Request::set_is_body_read(bool value)
+{
+	this->_is_body_read = value;
+}
+std::stringstream&	Request::getRawBody(void)
+{
+	return this->_raw_body;
+}
+
+bool	Request::waiting_chunk(void) const
+{
+	return this->_waiting_chunk;
+}
+
+void	Request::setWaitingChunk(bool value)
+{
+	this->_waiting_chunk = value;
 }

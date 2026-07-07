@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/07 19:49:10 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/30 22:36:59 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/07 15:51:36 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include <cctype>
 #include <cstddef>
 #include <fstream>
+#include <iostream>
 #include <istream>
 #include <map>
 #include <sstream>
@@ -134,7 +135,7 @@ void	init_map_fields(std::map<std::string, field_function>& map_fields)
 	}
 }
 
-void	parse_header(std::istringstream& request,
+void	parse_header(std::stringstream& request,
 						Request& r)
 {
 	std::string	line;
@@ -142,12 +143,8 @@ void	parse_header(std::istringstream& request,
 	std::map<std::string, field_function> map_fields;
 
 	init_map_fields(map_fields);
-	while (std::getline(request, line) && line.compare(0, 2, "\r"))
-	{
-		if (line.at(line.length() - 1))
-			line.erase(line.length() - 1);
+	while (std::getline(request, line) && remove_cr(line))
 		parse_line(line, header, map_fields, r);
-	}
 	if (header.getFields().find("Host") == header.getFields().end())
 		throw Request::ErrorRequest(bad_request, "Host field missing");
 	header.set_is_header_parsed(true);

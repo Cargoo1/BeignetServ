@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/03 17:41:28 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/30 22:22:07 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/07 15:17:14 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,6 +108,8 @@ char	hex_to_char(std::string str)
 
 int	hex_to_int(std::string str)
 {
+	if (str.empty())
+		return 0;
 	int	n = 0;
 	size_t	found;
 	int		exponent = 0;

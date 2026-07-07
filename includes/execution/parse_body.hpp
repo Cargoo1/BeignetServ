@@ -1,21 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   parse_request.hpp                                  :+:      :+:    :+:   */
+/*   parse_body.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alejandrocamargo <acamargo@student.42.fr>  +#+  +:+       +#+        */
+/*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/05/11 19:29:40 by alejandrocama     #+#    #+#             */
-/*   Updated: 2026/07/07 15:51:59 by acamargo         ###   ########.fr       */
+/*   Created: 2026/07/01 13:45:24 by acamargo          #+#    #+#             */
+/*   Updated: 2026/07/07 16:03:47 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
-#include <istream>
-
-#include <utils.hpp>
 
 #include "Request.hpp"
-
-void	parse_header(std::stringstream& request,
-						Request& r);
+int	parse_body(Request& r, std::string& client_msg);

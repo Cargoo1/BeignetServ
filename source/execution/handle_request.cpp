@@ -6,7 +6,7 @@
 /*   By: ratel <ratel@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/11 19:40:38 by alejandroca       #+#    #+#             */
-/*   Updated: 2026/06/30 23:18:16 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/07 18:02:56 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 #include <sstream>
 #include <string>
 #include <parse_request.hpp>
+#include <parse_body.hpp>
 #include <sys/socket.h>
 #include <Client.hpp>
 #include <serverConfig.hpp>
@@ -30,71 +31,15 @@
 // 	int validateContex(const Request &req, const locationConfig &loc, const serverConfig &serv) {
 
 // 	}
-void	remove_cr(std::string& str)
-{
-	if (str.at(str.length() - 1) != '\r')
-		return;
-	str.erase(str.length() - 1);
-}
-
-int	read_body(Request& r, std::istringstream& request_stream)
-{
-	std::string	line;
-	while (r.getBytesRead() < r.getBodyLen() && std::getline(request_stream, line))
-	{
-		remove_cr(line);
-		r.appendBody(line);
-		if (!r.addBytesRead(line.length()))
-		{
-			std::cerr << "Bytes read limit reached, couldnt add more\n";
-			return -1;
-		}
-	}
-	if (r.getBytesRead() == r.getBodyLen())
-		return 0;
-	return r.getBytesRead();
-}
-
-int	read_trailer_fields(Request& r, std::istringstream& request_stream)
-{
-	(void)r;
-	std::string line;
-	std::cout << "??\n";
-	while (std::getline(request_stream, line))
-	{
-		remove_cr(line);
-		if (line.empty())
-			return 0;
-	}
-	return 1;
-}
-
-int	read_chunked_body(Request& r, std::istringstream& body_stream)
-{
-	std::string line;
-	while (std::getline(body_stream, line))
-	{
-		remove_cr(line);
-		r.setBodyLen(hex_to_int(line));
-		if (!r.getBodyLen())
-		{
-			if (read_trailer_fields(r, body_stream) == 0)
-				return 0;
-			return 1;
-		}
-		read_body(r, body_stream);
-	}
-	return 1;
-}
 
 int	handle_request(Client& client)
 {
 	HttpResponse response;
 	Request&	r = client.getRequest();
-	std::istringstream	request_stream(client.getMsg());
+	std::stringstream	request_stream(client.getMsg());
 	print_log(TEXT_CYAN, NULL, "CLIENT INPUT:\n------------------------\n" +
 								client.getMsg() +
-								"\n------------------------\n\n", 0);
+								"------------------------\n\n", 0);
 	if (!r.getHeader().is_header_parsed())
 	{
 		try
@@ -113,18 +58,14 @@ int	handle_request(Client& client)
 		send_response(r, response, client.getFd(), internal_server_error);
 		return -1;
 	}
-	std::map<std::string, std::string> const&	fields = r.getHeader().getFields();
-	if (fields.find("Transfer-Encoding") != fields.end())
+	int	return_value = parse_body(r, client.getNotConstMsg());
+	if (return_value > 1)
 	{
-		if (read_chunked_body(r, request_stream) != 0)
-			return 0;
+		send_response(r, response, client.getFd(), return_value);
+		return 0;
 	}
-	else if (fields.find("Content-Length") != fields.end())
-	{
-		r.setBodyLen(ft_atoull(fields.at("Content-Length").c_str()));
-		if (read_body(r, request_stream) != 0)
-			return 0;
-	}
+	else if (return_value == 1)
+		return 0;
 	send_response(r, response, client.getFd(), 0);
 	return 0;
 }

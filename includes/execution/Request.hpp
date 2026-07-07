@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/08 14:23:48 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/29 13:55:46 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/07 15:35:49 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,8 +18,10 @@
 #include <cstddef>
 #include <exception>
 #include <map>
+#include <sstream>
 #include <string>
 
+#define CRLF "\r\n"
 
 class	Request
 {
@@ -56,11 +58,19 @@ public:
 	void					setLocConfBlock(locationConfig const& loc_conf);
 	serverConfig const*	getServerBlock(void) const;
 	int					setServerBlock(serverConfig const& server_block);
+	bool				is_body_read(void) const;
+	void				set_is_body_read(bool value);
+	std::stringstream&	getRawBody(void);
+	bool				waiting_chunk(void) const;
+	void				setWaitingChunk(bool value);
 
 private:
 	Header		_header;
 	bool		_request_in_progress;
+	bool		_is_body_read;
+	bool		_waiting_chunk;
 	std::string	_body;
+	std::stringstream	_raw_body;
 	unsigned long long	_body_len;
 	locationConfig const*	_locConf_block;
 	serverConfig const*	_server_block;

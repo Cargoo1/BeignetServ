@@ -31,6 +31,7 @@ HEADER = $(HEADER_DIR)/$(EXEP_DIR)/configException.hpp		\
 		 $(HEADER_DIR)/$(EXEC_DIR)/HttpResponse.hpp			\
 		 $(HEADER_DIR)/$(EXEC_DIR)/send_http_response.hpp	\
 		 $(HEADER_DIR)/$(UTILS_DIR)/utils.hpp				\
+		 $(HEADER_DIR)/$(EXEC_DIR)/parse_body.hpp			\
 		 $(HEADER_DIR)/$(UTILS_DIR)/utils_logs.hpp			\
 
 
@@ -56,6 +57,7 @@ SRCS = $(SRCS_DIR)/$(EXEP_DIR)/configException.cpp			\
 	   $(SRCS_DIR)/$(EXEC_DIR)/send_http_response.cpp		\
 	   $(SRCS_DIR)/$(UTILS_DIR)/utils.cpp					\
 	   $(SRCS_DIR)/$(UTILS_DIR)/utils_logs.cpp				\
+	   $(SRCS_DIR)/$(UTILS_DIR)/utils_string.cpp			\
 	   $(SRCS_DIR)/$(UTILS_DIR)/ft_atoull.cpp				\
 	   $(SRCS_DIR)/$(UTILS_DIR)/itoa.cpp					\
 	   $(SRCS_DIR)/$(MTD_DIR)/HttpMethodDispatcher.cpp		\
@@ -63,6 +65,7 @@ SRCS = $(SRCS_DIR)/$(EXEP_DIR)/configException.cpp			\
 	   $(SRCS_DIR)/$(MTD_DIR)/DeleteMethod.cpp				\
 	   $(SRCS_DIR)/$(MTD_DIR)/GetMethod.cpp					\
 	   $(SRCS_DIR)/$(MTD_DIR)/PostMethod.cpp				\
+	   $(SRCS_DIR)/$(EXEC_DIR)/parse_body.cpp				\
 	   $(SRCS_DIR)/main.cpp
 
 OBJ_DIR = obj

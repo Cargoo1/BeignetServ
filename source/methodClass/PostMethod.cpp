@@ -77,12 +77,14 @@ namespace { bool postFile(std::string path, const std::string &body){
 	return (true);
 } }
 
+/*
 namespace { std::size_t toSizeT(const std::string &str) {
 	std::stringstream ss(str);
 	std::size_t ret;
 	ss >> ret;
 	return (ret);
 } }
+*/
 
 PostMethod::PostMethod(Request const& r) : HttpMethod(r) {};
 
@@ -93,7 +95,7 @@ void PostMethod::executeMethod(HttpResponse &rsp) {
 	const locationConfig *loc = this->_request.getLocConfBlock();
 	if (loc->getUploadStore().empty())
 		throw Request::ErrorRequest(internal_server_error, "POST: no Upload store avaliable");
-	std::size_t contentLenght = toSizeT(this->_request.getHeader().getContentLenght());
+	std::size_t contentLenght = this->_request.getBodyLen();
 	if (this->_request.getLocConfBlock()->hasCMBS()) {
 		if (contentLenght > this->_request.getLocConfBlock()->getCMBS())
 			throw Request::ErrorRequest(content_too_large, "POST: the files is too heavy (> client max body size)");
