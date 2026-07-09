@@ -29,6 +29,11 @@ class serverConfig {
 		std::string &getRoot();
 		const std::string &getRoot() const;
 
+		bool const& hasIndex() const;
+	
+		std::string &getIndex();
+		const std::string &getIndex() const;
+
 		std::map<int, std::string> &errorPages();
 		const std::map<int, std::string> &errorPages() const;
 
@@ -40,6 +45,7 @@ class serverConfig {
 		std::string					_serverName;
 		std::string					_root;
 		std::string					_index;
+		bool						_hasIndex;
 		std::map<int, std::string>	_errorPages;
 		std::size_t					_clientMaxBodySize;
 		std::vector<locationConfig>	_locations;

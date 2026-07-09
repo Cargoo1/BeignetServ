@@ -19,6 +19,12 @@ class locationConfig {
 		std::string &getPath();
 		const std::string &getPath() const;
 
+		bool const& hasIndex() const;
+	
+		std::string &getIndex();
+		const std::string &getIndex() const;
+
+
 		std::string &getRoot();
 		const std::string &getRoot() const;
 
@@ -51,6 +57,7 @@ class locationConfig {
 		std::vector<std::string>			_methods;
 		std::string							_root;
 		std::string							_index;
+		bool								_hasIndex;
 		bool								_autoindex;
 		std::string							_uploadStore;
 		std::map<std::string, std::string>	_cgi;

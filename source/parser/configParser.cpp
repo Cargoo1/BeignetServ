@@ -345,6 +345,9 @@ void configParser::_parseLocationDir(locationConfig &locTo_pars) {
 		case L_INDEX: {
 			if (!isValid_path(_peek().getValue()))
 				throw configException("Error: index syntax:", _peek().getLine(), _peek().getValue());
+			if (locTo_pars._hasIndex == true)
+				throw configException("Error: index syntax: duplicate entries", _peek().getLine(), _peek().getValue());
+			locTo_pars._hasIndex = true;
 			locTo_pars._index = _consume().getValue();
 			_expect(";");
 			break;
@@ -445,6 +448,9 @@ void configParser::_parseDirective(serverConfig &toParse) {
 		case INDEX: {
 			if (!isValid_path(_peek().getValue()))
 				throw configException("Error: index syntax:", _peek().getLine(), _peek().getValue());
+			if (toParse._hasIndex == true)
+				throw configException("Error: index syntax: duplicate entries", _peek().getLine(), _peek().getValue());
+			toParse._hasIndex = true;
 			toParse._index = _consume().getValue();
 			_expect(";");
 			break;
@@ -472,7 +478,7 @@ void configParser::_validateAll() {
 		const serverConfig &server = this->_servers[i];
 		if (server._listen.empty())
 			this->_servers[i]._listen = "0.0.0.0:8080";
-		// else
+		//else
 		// 	managePortSyntax(this->_servers[i]._listen);
 		port_dup.push_back(server._listen);
 		if (!check_double(port_dup)) {

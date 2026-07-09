@@ -1,7 +1,7 @@
 #include <locationConfig.hpp>
 
-locationConfig::locationConfig() : _autoindex(false), _hasRedirect(false), _hasClientMaxBodySize(false) {}
-locationConfig::locationConfig(const locationConfig &rhs) : _path(rhs._path), _methods(rhs._methods), _root(rhs._root), _index(rhs._index), _autoindex(rhs._autoindex), _uploadStore(rhs._uploadStore), _cgi(rhs._cgi), _hasRedirect(rhs._hasRedirect), _redirectCode(rhs._redirectCode), _redirectUrl(rhs._redirectUrl), _clientMaxBodySize(rhs._clientMaxBodySize), _hasClientMaxBodySize(rhs._hasClientMaxBodySize) {}
+locationConfig::locationConfig() : _hasIndex(false), _autoindex(false), _hasRedirect(false), _hasClientMaxBodySize(false) {}
+locationConfig::locationConfig(const locationConfig &rhs) : _path(rhs._path), _methods(rhs._methods), _root(rhs._root), _index(rhs._index), _hasIndex(rhs._hasIndex), _autoindex(rhs._autoindex), _uploadStore(rhs._uploadStore), _cgi(rhs._cgi), _hasRedirect(rhs._hasRedirect), _redirectCode(rhs._redirectCode), _redirectUrl(rhs._redirectUrl), _clientMaxBodySize(rhs._clientMaxBodySize), _hasClientMaxBodySize(rhs._hasClientMaxBodySize) {}
 locationConfig::~locationConfig() {}
 
 locationConfig &locationConfig::operator=(const locationConfig &rhs) {
@@ -10,6 +10,7 @@ locationConfig &locationConfig::operator=(const locationConfig &rhs) {
 		this->_methods = rhs._methods;
 		this->_root = rhs._root;
 		this->_index = rhs._index;
+		this->_hasIndex = rhs._hasIndex;
 		this->_autoindex = rhs._autoindex;
 		this->_uploadStore = rhs._uploadStore;
 		this->_cgi = rhs._cgi; 
@@ -28,6 +29,18 @@ std::string &locationConfig::getPath() {
 
 const std::string &locationConfig::getPath() const {
 	return (this->_path);
+}
+
+bool const	&locationConfig::hasIndex() const {
+	return (this->_hasIndex);
+}
+
+std::string &locationConfig::getIndex() {
+	return (this->_index);
+}
+
+const std::string &locationConfig::getIndex() const {
+	return (this->_index);
 }
 
 std::string &locationConfig::getRoot() {

@@ -40,19 +40,25 @@ void GetMethod::executeMethod(HttpResponse &rsp) {
 	if (stat(path.c_str(), &path_stat) < 0) 
 		throw Request::ErrorRequest(not_found, "GET: no such file or directory (stat)");
 	if (S_ISDIR(path_stat.st_mode)) {
-		if (path.at(path.size()-1) != '/') {
-			rsp.setStatusCode(301);
-			rsp.addField("Location", path + "/");
+		// if (path.at(path.size()-1) != '/') {
+		// 	rsp.setStatusCode(301);
+		// 	rsp.addField("Location", path + "/");
+		// 	return;
+		// }
+		if (this->_request.getLocConfBlock()->hasIndex()) {
+			std::string indexPath = path + "/" + this->_request.getLocConfBlock()->getIndex();
+			if (stat(indexPath.c_str(), &path_stat) == 0) {
+				std::cout << "\n\n\nDEBUG: path_stat.st_mode = " <<path_stat.st_mode << "\n\n\n" << std::endl;
+				std::cout << "\n\n\nDEBUG: errno = " << errno << "\n\n\n" << std::endl;
+				if (S_ISREG(path_stat.st_mode)) {
+					if (!rsp.setBodyFromFile(indexPath))
+						throw Request::ErrorRequest(not_found, "GET: the index.html file does not exist");
+				rsp.setContentType(find_content_type(indexPath));
+				rsp.addContentLength();
+				rsp.setStatusCode(200);
+				}
 			return;
 		}
-		std::string indexPath = path + "index.html";
-		if (stat(indexPath.c_str(), &path_stat) == 0 && S_ISREG(path_stat.st_mode)) {
-			if (!rsp.setBodyFromFile(indexPath))
-				throw Request::ErrorRequest(not_found, "GET: the index.html file does not exist");
-			rsp.setContentType(find_content_type(indexPath));
-			rsp.addContentLength();
-			rsp.setStatusCode(200);
-			return;
 		}
 		if (this->_request.getLocConfBlock()->getAutoindex()) {
 			std::string htmlList = _generateAutoindex(path);

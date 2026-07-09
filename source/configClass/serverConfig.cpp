@@ -48,6 +48,18 @@ const std::string &serverConfig::getRoot() const {
 	return (this->_root);
 }
 
+bool const	&serverConfig::hasIndex() const {
+	return (this->_hasIndex);
+}
+
+std::string &serverConfig::getIndex() {
+	return (this->_index);
+}
+
+const std::string &serverConfig::getIndex() const {
+	return (this->_index);
+}
+
 std::map<int, std::string> &serverConfig::errorPages() {
 	return (this->_errorPages);
 }
