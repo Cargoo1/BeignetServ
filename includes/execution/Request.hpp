@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/08 14:23:48 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/07 15:35:49 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/09 20:05:55 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@
 #include <string>
 
 #define CRLF "\r\n"
+#define DOUBLE_CRLF "\r\n\r\n"
 
 class	Request
 {
@@ -61,6 +62,7 @@ public:
 	bool				is_body_read(void) const;
 	void				set_is_body_read(bool value);
 	std::stringstream&	getRawBody(void);
+	std::stringstream&	getRequestStream(void);
 	bool				waiting_chunk(void) const;
 	void				setWaitingChunk(bool value);
 
@@ -71,6 +73,7 @@ private:
 	bool		_waiting_chunk;
 	std::string	_body;
 	std::stringstream	_raw_body;
+	std::stringstream	_request_stream;
 	unsigned long long	_body_len;
 	locationConfig const*	_locConf_block;
 	serverConfig const*	_server_block;

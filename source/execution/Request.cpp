@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/08 15:51:44 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/07 15:04:20 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/09 20:06:16 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -187,4 +187,9 @@ bool	Request::waiting_chunk(void) const
 void	Request::setWaitingChunk(bool value)
 {
 	this->_waiting_chunk = value;
+}
+
+std::stringstream&	Request::getRequestStream(void)
+{
+	return this->_request_stream;
 }

@@ -6,11 +6,12 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 19:10:40 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/30 21:35:27 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/09 22:10:22 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
+#include "Request.hpp"
 #include "utils.hpp"
 #include "utils_logs.hpp"
 #include <configParser.hpp>
@@ -164,15 +165,11 @@ void	get_client_msg(Server& server, int fd)
 		return;
 	}
 	client.setLastComm();
-	if (!client.getRequest().getReqInProg())
+	while (!client.getMsg().empty())
 	{
-		if (client.getMsg().find("\r\n\r\n") == std::string::npos)
-			return;
-		client.getRequest().setReqInProg(true);
-		client.getRequest().setServerBlock(find_server_block(client, server.getServerConf()));
+		if (handle_request(server.getClients().at(fd), server) == 1)
+			break;
 	}
-	handle_request(server.getClients().at(fd));
-	client.getNotConstMsg().clear();
 }
 
 void	process_connection(Server&	server, int epollcount)

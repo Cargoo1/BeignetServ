@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/03 17:39:25 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/01 13:55:35 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/09 20:24:30 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,3 +89,5 @@ int	split(std::vector<std::string>& vector, std::string const& str, char c);
 int	hex_to_int(std::string str);
 
 bool	remove_cr(std::string& str);
+
+void	consume_until_crlf(std::string& str);

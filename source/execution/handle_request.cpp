@@ -6,13 +6,16 @@
 /*   By: ratel <ratel@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/11 19:40:38 by alejandroca       #+#    #+#             */
-/*   Updated: 2026/07/07 18:02:56 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/09 22:22:55 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Request.hpp"
+#include <cstdlib>
+#include <cstring>
 #include <send_http_response.hpp>
 #include "HttpResponse.hpp"
+#include "Server.hpp"
 #include "utils.hpp"
 #include "utils_logs.hpp"
 #include <iostream>
@@ -32,11 +35,17 @@
 
 // 	}
 
-int	handle_request(Client& client)
+int	handle_request(Client& client, Server const& server)
 {
+	if (!client.getRequest().getReqInProg())
+	{
+		if (client.getMsg().find(DOUBLE_CRLF) == std::string::npos)
+			return 1;
+		client.getRequest().setReqInProg(true);
+		client.getRequest().setServerBlock(find_server_block(client, server.getServerConf()));
+	}
 	HttpResponse response;
 	Request&	r = client.getRequest();
-	std::stringstream	request_stream(client.getMsg());
 	print_log(TEXT_CYAN, NULL, "CLIENT INPUT:\n------------------------\n" +
 								client.getMsg() +
 								"------------------------\n\n", 0);
@@ -44,12 +53,14 @@ int	handle_request(Client& client)
 	{
 		try
 		{
-			parse_header(request_stream, r);
+			if (parse_header(client.getNotConstMsg(), r) != 0)
+				return 1;
 		}
 		catch(Request::ErrorRequest& e)
 		{
 			print_log(TEXT_RED, &e, e.what(), 1);
 			send_response(r, response, client.getFd(), e.getErrorCode());
+			client.getNotConstMsg().clear();
 			return -1;
 		}
 	}
@@ -65,7 +76,7 @@ int	handle_request(Client& client)
 		return 0;
 	}
 	else if (return_value == 1)
-		return 0;
+		return 1;
 	send_response(r, response, client.getFd(), 0);
 	return 0;
 }

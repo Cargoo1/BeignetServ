@@ -6,10 +6,13 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/01 13:06:56 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/01 13:55:01 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/09 20:46:32 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "Request.hpp"
+#include <cstring>
+#include <string>
 #include <utils.hpp>
 
 bool	remove_cr(std::string& str)
@@ -24,3 +27,13 @@ bool	remove_cr(std::string& str)
 	return true;
 }
 
+void	consume_until_crlf(std::string& str)
+{
+	size_t	crlf_pos = str.find(CRLF);
+	if (crlf_pos == str.npos)
+	{
+		str.erase(0, str.npos);
+		return;
+	}
+	str.erase(0, crlf_pos + std::strlen(CRLF));
+}

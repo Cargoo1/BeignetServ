@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/01 13:36:16 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/07 17:59:56 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/09 21:30:19 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,13 +38,12 @@ int	read_body(Request& r)
 	return 1;
 }
 
-int	read_trailer_fields(Request& r, std::string& client_msg)
+int	read_trailer_fields(Request& r, std::string& raw_body)
 {
-	if (client_msg.find("\r\n\r\n") == client_msg.npos)
-		return 1;
 	try
 	{
-		parse_header(r.getRawBody(), r);
+		if (parse_header(raw_body, r) == 1)
+			return 1;
 	}
 	catch(Request::ErrorRequest &e)
 	{
@@ -54,21 +53,23 @@ int	read_trailer_fields(Request& r, std::string& client_msg)
 	return 0;
 }
 
-bool	read_chunked_body(Request& r, std::string& client_msg, std::string& line)
+bool	read_chunked_body(Request& r, std::string& raw_body, std::stringstream& body_s)
 {
 	size_t crlf_pos;
-	crlf_pos = client_msg.find(CRLF, 0, 2);
-	while (crlf_pos != client_msg.npos)
+	crlf_pos = raw_body.find(CRLF, 0, 2);
+	std::string	line;
+	while (crlf_pos != raw_body.npos)
 	{
-		if (!std::getline(r.getRawBody(), line))
+		if (!std::getline(body_s, line))
 			return false;
 		remove_cr(line);
+		consume_until_crlf(raw_body);
 		if (!r.waiting_chunk())
 		{
 			r.setBodyLen(hex_to_int(line));
 			if (r.getBodyLen() == 0)
 			{
-				client_msg.erase(0, crlf_pos + std::strlen(CRLF));
+				r.set_is_body_read(true);
 				return true;
 			}
 		}
@@ -78,22 +79,21 @@ bool	read_chunked_body(Request& r, std::string& client_msg, std::string& line)
 			return false;
 		}
 		r.setWaitingChunk(false);
-		client_msg.erase(0, crlf_pos + std::strlen(CRLF));
-		crlf_pos = client_msg.find(CRLF, 0, 2);
+		raw_body.erase(0, crlf_pos + std::strlen(CRLF));
+		crlf_pos = raw_body.find(CRLF, 0, 2);
 	}
 	return false;
 }
 
-int	parse_body(Request& r, std::string& client_msg)
+int	parse_body(Request& r, std::string& raw_body)
 {
-	r.getRawBody() << client_msg;
 	std::map<std::string, std::string> const&	fields = r.getHeader().getFields();
-	std::string	line;
+	std::stringstream	body_s(raw_body);
 	if (fields.find("Transfer-Encoding") != fields.end())
 	{
-		if (!read_chunked_body(r, client_msg, line))
+		if (!r.is_body_read() && !read_chunked_body(r, raw_body, body_s))
 			return 1;
-		int	return_value = read_trailer_fields(r, client_msg);
+		int	return_value = read_trailer_fields(r, raw_body);
 		if (return_value > 1)
 			return return_value;
 		else if (return_value == 1)
