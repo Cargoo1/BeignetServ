@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/01 13:36:16 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/09 21:30:19 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/09 22:57:45 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,12 +20,14 @@
 #include <utils_logs.hpp>
 #include <string>
 #include <utils.hpp>
-int	read_body(Request& r)
+int	read_body(Request& r, std::string& raw_body)
 {
 	std::string	line;
-	while (r.getBytesRead() < r.getBodyLen() && std::getline(r.getRawBody(), line))
+	std::istringstream	body_s(raw_body);
+	while (r.getBytesRead() < r.getBodyLen() && std::getline(body_s, line))
 	{
 		remove_cr(line);
+		consume_until_crlf(raw_body);
 		r.appendBody(line);
 		if (!r.addBytesRead(line.length()))
 		{
@@ -73,7 +75,7 @@ bool	read_chunked_body(Request& r, std::string& raw_body, std::stringstream& bod
 				return true;
 			}
 		}
-		if (!read_body(r))
+		if (!read_body(r, raw_body))
 		{
 			r.setWaitingChunk(true);
 			return false;
@@ -102,7 +104,7 @@ int	parse_body(Request& r, std::string& raw_body)
 	else if (fields.find("Content-Length") != fields.end())
 	{
 		r.setBodyLen(ft_atoull(fields.at("Content-Length").c_str()));
-		if (read_body(r) == 1)
+		if (read_body(r, raw_body) == 1)
 			return 1;
 	}
 	r.setBodyLen(r.getBody().length());
