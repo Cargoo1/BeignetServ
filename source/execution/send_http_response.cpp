@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   send_http_response.cpp                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ratel <ratel@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 21:54:03 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/30 21:38:29 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/10 12:03:34 by ratel            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,11 +80,12 @@ void	send_error_response(HttpResponse& response, serverConfig const& serverConf)
 		create_default_error_response(response, response.getStatusCode());
 		return;
 	}
-	if (access(it->second.c_str(), F_OK) == 0)
+	std::string final_path = "." + serverConf.getRoot() + it->second;
+	if (access(final_path.c_str(), F_OK) == 0)
 	{
-		if (access(it->second.c_str(), R_OK) == 0)
+		if (access(final_path.c_str(), R_OK) == 0)
 		{
-			create_error_response(response, response.getStatusCode(), it->second);
+			create_error_response(response, response.getStatusCode(), final_path);
 		}
 		else
 			create_default_error_response(response, forbiden);

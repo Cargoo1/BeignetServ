@@ -28,6 +28,7 @@ void GetMethod::executeMethod(HttpResponse &rsp) {
 		return;
 	}
 	std::string path = this->_request.getHeader().getTargetResource();
+	std::cout << "DEBUG: GET: path: " << path << std::endl;
 	/* C deja fait dans le parsing, et je pense que c mieux de le faire avant d'appeller une method
 	std::string query = getQuery(path);
 	std::string cgiPath = getQuery_path(path);
@@ -48,8 +49,6 @@ void GetMethod::executeMethod(HttpResponse &rsp) {
 		if (this->_request.getLocConfBlock()->hasIndex()) {
 			std::string indexPath = path + "/" + this->_request.getLocConfBlock()->getIndex();
 			if (stat(indexPath.c_str(), &path_stat) == 0) {
-				std::cout << "\n\n\nDEBUG: path_stat.st_mode = " <<path_stat.st_mode << "\n\n\n" << std::endl;
-				std::cout << "\n\n\nDEBUG: errno = " << errno << "\n\n\n" << std::endl;
 				if (S_ISREG(path_stat.st_mode)) {
 					if (!rsp.setBodyFromFile(indexPath))
 						throw Request::ErrorRequest(not_found, "GET: the index.html file does not exist");
