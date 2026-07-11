@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/08 15:51:44 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/09 20:06:16 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/11 15:01:29 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,6 +135,15 @@ bool	Request::addBytesRead(size_t bytes)
 	if (bytes > diff)
 		return false;
 	this->_bytes_read += bytes;
+	return true;
+}
+
+bool	Request::addBodyLen(size_t bytes)
+{
+	size_t	diff = std::numeric_limits<unsigned long long>::max() - this->_bytes_read;
+	if (bytes > diff)
+		return false;
+	this->_body_len += bytes;
 	return true;
 }
 

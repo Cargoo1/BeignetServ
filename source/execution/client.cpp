@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/21 15:12:53 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/09 21:09:14 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/11 14:55:18 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,15 +53,17 @@ int	main(int argc, char **argv)
 		exit(1);
 	}
 	char buff[100000];
-	std::string msg = "POST /uploads HTTP/1.1\r\nHost:localhost:8080\r\nTransfer-Encoding:chunked\r\n\r\n";
+	std::string msg = "POST /uploads/test.txt HTTP/1.1\r\nHost:localhost:8080\r\nTransfer-Encoding:chunked\r\n\r\n";
 	int bytes_sent = send(sfd, msg.c_str(), msg.length(), 0);
 	sleep(5);
-	send(sfd, "0", 1, 0);
-	sleep(5);
+	send(sfd, "B", 1, 0);
+	//sleep(5);
 	send(sfd, "\r\n", 2, 0);
-	sleep(5);
-	msg = "\r\nGET / HTTP/1.1\r\nHost:localhost:8080\r\n\r\n";
+	//sleep(5);
+	msg = "hello world\r\n0\r\n";
 	send(sfd, msg.c_str(), msg.length(), 0);
+	//sleep(5);
+	send(sfd, "\r\n", 2, 0);
 	memset(buff, 0, sizeof(buff));
 	recv(sfd, buff, 100000, 0);
 	std::cout << buff;

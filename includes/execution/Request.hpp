@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/08 14:23:48 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/09 20:05:55 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/11 15:01:41 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,7 @@ public:
 	unsigned long long const&	getBodyLen(void) const;
 	bool				addBytesRead(size_t bytes);
 	void				setBodyLen(unsigned long long const& len);
+	bool				addBodyLen(size_t bytes);
 	locationConfig const*	getLocConfBlock(void) const;
 	void					setLocConfBlock(locationConfig const& loc_conf);
 	serverConfig const*	getServerBlock(void) const;

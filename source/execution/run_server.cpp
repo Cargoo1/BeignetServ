@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 19:10:40 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/09 22:10:22 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/11 14:49:48 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,7 +146,7 @@ void	check_idle_clients(Server& server)
 	std::map<int, Client>::iterator	it;
 	for (it = server.getClients().begin(); it != server.getClients().end();)
 	{
-		if (curr_time - it->second.getLastComm() < 60)
+		if (curr_time - it->second.getLastComm() < 160)
 		{
 			++it;
 			continue;
