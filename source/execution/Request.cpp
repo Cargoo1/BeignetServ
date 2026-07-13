@@ -18,6 +18,7 @@
 #include <map>
 #include <string>
 #include <sys/types.h>
+#include <iostream>
 
 Request::Request()
 {

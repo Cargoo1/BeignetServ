@@ -144,6 +144,7 @@ int	parse_header(std::string& request,
 	std::istringstream	request_s(request);
 
 	init_map_fields(map_fields);
+	
 	while (std::getline(request_s, line))
 	{
 		consume_until_crlf(request);

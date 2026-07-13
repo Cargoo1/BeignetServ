@@ -81,3 +81,4 @@ private:
 	size_t		_bytes_read;
 	std::string	_response;
 };
+
