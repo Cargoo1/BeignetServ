@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/03 17:39:25 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/09 20:24:30 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/13 17:06:35 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,7 +72,7 @@ std::string getQuery(const std::string path);
 
 std::string getQuery_path(const std::string path);
 
-bool	listen_msg(std::string& str, int cfd);
+bool	recv_msg(std::string& str, int cfd);
 
 bool	is_in_cgi_dir(std::string const& uri);
 

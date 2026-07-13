@@ -6,7 +6,7 @@
 /*   By: ratel <ratel@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/11 19:40:38 by alejandroca       #+#    #+#             */
-/*   Updated: 2026/07/09 22:22:55 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/13 21:09:04 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,8 +39,6 @@ int	handle_request(Client& client, Server const& server)
 {
 	if (!client.getRequest().getReqInProg())
 	{
-		if (client.getMsg().find(DOUBLE_CRLF) == std::string::npos)
-			return 1;
 		client.getRequest().setReqInProg(true);
 		client.getRequest().setServerBlock(find_server_block(client, server.getServerConf()));
 	}
@@ -53,8 +51,11 @@ int	handle_request(Client& client, Server const& server)
 	{
 		try
 		{
-			if (parse_header(client.getNotConstMsg(), r) != 0)
+			if (parse_fields(client.getNotConstMsg(), r) != 0)
 				return 1;
+			if (r.getHeader().getFields().find("Host") == r.getHeader().getFields().end())
+				throw Request::ErrorRequest(bad_request, "Host field missing");
+			r.getHeader().set_is_header_parsed(true);
 		}
 		catch(Request::ErrorRequest& e)
 		{

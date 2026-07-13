@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/07 19:49:10 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/09 21:26:30 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/13 23:47:51 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,21 +111,24 @@ void	parse_line(std::string & line,
 	it = fields.find(line.substr(0, check_field_line_syntax(line)));
 	if (it == fields.end())
 		return;
-	remove_whitespace(line);
 	(header.*(it->second))(line);
 }
 
-#define FIELDS_SIZE 3
+#define FIELDS_SIZE 5
 
 void	init_map_fields(std::map<std::string, field_function>& map_fields)
 {
 	std::pair<std::string, field_function>	field;
 	std::string		name_fields[FIELDS_SIZE] = {"Host",
 												"Content-Length",
-												"Transfer-Encoding"};
+												"Transfer-Encoding",
+												"Content-Type",
+												"Content-Disposition"};
 	field_function	fn_fields[FIELDS_SIZE] = {&Header::setHost,
 												&Header::setContent_len,
-												&Header::setTransfer_encoding};
+												&Header::setTransfer_encoding,
+												&Header::setContent_type,
+												&Header::setContent_dispo};
 
 	for (size_t i = 0; i < FIELDS_SIZE; i++)
 	{
@@ -135,30 +138,23 @@ void	init_map_fields(std::map<std::string, field_function>& map_fields)
 	}
 }
 
-int	parse_header(std::string& request,
+int	parse_fields(std::string& request,
 						Request& r)
 {
 	std::string	line;
 	Header&	header = r.getHeader();
 	std::map<std::string, field_function> map_fields;
-	std::istringstream	request_s(request);
+	size_t	crlf_pos = request.find(CRLF);
 
 	init_map_fields(map_fields);
-	
-	while (std::getline(request_s, line))
+	while (crlf_pos != request.npos)
 	{
+		line = request.substr(0, crlf_pos);
 		consume_until_crlf(request);
-		if (!remove_cr(line))
-			break;
+		if (line.empty())
+			return 0;
 		parse_line(line, header, map_fields, r);
+		crlf_pos = request.find(CRLF);
 	}
-	if (request_s.eof())
-		return 1;
-	if (!header.is_header_parsed())
-	{
-		if (header.getFields().find("Host") == header.getFields().end())
-			throw Request::ErrorRequest(bad_request, "Host field missing");
-		header.set_is_header_parsed(true);
-	}
-	return 0;
+	return 1;
 }

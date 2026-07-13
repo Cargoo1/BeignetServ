@@ -1,5 +1,6 @@
 #include "Request.hpp"
 #include <PostMethod.hpp>
+#include <cerrno>
 #include <utils.hpp>
 
 #include <dirent.h>
@@ -39,11 +40,10 @@ namespace { bool createFile(const std::string &fileName, const std::string &body
 	return (true);
 } }
 
-namespace { bool postFile(std::string path, const std::string &body){
+namespace { bool postFile(std::string path, const std::string &body, std::string filename){
 	std::size_t found = path.find_last_of("/\\");
 	std::string newPath = path.substr(0, found);
 	std::istringstream iss(newPath);
-	std::string file = path.substr(found+1);
 	std::string part, current_path = "";
 	struct stat path_stat;
 
@@ -62,14 +62,14 @@ namespace { bool postFile(std::string path, const std::string &body){
 		}
 	}
 	if (!body.empty()) {
-		if (file.empty())
-			file = generateTimestampFilename(file);
+		if (filename.empty())
+			filename = generateTimestampFilename(filename);
 		std::string tmp(current_path);
-		current_path += file;
+		current_path += filename;
 		int ret = stat(current_path.c_str(), &path_stat);
 		if (ret == 0)
-			file = generateTimestampFilename(file);
-		tmp += file;
+			filename = generateTimestampFilename(filename);
+		tmp += filename;
 		current_path = tmp;
 			if (!createFile(current_path, body))
 				return (false);
@@ -90,6 +90,8 @@ PostMethod::PostMethod(Request const& r) : HttpMethod(r) {};
 
 PostMethod::~PostMethod() {};
 
+//CHANGEMENTS!! g pu recuperer le filename et je le mets dans le HEADER getFilename
+//si filename c vide ca veut dire qu'on a pas le filename
 void PostMethod::executeMethod(HttpResponse &rsp) {
 	std::string path = this->_request.getHeader().getTargetResource();
 	const locationConfig *loc = this->_request.getLocConfBlock();
@@ -103,7 +105,7 @@ void PostMethod::executeMethod(HttpResponse &rsp) {
 	std::string body = "";
 	if (path.at(path.size()-1) != '/')
 		body = this->_request.getBody();
-	if (!postFile(path, body))
+	if (!postFile(path, body, this->_request.getHeader().getFilename()))
 		throw Request::ErrorRequest(internal_server_error, "POST: postFile(path, body) failed");
 
 	rsp.setStatusCode(201);

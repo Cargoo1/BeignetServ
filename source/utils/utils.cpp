@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/03 17:41:28 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/07 15:17:14 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/13 17:06:11 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -223,16 +223,15 @@ std::string getQuery_path(const std::string path) {
 	return (newPath);
 }
 
-bool	listen_msg(std::string& str, int cfd)
+bool	recv_msg(std::string& str, int cfd)
 {
 	char	buff[BUFF_SIZE];
 
 	std::memset(buff, 0, BUFF_SIZE);
-	int		size_read = recv(cfd, &buff, BUFF_SIZE - 1, 0);
-	if (size_read <= 0)
+	int		bytes_read = recv(cfd, &buff, BUFF_SIZE, 0);
+	if (bytes_read <= 0)
 		return false;
-	buff[size_read] = '\0';
-	str.append(buff);
+	str.append(buff, bytes_read);
 	return true;
 }
 

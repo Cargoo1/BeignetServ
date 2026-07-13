@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/08 15:51:44 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/11 15:01:29 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/13 23:18:18 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,8 +27,9 @@ Request::Request()
 	this->_bytes_read = 0;
 	this->_locConf_block = NULL;
 	this->_server_block = NULL;
-	this->_is_body_read = false;
-	this->_waiting_chunk = false;
+	this->is_body_read = false;
+	this->waiting_chunk = false;
+	this->is_body_being_read = false;
 	return;
 }
 
@@ -47,8 +48,10 @@ Request::Request(const Request& other)
 	this->_bytes_read = other._bytes_read;
 	this->_locConf_block = other._locConf_block;
 	this->_server_block = other._server_block;
-	this->_is_body_read = other._is_body_read;
-	this->_waiting_chunk = other._waiting_chunk;
+	this->is_body_read = other.is_body_read;
+	this->is_body_being_read = other.is_body_being_read;
+	this->waiting_chunk = other.waiting_chunk;
+	this->data_name = other.data_name;
 	return ;
 }
 
@@ -176,30 +179,22 @@ int		Request::setServerBlock(serverConfig const& server_block)
 	return 0;
 }
 
-bool	Request::is_body_read(void) const
+std::string&	Request::getRawBody(void)
 {
-	return this->_is_body_read;
-}
-void	Request::set_is_body_read(bool value)
-{
-	this->_is_body_read = value;
-}
-std::stringstream&	Request::getRawBody(void)
-{
-	return this->_raw_body;
-}
-
-bool	Request::waiting_chunk(void) const
-{
-	return this->_waiting_chunk;
-}
-
-void	Request::setWaitingChunk(bool value)
-{
-	this->_waiting_chunk = value;
+	return this->_body;
 }
 
 std::stringstream&	Request::getRequestStream(void)
 {
 	return this->_request_stream;
+}
+
+void	Request::setBoundary(std::string const& str)
+{
+	this->_boundary = str;
+}
+
+std::string&	Request::getBoundary(void)
+{
+	return this->_boundary;
 }

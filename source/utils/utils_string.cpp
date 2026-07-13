@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/01 13:06:56 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/09 20:46:32 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/13 17:44:28 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,9 +31,6 @@ void	consume_until_crlf(std::string& str)
 {
 	size_t	crlf_pos = str.find(CRLF);
 	if (crlf_pos == str.npos)
-	{
-		str.erase(0, str.npos);
 		return;
-	}
 	str.erase(0, crlf_pos + std::strlen(CRLF));
 }

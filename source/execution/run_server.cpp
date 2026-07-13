@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 19:10:40 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/11 14:49:48 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/13 17:06:37 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -156,10 +156,10 @@ void	check_idle_clients(Server& server)
 	server.setLastCheck();
 }
 
-void	get_client_msg(Server& server, int fd)
+void	get_client_request(Server& server, int fd)
 {
 	Client&	client = server.getClients().at(fd);
-	if (!listen_msg(client.getNotConstMsg(), fd))
+	if (!recv_msg(client.getNotConstMsg(), fd))
 	{
 		server.deleteClient(fd);
 		return;
@@ -184,7 +184,7 @@ void	process_connection(Server&	server, int epollcount)
 		if (server.getEventQueue()[i].data.fd <= server.getSfds().back())
 			accept_client(server, server.getEventQueue()[i].data.fd);
 		else
-			get_client_msg(server, server.getEventQueue()[i].data.fd);
+			get_client_request(server, server.getEventQueue()[i].data.fd);
 	}
 	check_idle_clients(server);
 }

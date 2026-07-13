@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/08 14:23:48 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/11 15:01:41 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/13 23:17:38 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,19 +60,21 @@ public:
 	void					setLocConfBlock(locationConfig const& loc_conf);
 	serverConfig const*	getServerBlock(void) const;
 	int					setServerBlock(serverConfig const& server_block);
-	bool				is_body_read(void) const;
-	void				set_is_body_read(bool value);
-	std::stringstream&	getRawBody(void);
+	std::string&		getBoundary(void);
+	void				setBoundary(std::string const& str);
+	std::string&	getRawBody(void);
 	std::stringstream&	getRequestStream(void);
-	bool				waiting_chunk(void) const;
-	void				setWaitingChunk(bool value);
+	bool				is_body_read;
+	bool				is_body_being_read;
+	bool				waiting_chunk;
+	std::string			data_name;
 
 private:
 	Header		_header;
 	bool		_request_in_progress;
-	bool		_is_body_read;
-	bool		_waiting_chunk;
 	std::string	_body;
+	std::string	_request;
+	std::string	_boundary;
 	std::stringstream	_raw_body;
 	std::stringstream	_request_stream;
 	unsigned long long	_body_len;

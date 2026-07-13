@@ -6,7 +6,7 @@
 /*   By: ratel <ratel@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 19:03:36 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/30 22:15:12 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/13 23:50:24 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,6 +89,11 @@ std::map<std::string, std::string>&		Header::getFields(void)
 const std::map<std::string, std::string>&		Header::getFields(void) const
 {
 	return this->_map_fields;
+}
+
+std::string&	Header::getBoundary(void)
+{
+	return this->_boundary;
 }
 
 bool	Header::setMethod(std::string& method)
@@ -218,6 +223,43 @@ void	Header::setContent_len(std::string& content_len)
 	this->_map_fields["Content-Length"] = content_len;
 }
 
+void	Header::setContent_type(std::string& content_type)
+{
+	size_t	separator_pos = content_type.find_first_of(':',0);
+
+	if (separator_pos == content_type.npos)
+		throw Request::ErrorRequest(bad_request, "Incomplete field");
+	content_type.erase(0, separator_pos + 1);
+	this->_map_fields["Content-Type"] = content_type;
+	separator_pos = content_type.find_first_of(';', 0);
+	if (content_type.substr(0, separator_pos).find("multipart/") == content_type.npos)
+	{
+		this->_map_fields["Content-Type"] = content_type;
+		return;
+	}
+	if (separator_pos == content_type.npos || separator_pos == content_type.length() - 1)
+		throw Request::ErrorRequest(bad_request, "Parameter required in Content-type");
+	separator_pos = content_type.find_first_of('=');
+	if (separator_pos == content_type.npos)
+		throw Request::ErrorRequest(bad_request, "Syntax error");
+	content_type.erase(0, separator_pos + 1);
+	std::string	boundary = content_type;
+	if (boundary.length() > 70)
+		throw Request::ErrorRequest(bad_request, "Boundary too long");
+	if (boundary.at(0) != '"' || boundary.at(boundary.length() - 1) != '"')
+	{
+		for (size_t i = 0; i < boundary.length(); i++)
+			if (!is_unreserved(boundary.at(i)))
+				throw Request::ErrorRequest(bad_request, "Reserved char found");
+	}
+	if (boundary.at(0) == '"' && boundary.at(boundary.length() - 1) == '"')
+	{
+		boundary.erase(0, 1);
+		boundary.erase(boundary.length() - 1, 1);
+	}
+	this->_boundary = "--"  + boundary;
+}
+
 void	Header::setTransfer_encoding(std::string& transfer_encoding)
 {
 	if (transfer_encoding.empty())
@@ -232,6 +274,29 @@ void	Header::setTransfer_encoding(std::string& transfer_encoding)
 		return;
 	}
 	throw Request::ErrorRequest(bad_request, "Invalid transfer_encoding");
+}
+
+void	Header::setContent_dispo(std::string& content_type)
+{
+	size_t	separator_pos = content_type.find(':');
+	if (separator_pos == content_type.npos)
+		throw Request::ErrorRequest(bad_request, "Incomplete field");
+	content_type.erase(0, separator_pos + 1);
+	this->_map_fields["Content-Disposition"] = content_type;
+	std::string	data_variables[2] = {"name", "filename"};
+	size_t begin_pos = 0;
+	size_t end_pos = 0;
+	for (size_t i = 0; i < 2; i++)
+	{
+		begin_pos = content_type.find(data_variables[i] + "=\"");
+		if (begin_pos == content_type.npos)
+			continue;
+		begin_pos += data_variables[i].length() + 2;
+		end_pos = content_type.find("\"", begin_pos);
+		if (end_pos == content_type.npos)
+			continue;
+		this->data_values[i] = content_type.substr(begin_pos, end_pos - begin_pos);
+	}
 }
 
 std::string	&Header::getContentLenght(void)
@@ -257,4 +322,14 @@ void	Header::set_is_header_parsed(bool value)
 bool	Header::is_a_script(void) const
 {
 	return this->_is_script;
+}
+
+std::string const& Header::getFilename(void) const
+{
+	return this->_file_name;
+}
+
+void	Header::setFilename(std::string const& str)
+{
+	this->_file_name = str;
 }

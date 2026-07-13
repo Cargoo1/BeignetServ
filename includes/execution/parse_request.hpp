@@ -6,7 +6,7 @@
 /*   By: alejandrocamargo <acamargo@student.42.fr>  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/11 19:29:40 by alejandrocama     #+#    #+#             */
-/*   Updated: 2026/07/09 21:31:00 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/13 21:08:48 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,5 +20,5 @@
 
 #define REQ_NOT_CMPLETE 1;
 
-int	parse_header(std::string& request,
+int	parse_fields(std::string& request,
 						Request& r);
