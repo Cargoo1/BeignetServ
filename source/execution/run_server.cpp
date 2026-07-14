@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 19:10:40 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/13 17:06:37 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/14 18:37:09 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -159,6 +159,8 @@ void	check_idle_clients(Server& server)
 void	get_client_request(Server& server, int fd)
 {
 	Client&	client = server.getClients().at(fd);
+	int		status_code = 0;
+
 	if (!recv_msg(client.getNotConstMsg(), fd))
 	{
 		server.deleteClient(fd);
@@ -167,7 +169,8 @@ void	get_client_request(Server& server, int fd)
 	client.setLastComm();
 	while (!client.getMsg().empty())
 	{
-		if (handle_request(server.getClients().at(fd), server) == 1)
+		status_code = handle_request(server.getClients().at(fd), server);
+		if (status_code == 1 || status_code < 0)
 			break;
 	}
 }

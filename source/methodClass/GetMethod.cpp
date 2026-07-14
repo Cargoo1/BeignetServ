@@ -1,4 +1,5 @@
 #include "Request.hpp"
+#include "utils.hpp"
 #include <GetMethod.hpp>
 
 #include <iostream>
@@ -67,7 +68,7 @@ void GetMethod::executeMethod(HttpResponse &rsp) {
 			rsp.setStatusCode(200);
 			return;
 		}
-		throw Request::ErrorRequest(forbiden, "GET: does not have the access to the directory");
+		throw Request::ErrorRequest(not_found, "GET: does not have the access to the directory");
 	}
 	else if (!S_ISREG(path_stat.st_mode)) {
 		throw Request::ErrorRequest(forbiden, "GET: does not have the access to the file");

@@ -6,7 +6,7 @@
 /*   By: ratel <ratel@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 19:03:36 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/13 23:50:24 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/14 16:04:51 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,9 @@
 #include <iostream>
 #include <utils.hpp>
 
-Header::Header() : _is_header_parsed(false), _is_script(false)
+Header::Header() : is_method_parsed(false),
+					_is_header_parsed(false),
+					_is_script(false)
 {
 	return;
 }
@@ -32,6 +34,7 @@ Header::Header(Header const& other)
 	this->_protocol_v = other._protocol_v;
 	this->_target_resource = other._target_resource;
 	this->_is_header_parsed = other._is_header_parsed;
+	this->is_method_parsed = other.is_method_parsed;
 	this->_is_script = other._is_script;
 	return;
 }

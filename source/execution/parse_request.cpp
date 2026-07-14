@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/07 19:49:10 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/13 23:47:51 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/14 18:36:16 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,9 +99,10 @@ void	parse_line(std::string & line,
 					std::map<std::string,field_function> fields,
 					Request& r)
 {
-	if (header.getMethod().empty())
+	if (!header.is_method_parsed)
 	{
 		parse_method(line, header, r);
+		header.is_method_parsed = true;
 		return;
 	}
 	remove_whitespace(line);
@@ -138,7 +139,7 @@ void	init_map_fields(std::map<std::string, field_function>& map_fields)
 	}
 }
 
-int	parse_fields(std::string& request,
+bool	parse_fields(std::string& request,
 						Request& r)
 {
 	std::string	line;
@@ -152,9 +153,9 @@ int	parse_fields(std::string& request,
 		line = request.substr(0, crlf_pos);
 		consume_until_crlf(request);
 		if (line.empty())
-			return 0;
+			return true;
 		parse_line(line, header, map_fields, r);
 		crlf_pos = request.find(CRLF);
 	}
-	return 1;
+	return false;
 }

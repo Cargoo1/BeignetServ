@@ -16,19 +16,7 @@ server {
 		methods					POST DELETE GET;
 		index					index.html;
 		upload_store			/var/www/html/uploads;
-		client_max_body_size	1k;
-	}
-
-	location /post_body {
-		methods	POST;
-		client_max_body_size	1m;
-		upload_store	/YoupiBanane;
-	}
-
-	location /directory {
-		methods GET;
-		root	/YoupiBanane;
-		index	youpi.bad_extension;
+		client_max_body_size	100m;
 	}
 
 	location /cgi-bin {

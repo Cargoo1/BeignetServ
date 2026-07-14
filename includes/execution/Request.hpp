@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/08 14:23:48 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/13 23:17:38 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/14 18:58:31 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,6 +67,7 @@ public:
 	bool				is_body_read;
 	bool				is_body_being_read;
 	bool				waiting_chunk;
+	size_t				bytes_2_read;
 	std::string			data_name;
 
 private:

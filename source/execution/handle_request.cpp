@@ -6,7 +6,7 @@
 /*   By: ratel <ratel@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/11 19:40:38 by alejandroca       #+#    #+#             */
-/*   Updated: 2026/07/13 21:09:04 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/14 18:36:26 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,14 +44,14 @@ int	handle_request(Client& client, Server const& server)
 	}
 	HttpResponse response;
 	Request&	r = client.getRequest();
-	print_log(TEXT_CYAN, NULL, "CLIENT INPUT:\n------------------------\n" +
+	print_log(TEXT_CYAN, NULL, "CLIENT INPUT:\n@@@@@@@@@@\n" +
 								client.getMsg() +
-								"------------------------\n\n", 0);
+								"<--\n@@@@@@@@@@\n\n", 0);
 	if (!r.getHeader().is_header_parsed())
 	{
 		try
 		{
-			if (parse_fields(client.getNotConstMsg(), r) != 0)
+			if (parse_fields(client.getNotConstMsg(), r) == false)
 				return 1;
 			if (r.getHeader().getFields().find("Host") == r.getHeader().getFields().end())
 				throw Request::ErrorRequest(bad_request, "Host field missing");
@@ -70,14 +70,18 @@ int	handle_request(Client& client, Server const& server)
 		send_response(r, response, client.getFd(), internal_server_error);
 		return -1;
 	}
-	int	return_value = parse_body(r, client.getNotConstMsg());
-	if (return_value > 1)
+	try
 	{
-		send_response(r, response, client.getFd(), return_value);
-		return 0;
+		if (parse_body(r, client.getNotConstMsg()) == false)
+			return 1;
 	}
-	else if (return_value == 1)
-		return 1;
+	catch (Request::ErrorRequest& e)
+	{
+		print_log(TEXT_RED, &e, e.what(), 1);
+		send_response(r, response, client.getFd(), e.getErrorCode());
+		client.getNotConstMsg().clear();
+		return -1;
+	}
 	send_response(r, response, client.getFd(), 0);
 	return 0;
 }

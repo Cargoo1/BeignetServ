@@ -21,6 +21,9 @@ namespace { const std::string getReasonPhrase(int code) {
 		case 201:
 			ret = " Created\r\n";
 			break;
+		case 204:
+			ret	= "No Content\r\n";
+			break;
 		case 301: case 302:
 			ret = " Redirect\r\n";
 			break;
@@ -40,7 +43,7 @@ namespace { const std::string getReasonPhrase(int code) {
 			ret = " Payload Too Large\r\n";
 			break;
 		case 500:
-			ret = " Payload Too Large\r\n";
+			ret = " Internal server error\r\n";
 			break;
 		default:
 			ret = " OK\r\n";

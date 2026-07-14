@@ -6,7 +6,7 @@
 /*   By: ratel <ratel@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 21:54:03 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/10 12:03:34 by ratel            ###   ########.fr       */
+/*   Updated: 2026/07/14 15:41:20 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -127,9 +127,9 @@ int	send_response(Request& r, HttpResponse &response, int cfd, int status_code)
 		send_error_response(response, *r.getServerBlock());
 	msg = response.toHttpString();
 	size_t	len = msg.length();
-	print_log(TEXT_MAGENTA, NULL, "SERVER OUTPUT:\n------------------------\n" +
+	print_log(TEXT_MAGENTA, NULL, "SERVER OUTPUT:\n@@@@@@@@@@\n" +
 								msg +
-								"\n------------------------\n\n", 0);
+								"<-\n@@@@@@@@@@\n\n", 0);
 	sendall(cfd, msg.c_str(), len);
 	r = Request();
 	if (len != msg.length())

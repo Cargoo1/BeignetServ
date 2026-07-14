@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/08 15:51:44 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/13 23:18:18 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/14 19:19:29 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -139,6 +139,10 @@ bool	Request::addBytesRead(size_t bytes)
 	if (bytes > diff)
 		return false;
 	this->_bytes_read += bytes;
+	if (bytes > this->bytes_2_read)
+		this->bytes_2_read = 0;
+	else
+		this->bytes_2_read -= bytes;
 	return true;
 }
 

@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 18:35:09 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/13 23:40:27 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/14 16:04:00 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,7 @@ class Header
 		std::string const&	getFilename(void) const;
 		void				setFilename(std::string const& str);
 		std::string			data_values[2];
+		bool				is_method_parsed;
 	private:
 		std::map<std::string, std::string>	_map_fields;
 		bool								_is_header_parsed;
