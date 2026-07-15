@@ -33,13 +33,18 @@ namespace {
 	char **buildEnv(Request const& r){
 		std::map<std::string, std::string> mapEnv;
 		std::string tmp;
+		const std::string targetR = r.getHeader().getTargetResource();
+		const serverConfig *sb = r.getServerBlock();
+
+
+		mapEnv["DOCUMENT_ROOT"] = sb->getRoot();
+
 		mapEnv["REQUEST_METHOD"] = r.getHeader().getMethod();
-		std::string targetR = r.getHeader().getTargetResource();
+	
 		mapEnv["SCRIPT_NAME"] = getQuery_path(targetR);
 		mapEnv["QUERY_STRING"] = getQuery(targetR);
 
-		const serverConfig *sb = r.getServerBlock();
-		mapEnv["SERVER_NAME"] = sb->serverName();
+		
 		std::string::size_type pos = sb->listen().find_last_of(":");
 		mapEnv["SERVER_PORT"] = sb->listen().substr(pos+1);
 
@@ -50,6 +55,7 @@ namespace {
 		mapEnv["PATH_INFO"] = "";
 		mapEnv["PATH_TRANSLATED"] = "";
 
+
 		char **ret = new char*[mapEnv.size() + 1];
 		std::size_t i = 0;
 		std::map<std::string, std::string>::iterator it = mapEnv.begin();
@@ -58,14 +64,29 @@ namespace {
 		}
 		ret[i] = 0;
 		return (ret);
-}
+	}
 
-char **builArgs(const std::string args){
-		char **ret = new char*[2];
-		ret[0] = ft_dupStrC(args);
-		ret[1] = 0;
-		return ret;
-}
+	char **builArgs(const std::string args){
+			char **ret = new char*[2];
+			ret[0] = ft_dupStrC(args);
+			ret[1] = 0;
+			return ret;
+	}
+
+	std::size_t ft_Dstrlengt (char **str) {
+			std::size_t i = 0;
+			while (str[i] != 0)
+				i++;
+			return (i);
+	}
+
+	void freeExecVariabl(char **toFree) {
+		std::size_t length = ft_Dstrlengt(toFree);
+		for (std::size_t i = 0; i < length; i++) {
+			delete [] toFree[i];
+		}
+		delete [] toFree;
+	}
 }
 
 void	execute_script(Request const& r, HttpResponse& response)
@@ -83,14 +104,14 @@ void	execute_script(Request const& r, HttpResponse& response)
 	int pipefd[2];
 
 	if (pipe(pipefd) == -1)
-		throw Request::ErrorRequest(internal_server_error);
+		throw Request::ErrorRequest(not_found, "CGI: pipe faild");
 	pid_t pid = fork();
 	if (pid == 0) {
 		dup2(pipefd[1], STDOUT_FILENO);
 		execve(cgiPath.c_str(), av, envp);
 	}
 	else if (pid == -1)
-		throw Request::ErrorRequest(internal_server_error);
+		throw Request::ErrorRequest(not_found, "CGI: pid == -1");
 	else {
 		close(pipefd[1]);
 		while ((bytesRead = read(pipefd[0], buffer, sizeof(buffer))) > 0)
