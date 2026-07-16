@@ -26,62 +26,62 @@
 
 class	Request
 {
-public:
-	class	ErrorRequest : public std::exception
-	{
 	public:
-		ErrorRequest(int error_code, char const* reason);
-		int		getErrorCode(void) const;
-		virtual const char *	what() const throw();
+		class	ErrorRequest : public std::exception
+		{
+		public:
+			ErrorRequest(int error_code, char const* reason);
+			int		getErrorCode(void) const;
+			virtual const char *	what() const throw();
+		private:
+			int	_error_code;
+			const char* reason;
+		};
+		Request(void);
+		Request(const Request & other);
+		~Request();
+		
+		Request & operator=(const Request& other);
+
+		const Header&		getHeader(void) const;
+		Header&				getHeader(void);
+		std::string const&	getBody(void) const;
+		void				appendBody(std::string const& str);
+		std::string const&		getResponse(void) const;
+		void					setResponse(std::string const& str);
+		bool					getReqInProg(void) const;
+		void					setReqInProg(bool value);
+		size_t				getBytesRead(void) const;
+		unsigned long long const&	getBodyLen(void) const;
+		bool				addBytesRead(size_t bytes);
+		void				setBodyLen(unsigned long long const& len);
+		bool				addBodyLen(size_t bytes);
+		locationConfig const*	getLocConfBlock(void) const;
+		void					setLocConfBlock(locationConfig const& loc_conf);
+		serverConfig const*	getServerBlock(void) const;
+		int					setServerBlock(serverConfig const& server_block);
+		std::string&		getBoundary(void);
+		void				setBoundary(std::string const& str);
+		std::string&	getRawBody(void);
+		std::stringstream&	getRequestStream(void);
+		bool				is_body_read;
+		bool				is_body_being_read;
+		bool				waiting_chunk;
+		size_t				bytes_2_read;
+		std::string			data_name;
+
 	private:
-		int	_error_code;
-		const char* reason;
-	};
-	Request(void);
-	Request(const Request & other);
-	~Request();
-	
-	Request & operator=(const Request& other);
-
-	const Header&		getHeader(void) const;
-	Header&				getHeader(void);
-	std::string const&	getBody(void) const;
-	void				appendBody(std::string const& str);
-	std::string const&		getResponse(void) const;
-	void					setResponse(std::string const& str);
-	bool					getReqInProg(void) const;
-	void					setReqInProg(bool value);
-	size_t				getBytesRead(void) const;
-	unsigned long long const&	getBodyLen(void) const;
-	bool				addBytesRead(size_t bytes);
-	void				setBodyLen(unsigned long long const& len);
-	bool				addBodyLen(size_t bytes);
-	locationConfig const*	getLocConfBlock(void) const;
-	void					setLocConfBlock(locationConfig const& loc_conf);
-	serverConfig const*	getServerBlock(void) const;
-	int					setServerBlock(serverConfig const& server_block);
-	std::string&		getBoundary(void);
-	void				setBoundary(std::string const& str);
-	std::string&	getRawBody(void);
-	std::stringstream&	getRequestStream(void);
-	bool				is_body_read;
-	bool				is_body_being_read;
-	bool				waiting_chunk;
-	size_t				bytes_2_read;
-	std::string			data_name;
-
-private:
-	Header		_header;
-	bool		_request_in_progress;
-	std::string	_body;
-	std::string	_request;
-	std::string	_boundary;
-	std::stringstream	_raw_body;
-	std::stringstream	_request_stream;
-	unsigned long long	_body_len;
-	locationConfig const*	_locConf_block;
-	serverConfig const*	_server_block;
-	size_t		_bytes_read;
-	std::string	_response;
+		Header					_header;
+		bool					_request_in_progress;
+		std::string				_body;
+		std::string				_request;
+		std::string				_boundary;
+		std::stringstream		_raw_body;
+		std::stringstream		_request_stream;
+		unsigned long long		_body_len;
+		locationConfig const*	_locConf_block;
+		serverConfig const*		_server_block;
+		size_t					_bytes_read;
+		std::string				_response;
 };
 

@@ -19,15 +19,34 @@
 #include <vector>
 #include <sys/stat.h>
 #include <sys/wait.h>
-/*
-	
-*/
 
 namespace { 
 	char *ft_dupStrC(const std::string &s) {
 		char *dup = new char[s.size() + 1];
 		std::memcpy(dup, s.c_str(), s.size() + 1);
 		return dup;
+	}
+
+	std::size_t ft_Dstrlengt (char **str) {
+		std::size_t i = 0;
+		while (str[i] != 0)
+			i++;
+		return (i);
+	}
+
+	void freeExecVariabl(char **toFree) {
+		std::size_t length = ft_Dstrlengt(toFree);
+		for (std::size_t i = 0; i < length; i++) {
+			delete [] toFree[i];
+		}
+		delete [] toFree;
+	}
+
+	std::string getInterpret(const std::string &cgi, const locationConfig &loc) {
+		std::string interpret = cgi.substr(cgi.find_last_of("."));
+		if (interpret == ".py")
+		else if (interpret == "")
+		else
 	}
 
 	char **buildEnv(Request const& r){
@@ -66,27 +85,14 @@ namespace {
 		return (ret);
 	}
 
-	char **builArgs(const std::string args){
-			char **ret = new char*[2];
-			ret[0] = ft_dupStrC(args);
-			ret[1] = 0;
-			return ret;
+	char **builArgs(const std::string &script, const std::string interpretor) {
+		char **ret = new char*[3];
+		ret[0] = ft_dupStrC(interpretor);
+		ret[1] = ft_dupStrC(script);
+		ret[2] = 0;
+		return ret;
 	}
 
-	std::size_t ft_Dstrlengt (char **str) {
-			std::size_t i = 0;
-			while (str[i] != 0)
-				i++;
-			return (i);
-	}
-
-	void freeExecVariabl(char **toFree) {
-		std::size_t length = ft_Dstrlengt(toFree);
-		for (std::size_t i = 0; i < length; i++) {
-			delete [] toFree[i];
-		}
-		delete [] toFree;
-	}
 }
 
 void	execute_script(Request const& r, HttpResponse& response)
@@ -94,13 +100,14 @@ void	execute_script(Request const& r, HttpResponse& response)
 	std::string targetR = r.getHeader().getTargetResource();
 	std::string query = getQuery(targetR);
 	std::string cgiPath = getQuery_path(targetR);
+	std::string interpretor = getInterpret(targetR);
 	std::string scriptRet;
 	char buffer[4096];
 	ssize_t bytesRead;
 	int status;
 
 	char **envp = buildEnv(r);
-	char **av = builArgs(cgiPath);
+	char **av = builArgs(query, interpretor);
 	int pipefd[2];
 
 	if (pipe(pipefd) == -1)
@@ -108,7 +115,9 @@ void	execute_script(Request const& r, HttpResponse& response)
 	pid_t pid = fork();
 	if (pid == 0) {
 		dup2(pipefd[1], STDOUT_FILENO);
-		execve(cgiPath.c_str(), av, envp);
+		close(pipefd[0]);
+		close(pipefd[1]);
+		execve(av[0], av, envp);
 	}
 	else if (pid == -1)
 		throw Request::ErrorRequest(not_found, "CGI: pid == -1");
