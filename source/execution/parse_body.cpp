@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/01 13:36:16 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/14 19:20:33 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/16 19:06:23 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,12 +90,14 @@ bool	read_body(Request& r, std::string& raw_body)
 	std::string	temp_str;
 	std::map<std::string, std::string>::const_iterator	it = r.getHeader().getFields().find("Content-Type");
 
+	if (!r.bytes_2_read)
+		return true;
 	if (r.getBytesRead() + r.bytes_2_read > r.getLocConfBlock()->getCMBS())
 		throw Request::ErrorRequest(content_too_large, "Body max size reached!");
 	if (it->second.find("multipart/") != std::string::npos)
 		return read_with_boundaries(r, raw_body);
 	temp_str = raw_body.substr(0, r.bytes_2_read);
-	r.getRawBody().append(temp_str, temp_str.length());
+	r.getRawBody().append(temp_str, 0, temp_str.length());
 	r.addBytesRead(temp_str.length());
 	raw_body.erase(0, temp_str.length());
 	if (r.bytes_2_read != 0)
@@ -108,12 +110,13 @@ bool	read_chunked_body(Request& r, std::string& raw_body)
 	size_t crlf_pos;
 	crlf_pos = raw_body.find(CRLF, 0, CRLF_LEN);
 	std::string	chunk_size;
-	while (crlf_pos != raw_body.npos)
+	while (crlf_pos != raw_body.npos || r.waiting_chunk)
 	{
-		chunk_size = raw_body.substr(0, crlf_pos);
-		consume_until_crlf(raw_body);
 		if (!r.waiting_chunk)
 		{
+			chunk_size = raw_body.substr(0, crlf_pos);
+			print_log(TEXT_BLUE, NULL, "CHUNKED SIZE READ: " + chunk_size + '\n', false);
+			consume_until_crlf(raw_body);
 			r.bytes_2_read = hex_to_int(chunk_size);
 			if (r.bytes_2_read == 0)
 			{
@@ -126,6 +129,9 @@ bool	read_chunked_body(Request& r, std::string& raw_body)
 			r.waiting_chunk = true;
 			return false;
 		}
+		print_log(TEXT_BLUE, NULL, "DONE READING: " + raw_body + "<-\n", false);
+		if (raw_body.find(CRLF) == raw_body.npos)
+			return false;
 		raw_body.erase(0, CRLF_LEN);
 		r.waiting_chunk = false;
 		crlf_pos = raw_body.find(CRLF, 0, CRLF_LEN);

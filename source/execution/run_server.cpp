@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 19:10:40 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/14 18:37:09 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/16 23:53:21 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -161,7 +161,7 @@ void	get_client_request(Server& server, int fd)
 	Client&	client = server.getClients().at(fd);
 	int		status_code = 0;
 
-	if (!recv_msg(client.getNotConstMsg(), fd))
+	if (recv_msg(client.getNotConstMsg(), fd) != 0)
 	{
 		server.deleteClient(fd);
 		return;
@@ -170,15 +170,23 @@ void	get_client_request(Server& server, int fd)
 	while (!client.getMsg().empty())
 	{
 		status_code = handle_request(server.getClients().at(fd), server);
-		if (status_code == 1 || status_code < 0)
+		if (status_code != 0)
 			break;
 	}
+	if (status_code == 2)
+		server.addPipe(client.getRequest().getPipeFd(), EPOLLIN, client);
 }
 
 void	process_connection(Server&	server, int epollcount)
 {
 	for (int i = 0; i < epollcount; i++)
 	{
+		if (server.getPipes().find(server.getEventQueue()[i].data.fd)
+			!= server.getPipes().end())
+		{
+			get_script_output(*server.getPipes().at(server.getEventQueue()[i].data.fd));
+			continue;
+		}
 		if (server.getEventQueue()[i].events & EPOLLHUP)
 		{
 			server.deleteClient(server.getEventQueue()[i].data.fd);

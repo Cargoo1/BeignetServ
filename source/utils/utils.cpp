@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/03 17:41:28 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/13 17:06:11 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/16 23:45:37 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,8 +25,6 @@
 #include <sys/types.h>
 #include <utils.hpp>
 #include <vector>
-
-#define CGI_DIR "/cgi_bin\0"
 
 std::string const generate_reason_phrase(int code)
 {
@@ -223,43 +221,20 @@ std::string getQuery_path(const std::string path) {
 	return (newPath);
 }
 
-bool	recv_msg(std::string& str, int cfd)
+int		recv_msg(std::string& str, int cfd)
 {
 	char	buff[BUFF_SIZE];
 
 	std::memset(buff, 0, BUFF_SIZE);
 	int		bytes_read = recv(cfd, &buff, BUFF_SIZE, 0);
-	if (bytes_read <= 0)
-		return false;
+	if (bytes_read == 0)
+		return 1;
+	else if (bytes_read < 0)
+		return -1;
 	str.append(buff, bytes_read);
-	return true;
+	return 0;
 }
 
-bool	is_in_cgi_dir(std::string const& uri)
-{
-	/*
-	   /cgi_bin 
-	 /cgi_bin/
-	 /cgi_bin/yes.py
-	 */
-	size_t dir_pos = uri.find(CGI_DIR, 0);
-	if (dir_pos == std::string::npos)
-		return false;
-	dir_pos += std::strlen(CGI_DIR);
-	if (dir_pos > uri.length())
-		return false;
-	if (dir_pos < uri.length() && uri.at(dir_pos) != '/')
-		return false;
-	/*
-	size_t dir_pos = uri.find_last_of('/');
-	if (dir_pos == uri.length() - 1)
-		dir_pos = uri.find_last_of('/', dir_pos - 1);
-	if (uri.compare(dir_pos + 1, std::strlen(CGI_DIR) + 1, CGI_DIR) == 0)
-		return true;
-	return false;
-	*/
-	return true;
-}
 
 int	split(std::vector<std::string>& vector, std::string const& str, char c)
 {

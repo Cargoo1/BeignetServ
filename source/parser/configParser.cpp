@@ -147,19 +147,19 @@ std::size_t	convert_clientBodySize(const std::string &conv) {
 		switch (conv.at(conv.size()-1))
 		{
 			case 'k':
-				if (ret * 1024 > max_size)
+				if (ret * 1000 > max_size)
 					throw std::out_of_range("Error: risk overflow client_max_body_size");
-				ret = ret * 1024;
+				ret = ret * 1000;
 				break;
 			case 'm':
-				if (ret * 1024 * 1024 > max_size)
+				if (ret * 1e6 > max_size)
 					throw std::out_of_range("Error: risk overflow client_max_body_size");
-				ret = ret * 1024 * 1024;
+				ret = ret * 1e6;
 				break;
 			case 'g':
-				if (ret * 1024 * 1024 * 1024 > max_size)
+				if (ret * 1e9 > max_size)
 					throw std::out_of_range("Error: risk overflow client_max_body_size");
-				ret = ret * 1024 * 1024 * 1024;
+				ret = ret * 1e9;
 				break;
 			default:
 				break;

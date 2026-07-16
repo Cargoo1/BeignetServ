@@ -6,11 +6,12 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/08 15:51:44 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/14 19:19:29 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/16 23:48:58 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Header.hpp"
+#include "HttpResponse.hpp"
 #include "utils.hpp"
 #include <Request.hpp>
 #include <cstddef>
@@ -30,6 +31,7 @@ Request::Request()
 	this->is_body_read = false;
 	this->waiting_chunk = false;
 	this->is_body_being_read = false;
+	this->_pipe_fd = -1;
 	return;
 }
 
@@ -101,15 +103,9 @@ int		Request::ErrorRequest::getErrorCode(void) const
 	return this->_error_code;
 }
 
-std::string const&		Request::getResponse(void) const
+HttpResponse&		Request::getResponse(void)
 {
 	return this->_response;
-}
-
-void					Request::setResponse(std::string const& str)
-{
-	this->_response = str;
-	return;
 }
 
 bool					Request::getReqInProg(void) const
@@ -201,4 +197,22 @@ void	Request::setBoundary(std::string const& str)
 std::string&	Request::getBoundary(void)
 {
 	return this->_boundary;
+}
+
+bool	Request::setPipeFd(int pipe_fd)
+{
+	if (pipe_fd < 0)
+		return false;
+	this->_pipe_fd = pipe_fd;
+	return true;
+}
+
+int		Request::getPipeFd(void) const
+{
+	return this->_pipe_fd;
+}
+
+std::string&	Request::getScripOutput(void)
+{
+	return this->_script_output;
 }

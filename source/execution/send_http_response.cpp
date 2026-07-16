@@ -6,7 +6,7 @@
 /*   By: ratel <ratel@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 21:54:03 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/14 15:41:20 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/16 23:06:20 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,8 +119,6 @@ int	send_response(Request& r, HttpResponse &response, int cfd, int status_code)
 {
 	if (status_code)
 		response.setStatusCode(status_code);
-	else
-		router(r, response);
 	std::string msg;
 	response.addField("Server", "Beignetserv/0.1");
 	if (response.getStatusCode() >= 400)

@@ -6,13 +6,14 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/08 14:23:48 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/14 18:58:31 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/16 23:48:11 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
 #include "Header.hpp"
+#include "HttpResponse.hpp"
 #include "locationConfig.hpp"
 #include <serverConfig.hpp>
 #include <cstddef>
@@ -47,8 +48,8 @@ class	Request
 		Header&				getHeader(void);
 		std::string const&	getBody(void) const;
 		void				appendBody(std::string const& str);
-		std::string const&		getResponse(void) const;
-		void					setResponse(std::string const& str);
+		HttpResponse&		getResponse(void);
+		//void					setResponse(std::string const& str);
 		bool					getReqInProg(void) const;
 		void					setReqInProg(bool value);
 		size_t				getBytesRead(void) const;
@@ -69,6 +70,9 @@ class	Request
 		bool				waiting_chunk;
 		size_t				bytes_2_read;
 		std::string			data_name;
+		bool				setPipeFd(int pipe_fd);
+		int					getPipeFd(void) const;
+		std::string&		getScripOutput(void);
 
 	private:
 		Header					_header;
@@ -78,10 +82,12 @@ class	Request
 		std::string				_boundary;
 		std::stringstream		_raw_body;
 		std::stringstream		_request_stream;
+		std::string				_script_output;
+		int						_pipe_fd;
+		HttpResponse			_response;
 		unsigned long long		_body_len;
 		locationConfig const*	_locConf_block;
 		serverConfig const*		_server_block;
 		size_t					_bytes_read;
-		std::string				_response;
 };
 

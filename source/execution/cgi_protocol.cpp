@@ -6,16 +6,22 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/30 19:17:45 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/30 20:54:03 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/16 23:57:05 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "Client.hpp"
 #include "HttpResponse.hpp"
 #include "Request.hpp"
 #include "locationConfig.hpp"
+#include "send_http_response.hpp"
 #include "utils.hpp"
+#include "utils_logs.hpp"
 
 #include <bits/stdc++.h>
+#include <cerrno>
+#include <cstring>
+#include <sys/socket.h>
 #include <vector>
 #include <sys/stat.h>
 #include <sys/wait.h>
@@ -35,6 +41,7 @@ namespace {
 	}
 
 	void freeExecVariabl(char **toFree) {
+		
 		std::size_t length = ft_Dstrlengt(toFree);
 		for (std::size_t i = 0; i < length; i++) {
 			delete [] toFree[i];
@@ -42,38 +49,42 @@ namespace {
 		delete [] toFree;
 	}
 
-	std::string getInterpret(const std::string &cgi, const locationConfig &loc) {
+	t_scripts_ext find_extension(const std::string &cgi, const locationConfig &loc) {
 		std::string interpret = cgi.substr(cgi.find_last_of("."));
+		(void)loc;
 		if (interpret == ".py")
-		else if (interpret == "")
-		else
+			return PYTHON;
+		else if (interpret == ".cgi")
+			return CGI_EXT;
+		else if (interpret == ".ws")
+			return WS;
+		return INVALID;
 	}
 
 	char **buildEnv(Request const& r){
 		std::map<std::string, std::string> mapEnv;
 		std::string tmp;
 		const std::string targetR = r.getHeader().getTargetResource();
-		const serverConfig *sb = r.getServerBlock();
+		const serverConfig *server_block = r.getServerBlock();
 
 
-		mapEnv["DOCUMENT_ROOT"] = sb->getRoot();
-
+		mapEnv["DOCUMENT_ROOT"] = server_block->getRoot();
 		mapEnv["REQUEST_METHOD"] = r.getHeader().getMethod();
-	
-		mapEnv["SCRIPT_NAME"] = getQuery_path(targetR);
-		mapEnv["QUERY_STRING"] = getQuery(targetR);
-
-		
-		std::string::size_type pos = sb->listen().find_last_of(":");
-		mapEnv["SERVER_PORT"] = sb->listen().substr(pos+1);
-
+		mapEnv["SCRIPT_NAME"] = r.getHeader().getTargetResource();
+		mapEnv["QUERY_STRING"] = r.getHeader().getQueryStr();
+		std::string::size_type pos = server_block->listen().find_last_of(":");
+		mapEnv["SERVER_PORT"] = server_block->listen().substr(pos+1);
 		mapEnv["SERVER_PROTOCOL"] = r.getHeader().getProtocolV();
 		mapEnv["GATEWAY_INTERFACE"] = "CGI/1.1";
 		mapEnv["SERVER_SOFTWARE"] = "BeignetServ/1.0";
-		mapEnv["REMOTE_ADDR"] = ""; //Need ip adress of client
-		mapEnv["PATH_INFO"] = "";
+		//mapEnv["REMOTE_ADDR"] = ; //Need ip adress of client
+		mapEnv["PATH_INFO"] = r.getHeader().getPathInfo();
 		mapEnv["PATH_TRANSLATED"] = "";
-
+		mapEnv["CONTENT_LENGTH"] = toStr(r.getBody().length());
+		if (!r.getHeader().getContentType())
+			mapEnv["CONTENT_TYPE"] = "";
+		else
+			mapEnv["CONTENT_TYPE"] = *r.getHeader().getContentType();
 
 		char **ret = new char*[mapEnv.size() + 1];
 		std::size_t i = 0;
@@ -86,46 +97,71 @@ namespace {
 	}
 
 	char **builArgs(const std::string &script, const std::string interpretor) {
-		char **ret = new char*[3];
-		ret[0] = ft_dupStrC(interpretor);
-		ret[1] = ft_dupStrC(script);
-		ret[2] = 0;
+		char **ret = new char*[2];
+		(void)interpretor;
+		//ret[0] = ft_dupStrC(interpretor);
+		ret[0] = ft_dupStrC(script);
+		ret[1] = 0;
 		return ret;
 	}
 
 }
 
-void	execute_script(Request const& r, HttpResponse& response)
+int	get_script_output(Client& client)
 {
-	std::string targetR = r.getHeader().getTargetResource();
-	std::string query = getQuery(targetR);
-	std::string cgiPath = getQuery_path(targetR);
-	std::string interpretor = getInterpret(targetR);
-	std::string scriptRet;
-	char buffer[4096];
-	ssize_t bytesRead;
-	int status;
+	Request&	r = client.getRequest();
+	if (!recv_msg(r.getScripOutput(), r.getPipeFd()))
+	{
+		r.getResponse().setBody(r.getScripOutput());
+		send_response(r, r.getResponse(), client.getFd(), 0);
+		return 0;
+	}
+	return 1;
+}
 
-	char **envp = buildEnv(r);
-	char **av = builArgs(query, interpretor);
+int	execute_script(Request const& r, HttpResponse& response)
+{
+	std::string script_path = r.getHeader().getTargetResource();
+	(void)response;
+	std::string query = r.getHeader().getQueryStr();
+	//std::string cgiPath = getQuery_path(targetR);
+	t_scripts_ext extension = find_extension(script_path, *r.getLocConfBlock());
+	(void)extension;
+	std::string scriptRet;
+	//char buffer[4096];
+	//ssize_t bytesRead;
+	//int status;
+
+	char **env = buildEnv(r);
+	char **args = builArgs(query, "");
 	int pipefd[2];
 
 	if (pipe(pipefd) == -1)
-		throw Request::ErrorRequest(not_found, "CGI: pipe faild");
+		throw Request::ErrorRequest(internal_server_error, "CGI: pipe faild");
 	pid_t pid = fork();
 	if (pid == 0) {
 		dup2(pipefd[1], STDOUT_FILENO);
 		close(pipefd[0]);
 		close(pipefd[1]);
-		execve(av[0], av, envp);
+		execve(args[0], args, env);
+		print_log(TEXT_RED, NULL, strerror(errno), true);
+		//need to exit properly!!!!!
+		freeExecVariabl(args);
+		freeExecVariabl(env);
+		exit(1);
 	}
-	else if (pid == -1)
-		throw Request::ErrorRequest(not_found, "CGI: pid == -1");
-	else {
-		close(pipefd[1]);
-		while ((bytesRead = read(pipefd[0], buffer, sizeof(buffer))) > 0)
-			scriptRet.append(buffer, bytesRead);
-		waitpid(pid, &status, 0);
-		close(pipefd[0]);
+	if (pid == -1)
+	{
+		freeExecVariabl(args);
+		freeExecVariabl(env);
+		throw Request::ErrorRequest(internal_server_error, "CGI: pid == -1");
 	}
+	close(pipefd[1]);
+	return pipefd[0];
+	/*
+	while ((bytesRead = read(pipefd[0], buffer, sizeof(buffer))) > 0)
+		scriptRet.append(buffer, bytesRead);
+	waitpid(pid, &status, 0);
+	close(pipefd[0]);
+	*/
 }

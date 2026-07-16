@@ -19,34 +19,37 @@ namespace { const std::string getReasonPhrase(int code) {
 	{
 		
 		case 201:
-			ret = " Created\r\n";
+			ret = "Created\r\n";
 			break;
 		case 204:
 			ret	= "No Content\r\n";
 			break;
 		case 301: case 302:
-			ret = " Redirect\r\n";
+			ret = "Redirect\r\n";
 			break;
 		case bad_request:
-			ret = " Bad Request\r\n";
+			ret = "Bad Request\r\n";
 			break;
 		case forbiden:
-			ret = " Forbiden\r\n";
+			ret = "Forbiden\r\n";
 			break;
 		case not_found:
-			ret = " Not Found\r\n";
+			ret = "Not Found\r\n";
 			break;
 		case method_not_allowed:
-			ret = " Method Not Allowed\r\n";
+			ret = "Method Not Allowed\r\n";
 			break;
 		case payload_too_large:
-			ret = " Payload Too Large\r\n";
+			ret = "Payload Too Large\r\n";
+			break;
+		case content_too_large:
+			ret = "Content Too Large\r\n";
 			break;
 		case 500:
-			ret = " Internal server error\r\n";
+			ret = "Internal server error\r\n";
 			break;
 		default:
-			ret = " OK\r\n";
+			ret = "OK\r\n";
 			break;
 	}
 	return (ret);

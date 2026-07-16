@@ -108,6 +108,6 @@ void PostMethod::executeMethod(HttpResponse &rsp) {
 	if (!postFile(path, body, this->_request.getHeader().getFilename()))
 		throw Request::ErrorRequest(internal_server_error, "POST: postFile(path, body) failed");
 
-	rsp.setStatusCode(204);
+	rsp.setStatusCode(201);
 	rsp.addField("Content-Length", "0");
 }

@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 18:35:09 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/14 16:04:00 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/16 21:41:17 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,8 @@ class Header
 		std::string&							getContentLenght(void);
 		const std::string&							getContentLenght(void) const;
 
-		std::string&						getQueryStr(void);
+		std::string const&						getQueryStr(void) const;
+		std::string const&						getPathInfo(void) const;
 
 		bool	setMethod(std::string& method);
 		void	setTargetResource(std::string& uri, Request& r);
@@ -50,6 +51,7 @@ class Header
 		void	setHost(std::string& host);
 		void	setContent_len(std::string& content_len);
 		void	setContent_type(std::string& content_type);
+		std::string const*	getContentType(void) const;
 		void	setContent_dispo(std::string& content_type);
 		std::string&	getBoundary(void);
 		void	setTransfer_encoding(std::string& transfer_encoding);
@@ -63,11 +65,12 @@ class Header
 	private:
 		std::map<std::string, std::string>	_map_fields;
 		bool								_is_header_parsed;
-		bool								_is_script;
+		bool								_is_a_script;
 		std::string							_method;
 		std::string							_boundary;
 		std::string							_target_resource; //path
 		std::string							_query_string;
+		std::string							_path_info;
 		std::string							_protocol_v;
 		std::string							_file_name;
 };

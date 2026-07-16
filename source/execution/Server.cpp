@@ -6,10 +6,11 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/12 15:15:33 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/30 15:56:57 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/16 23:52:55 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "utils.hpp"
 #include "utils_logs.hpp"
 #include <Client.hpp>
 #include <ctime>
@@ -117,6 +118,18 @@ void	Server::addClient(int fd, uint32_t events, std::string const& ip, std::stri
 				", listen fd: " + ss.str() + '\n';
 	print_log(TEXT_GREEN, NULL, log, 0);
 }
+
+void	Server::addPipe(int pipe_fd, uint32_t events, Client& client)
+{
+	std::string	log;
+	std::stringstream	ss;
+	this->setEinf(pipe_fd, events);
+	epoll_ctl(this->_epollfd, EPOLL_CTL_ADD, pipe_fd, &this->_einf);
+	this->_pipes.insert(std::pair<int, Client*>(pipe_fd, &client));
+	log = "Pipe added to Epoll pool: " + toStr(pipe_fd) + "\n";
+	print_log(TEXT_GREEN, NULL, log, 0);
+}
+
 void	Server::deleteClient(int fd)
 {
 	std::string	fd_str;
@@ -129,4 +142,9 @@ void	Server::deleteClient(int fd)
 	epoll_ctl(this->_epollfd, EPOLL_CTL_DEL, fd, &this->_einf);
 	close(fd);
 	this->_clients.erase(fd);
+}
+
+std::map<int, Client*>	Server::getPipes(void)
+{
+	return this->_pipes;
 }

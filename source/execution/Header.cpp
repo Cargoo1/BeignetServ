@@ -6,7 +6,7 @@
 /*   By: ratel <ratel@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 19:03:36 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/14 16:04:51 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/16 21:40:58 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@
 
 Header::Header() : is_method_parsed(false),
 					_is_header_parsed(false),
-					_is_script(false)
+					_is_a_script(false)
 {
 	return;
 }
@@ -35,7 +35,7 @@ Header::Header(Header const& other)
 	this->_target_resource = other._target_resource;
 	this->_is_header_parsed = other._is_header_parsed;
 	this->is_method_parsed = other.is_method_parsed;
-	this->_is_script = other._is_script;
+	this->_is_a_script = other._is_a_script;
 	return;
 }
 
@@ -169,9 +169,19 @@ void	Header::setTargetResource(std::string& uri, Request& r)
 		throw Request::ErrorRequest(bad_request, "Empty URI");
 	std::string	prefix = ".";
 	std::string	root;
-	size_t separator_pos = parse_path(uri);
+	size_t	separator_pos = parse_path(uri);
+	size_t	path_extra_pos = uri.npos;
 	r.setLocConfBlock(find_location_block(uri, *r.getServerBlock()));
 	this->_target_resource = uri.substr(0, separator_pos);
+	if (is_a_cgi_request(this->_target_resource, path_extra_pos))
+	{
+		if (path_extra_pos != std::string::npos)
+		{
+			this->_path_info = this->_target_resource.substr(path_extra_pos);
+			this->_target_resource = this->_target_resource.substr(0, path_extra_pos);
+		}
+		this->_is_a_script = true;
+	}
 	if (r.getLocConfBlock()->getRoot().empty())
 		root = r.getServerBlock()->getRoot();
 	else
@@ -179,8 +189,6 @@ void	Header::setTargetResource(std::string& uri, Request& r)
 	if (root.at(0) != '/')
 		prefix += '/';
 	this->_target_resource = prefix + root + this->_target_resource;
-	if (find_type(this->_target_resource) == CGI_PY || is_in_cgi_dir(uri))
-		this->_is_script = true;
 	if (separator_pos == std::string::npos)
 		return;
 	if (separator_pos < uri.length())
@@ -324,7 +332,7 @@ void	Header::set_is_header_parsed(bool value)
 
 bool	Header::is_a_script(void) const
 {
-	return this->_is_script;
+	return this->_is_a_script;
 }
 
 std::string const& Header::getFilename(void) const
@@ -335,4 +343,21 @@ std::string const& Header::getFilename(void) const
 void	Header::setFilename(std::string const& str)
 {
 	this->_file_name = str;
+}
+
+std::string const&	Header::getQueryStr(void) const
+{
+	return this->_query_string;
+}
+
+std::string const& Header::getPathInfo(void) const
+{
+	return this->_path_info;
+}
+
+std::string const*	Header::getContentType(void) const
+{
+	if (this->_map_fields.find("Content-Type") == this->_map_fields.end())
+		return NULL;
+	return &this->_map_fields.at("Content-Type");
 }

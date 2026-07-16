@@ -6,12 +6,13 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/03 17:39:25 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/13 17:06:35 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/16 23:50:10 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
+#include <cstddef>
 #include <string>
 
 #include <sstream>
@@ -20,6 +21,10 @@
 
 #include <vector>
 
+#include <string>
+
+#include <cstring>
+
 #include "serverConfig.hpp"
 
 enum MIME { JPG, PNG, HTML, CSS,TXT, CGI_PY, APP};
@@ -27,6 +32,8 @@ enum MIME { JPG, PNG, HTML, CSS,TXT, CGI_PY, APP};
 #define BUFF_SIZE 256
 
 #define NULL_STR ""
+
+#define CGI_DIR "/cgi_bin"
 
 template <typename T> 
 std::string toStr(T nbr) {
@@ -54,6 +61,14 @@ enum	client_error
 	internal_server_error = 500
 };
 
+typedef enum	e_scripts_ext
+{
+	INVALID = -1,
+	PYTHON,
+	CGI_EXT,
+	WS
+}	t_scripts_ext;
+
 std::string findExt(const std::string &path);
 
 bool	decode_percent_encoding(std::string& str, size_t& pos);
@@ -72,7 +87,7 @@ std::string getQuery(const std::string path);
 
 std::string getQuery_path(const std::string path);
 
-bool	recv_msg(std::string& str, int cfd);
+int		recv_msg(std::string& str, int cfd);
 
 bool	is_in_cgi_dir(std::string const& uri);
 
@@ -91,3 +106,7 @@ int	hex_to_int(std::string str);
 bool	remove_cr(std::string& str);
 
 void	consume_until_crlf(std::string& str);
+
+bool	is_a_cgi_request(std::string const& uri, size_t& path_extra_pos);
+
+int		get_script_output(Client& client);

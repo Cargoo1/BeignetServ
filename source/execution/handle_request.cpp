@@ -6,7 +6,7 @@
 /*   By: ratel <ratel@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/11 19:40:38 by alejandroca       #+#    #+#             */
-/*   Updated: 2026/07/14 18:36:26 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/16 23:09:02 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@
 #include <sys/socket.h>
 #include <Client.hpp>
 #include <serverConfig.hpp>
+#include <HttpMethodDispatcher.hpp>
 #include <send_http_response.hpp>
 
 // namespace {
@@ -82,6 +83,9 @@ int	handle_request(Client& client, Server const& server)
 		client.getNotConstMsg().clear();
 		return -1;
 	}
+	int router_status = router(r, response);
+	if (router_status == 2)
+		return router_status;
 	send_response(r, response, client.getFd(), 0);
 	return 0;
 }
