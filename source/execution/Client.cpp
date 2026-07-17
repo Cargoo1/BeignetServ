@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/14 19:50:59 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/29 16:13:41 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/17 13:07:17 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,4 +88,14 @@ std::string&	Client::getNotConstMsg(void)
 std::string const&	Client::getMsg(void) const
 {
 	return this->_message;
+}
+
+time_t	Client::getLastScriptComm(void) const
+{
+	return this->_last_script_communication;
+}
+
+void			Client::setLastScriptComm(void)
+{
+	std::time(&this->_last_script_communication);
 }

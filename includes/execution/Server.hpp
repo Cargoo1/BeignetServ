@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/12 15:08:39 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/16 23:54:55 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/17 13:32:24 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,13 +41,17 @@ public:
 	std::map<int, Client>&		getClients(void);
 	time_t						getLastCheck(void) const;
 	void						setLastCheck(void);
+	time_t						getLastCheckScripts(void) const;
+	void						setLastCheckScripts(void);
 	void						addClient(int fd, uint32_t events, std::string const& ip, std::string const& port);
 	void						addPipe(int pipe_fd, uint32_t events, Client& client);
-	std::map<int, Client*>		getPipes(void);
+	std::map<int, Client*> const&		getPipes(void);
 	void						deleteClient(int fd);
+	void						deletePipe(int pipe_fd);
 private:
 	std::vector<int>			_sfds;
 	time_t						_last_check;
+	time_t						_last_check_scripts;
 	int							_epollfd;
 	std::vector<serverConfig> const&	_server_conf;
 	struct epoll_event			_einf, _eventQueue[MAX_EVENTS];

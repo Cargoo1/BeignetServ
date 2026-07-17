@@ -6,13 +6,14 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/30 19:17:45 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/16 23:57:05 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/17 13:33:31 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
 #include "HttpResponse.hpp"
 #include "Request.hpp"
+#include "Server.hpp"
 #include "locationConfig.hpp"
 #include "send_http_response.hpp"
 #include "utils.hpp"
@@ -116,7 +117,29 @@ int	get_script_output(Client& client)
 		send_response(r, r.getResponse(), client.getFd(), 0);
 		return 0;
 	}
+	client.setLastScriptComm();
 	return 1;
+}
+
+void	check_idle_scripts(Server& server)
+{
+	time_t	curr_time = 0;
+
+	std::time(&curr_time);
+	if (curr_time - server.getLastCheckScripts() < 1)
+		return;
+	std::map<int, Client*>::const_iterator	it;
+	for (it = server.getPipes().begin(); it != server.getPipes().end();)
+	{
+		if (curr_time - it->second->getLastScriptComm() < 60)
+		{
+			++it;
+			continue;
+		}
+		print_log(TEXT_YELLOW, NULL, "Removing iddle pipe: " + toStr(it->first), 0);
+		server.deletePipe((it++)->first);
+	}
+	server.setLastCheckScripts();
 }
 
 int	execute_script(Request const& r, HttpResponse& response)

@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 19:10:40 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/16 23:53:21 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/17 13:32:42 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -198,6 +198,7 @@ void	process_connection(Server&	server, int epollcount)
 			get_client_request(server, server.getEventQueue()[i].data.fd);
 	}
 	check_idle_clients(server);
+	check_idle_scripts(server);
 }
 
 #define MAX_EVENTS 10

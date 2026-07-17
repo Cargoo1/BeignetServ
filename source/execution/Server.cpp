@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/12 15:15:33 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/16 23:52:55 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/17 13:28:55 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -144,7 +144,25 @@ void	Server::deleteClient(int fd)
 	this->_clients.erase(fd);
 }
 
-std::map<int, Client*>	Server::getPipes(void)
+std::map<int, Client*> const&	Server::getPipes(void)
 {
 	return this->_pipes;
+}
+
+void	Server::deletePipe(int pipe_fd)
+{
+	print_log(TEXT_YELLOW, NULL, "Closing and deleting pipe: " + toStr(pipe_fd), 0);
+	epoll_ctl(this->_epollfd, EPOLL_CTL_DEL, pipe_fd, &this->_einf);
+	close(pipe_fd);
+	this->_pipes.erase(pipe_fd);
+}
+
+time_t	Server::getLastCheckScripts(void) const
+{
+	return this->_last_check_scripts;
+}
+
+void	Server::setLastCheckScripts(void)
+{
+	std::time(&this->_last_check_scripts);
 }
