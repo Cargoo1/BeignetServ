@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CGI Bin</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <main>
+    <section class="hero">
+      <h1>Emplacement dédié aux scripts CGI.</h1>
+      <p>
+        Cette page sert de point d&apos;entrée pour tester un script CGI en GET ou en POST sans quitter l&apos;interface.
+      </p>
+      <div class="links">
+        <a class="button" href="/">Retour au site</a>
+      </div>
+    </section>
+
+    <section class="shell">
+      <div class="panel">
+        <h2>Zone de test CGI</h2>
+        <p>
+          Renseigne une cible CGI, puis envoie soit une requête GET avec des paramètres dans l&apos;URL, soit une requête POST avec un corps de formulaire.
+        </p>
+
+        <div class="form-grid">
+          <label class="span-2">
+            Script CGI cible
+            <input id="cgi-target" type="text" value="/cgi-bin/yes.py" placeholder="/cgi-bin/yes.py">
+          </label>
+
+          <label>
+            Paramètre GET
+            <input id="cgi-get-data" type="text" value="name=Beignet&mode=get" placeholder="name=Beignet&mode=get">
+          </label>
+
+          <label>
+            Corps POST
+            <textarea id="cgi-post-data" placeholder="name=Beignet&mode=post">name=Beignet&mode=post</textarea>
+          </label>
+        </div>
+
+        <div class="links">
+          <button class="button" type="button" onclick="sendCgi('GET')">Envoyer en GET</button>
+          <button class="button secondary" type="button" onclick="sendCgi('POST')">Envoyer en POST</button>
+        </div>
+
+        <p id="cgi-status" class="status" aria-live="polite">Choisis une cible CGI pour lancer le test.</p>
+        <pre id="cgi-response" class="status" style="white-space: pre-wrap;">La réponse du script apparaîtra ici.</pre>
+
+        <h2 class="section-title">Repères</h2>
+        <ul>
+          <li>Place ici tes scripts <strong>.py</strong> ou <strong>.php</strong>.</li>
+          <li>Le test GET ajoute les paramètres à l&apos;URL.</li>
+          <li>Le test POST envoie un corps de formulaire pour vérifier le dispatcher CGI.</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    async function sendCgi(method) {
+      const status = document.getElementById('cgi-status');
+      const responseBox = document.getElementById('cgi-response');
+      const target = document.getElementById('cgi-target').value.trim();
+      const getData = document.getElementById('cgi-get-data').value.trim();
+      const postData = document.getElementById('cgi-post-data').value.trim();
+
+      if (!target) {
+        status.textContent = 'Renseigne un script CGI cible avant de tester.';
+        return;
+      }
+
+      let url = target;
+      let options = { method: method };
+
+      if (method === 'GET') {
+        const query = getData ? (getData.startsWith('?') ? getData.slice(1) : getData) : '';
+        if (query) {
+          url += (url.includes('?') ? '&' : '?') + query;
+        }
+      } else {
+        options.headers = { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' };
+        options.body = postData;
+      }
+
+      status.textContent = 'Envoi de la requête ' + method + ' vers ' + url + '...';
+      responseBox.textContent = 'En attente de la réponse...';
+
+      try {
+        const response = await fetch(url, options);
+        const body = await response.text();
+        status.textContent = 'Réponse ' + response.status + ' reçue depuis ' + url + '.';
+        responseBox.textContent = body || '(réponse vide)';
+      } catch (error) {
+        status.textContent = 'Erreur pendant la requête ' + method + '.';
+        responseBox.textContent = String(error);
+      }
+    }
+  </script>
+</body>
+</html>

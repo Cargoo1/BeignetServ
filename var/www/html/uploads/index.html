@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Uploads</title>
-  <link rel="stylesheet" href="/uploads/style.css">
+  <link rel="stylesheet" href="/style.css">
 </head>
 <body>
   <main>
@@ -48,16 +48,15 @@
         <div class="form-grid delete-grid">
           <label class="span-2">
             Chemin à supprimer
-            <input id="delete-path" type="text" value="/uploads/delete-target.html">
+            <input id="delete-path" type="text" value="">
           </label>
         </div>
 
         <div class="links">
           <button class="button secondary" type="button" onclick="sendDelete()">Envoyer en DELETE</button>
-          <a class="button secondary" href="/uploads/delete-target.html">Voir le fichier cible</a>
         </div>
 
-        <div class="status" id="status">Prêt pour les tests POST et DELETE.</div>
+        <p id="status" aria-live="polite"></p>
       </div>
     </section>
   </main>
@@ -65,15 +64,17 @@
   <script>
     async function sendDelete() {
       const status = document.getElementById('status');
-      const target = document.getElementById('delete-path').value.trim();
-      if (!target) {
+      const inputPath = document.getElementById('delete-path').value.trim();
+      if (!inputPath) {
         status.textContent = 'Entrez un chemin avant de lancer DELETE.';
         return;
       }
+
+      const target = inputPath.startsWith('/') ? inputPath : '/uploads/' + inputPath;
       status.textContent = 'Envoi de la requête DELETE...';
       try {
         const response = await fetch(target, { method: 'DELETE' });
-        status.textContent = 'DELETE terminé avec le statut ' + response.status + '.';
+        status.textContent = 'DELETE vers ' + target + ' termine avec le statut ' + response.status + '.';
       } catch (error) {
         status.textContent = 'Erreur pendant le DELETE.';
       }

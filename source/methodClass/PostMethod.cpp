@@ -92,6 +92,8 @@ PostMethod::~PostMethod() {};
 
 //CHANGEMENTS!! g pu recuperer le filename et je le mets dans le HEADER getFilename
 //si filename c vide ca veut dire qu'on a pas le filename
+
+
 void PostMethod::executeMethod(HttpResponse &rsp) {
 	std::string path = this->_request.getHeader().getTargetResource();
 	const locationConfig *loc = this->_request.getLocConfBlock();

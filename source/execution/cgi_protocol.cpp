@@ -50,17 +50,55 @@ namespace {
 		delete [] toFree;
 	}
 
-	t_scripts_ext find_extension(const std::string &cgi, const locationConfig &loc) {
+	std::string find_extension(const std::string &cgi, const locationConfig &loc) {
 		std::string interpret = cgi.substr(cgi.find_last_of("."));
-		(void)loc;
-		if (interpret == ".py")
-			return PYTHON;
-		else if (interpret == ".cgi")
-			return CGI_EXT;
-		else if (interpret == ".ws")
-			return WS;
-		return INVALID;
+		std::string ret;
+		std::map<std::string, std::string>::const_iterator it = loc.getCGI().find(interpret);
+		if (it != loc.getCGI().end())
+			ret = it->second;
+		else
+			ret = "";
+		
+		// (void)loc;
+		// if (interpret == ".py")
+		// 	return PYTHON;
+		// else if (interpret == ".cgi")
+		// 	return CGI_EXT;
+		// else if (interpret == ".ws")
+		// 	return WS;
+		return ret;
 	}
+
+	// std::string get_interpret(const std::map<std::string, std::string> &map, const std::string &expr) {
+	// 	std::string ret;
+	// 	std::map<std::string, std::string>::const_iterator it;
+	// 	it = map.find(expr);
+	// 	if (it != map.end())
+	// 		ret = it->second;
+	// 	else
+	// 		ret = "";
+	// }
+
+	// const std::string define_interpret(const t_scripts_ext ext, const locationConfig *loc) {
+	// 	std::string ret;
+	// 	std::map<std::string, std::string>::const_iterator it;
+	// 	switch (ext)
+	// 	{
+	// 	case PYTHON:
+	// 		ret = "";
+	// 		break;
+	// 	case CGI_EXT:
+	// 		ret = "";
+	// 		break;
+	// 	case WS:
+	// 		ret = "";
+	// 		break;
+	// 	default:
+	// 		ret = "";
+	// 		break;
+	// 	}
+	// 	return (ret);
+	// }
 
 	char **buildEnv(Request const& r){
 		std::map<std::string, std::string> mapEnv;
@@ -98,12 +136,21 @@ namespace {
 	}
 
 	char **builArgs(const std::string &script, const std::string interpretor) {
-		char **ret = new char*[2];
-		(void)interpretor;
-		//ret[0] = ft_dupStrC(interpretor);
-		ret[0] = ft_dupStrC(script);
-		ret[1] = 0;
-		return ret;
+		if (interpretor == "")
+		{
+			char **ret = new char*[2];
+			(void)interpretor;
+			ret[0] = ft_dupStrC(script);
+			ret[1] = 0;
+			return ret;
+		}
+		else {
+			char **ret = new char*[3];
+			ret[0] = ft_dupStrC(interpretor);
+			ret[0] = ft_dupStrC(script);
+			ret[1] = 0;
+			return ret;
+		}
 	}
 
 }
@@ -148,15 +195,21 @@ int	execute_script(Request const& r, HttpResponse& response)
 	(void)response;
 	std::string query = r.getHeader().getQueryStr();
 	//std::string cgiPath = getQuery_path(targetR);
-	t_scripts_ext extension = find_extension(script_path, *r.getLocConfBlock());
-	(void)extension;
+	std::string extension = find_extension(script_path, *r.getLocConfBlock());
+	if (extension == "") {
+		if (r.getLocConfBlock()->hasIndex()) 
+			script_path = r.getLocConfBlock()->getIndex();
+		else
+			throw Request::ErrorRequest(not_found, "CGI: the script either dosn't exist or a non supported language"); 
+	}
+
 	std::string scriptRet;
 	//char buffer[4096];
 	//ssize_t bytesRead;
 	//int status;
 
 	char **env = buildEnv(r);
-	char **args = builArgs(query, "");
+	char **args = builArgs(script_path, extension);
 	int pipefd[2];
 
 	if (pipe(pipefd) == -1)

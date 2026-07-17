@@ -44,9 +44,9 @@ bool	is_a_cgi_request(std::string const& uri, size_t& path_extra_pos)
 	{
 		ext_pos = uri.find(cgi_extensions[i]);
 		ext_pos += cgi_extensions[i].length() - 1;
-		if (uri.length() < ext_pos)
+		if (uri.length() - 1 < ext_pos)
 			continue;
-		else if (ext_pos == uri.length())
+		else if (ext_pos == uri.length() - 1)
 		{
 			path_extra_pos = uri.length();
 			return true;
