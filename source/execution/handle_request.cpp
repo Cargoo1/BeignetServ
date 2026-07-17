@@ -6,7 +6,7 @@
 /*   By: ratel <ratel@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/11 19:40:38 by alejandroca       #+#    #+#             */
-/*   Updated: 2026/07/16 23:09:02 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/17 15:52:25 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,9 +45,9 @@ int	handle_request(Client& client, Server const& server)
 	}
 	HttpResponse response;
 	Request&	r = client.getRequest();
-	print_log(TEXT_CYAN, NULL, "CLIENT INPUT:\n@@@@@@@@@@\n" +
+	print_log(TEXT_CYAN, NULL, "CLIENT INPUT:\n@@@@@@@@@@\n>>>" +
 								client.getMsg() +
-								"<--\n@@@@@@@@@@\n\n", 0);
+								"<<<\n@@@@@@@@@@\n\n", 0);
 	if (!r.getHeader().is_header_parsed())
 	{
 		try
@@ -83,9 +83,9 @@ int	handle_request(Client& client, Server const& server)
 		client.getNotConstMsg().clear();
 		return -1;
 	}
-	int router_status = router(r, response);
-	if (router_status == 2)
-		return router_status;
+	int infno = router(r, response);
+	if (infno > 0)
+		return infno;
 	send_response(r, response, client.getFd(), 0);
 	return 0;
 }

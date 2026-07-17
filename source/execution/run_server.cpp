@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 19:10:40 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/17 13:32:42 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/17 15:52:05 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,6 +151,10 @@ void	check_idle_clients(Server& server)
 			++it;
 			continue;
 		}
+		print_log(TEXT_YELLOW, NULL, "Removing iddle client: "
+								+ it->second.getIp() + ":"
+								+ it->second.getPort() + ", fd: "
+								+ toStr(it->first), 0);
 		server.deleteClient((it++)->first);
 	}
 	server.setLastCheck();
@@ -159,7 +163,7 @@ void	check_idle_clients(Server& server)
 void	get_client_request(Server& server, int fd)
 {
 	Client&	client = server.getClients().at(fd);
-	int		status_code = 0;
+	int		infno = 0;
 
 	if (recv_msg(client.getNotConstMsg(), fd) != 0)
 	{
@@ -169,12 +173,12 @@ void	get_client_request(Server& server, int fd)
 	client.setLastComm();
 	while (!client.getMsg().empty())
 	{
-		status_code = handle_request(server.getClients().at(fd), server);
-		if (status_code != 0)
+		infno = handle_request(server.getClients().at(fd), server);
+		if (infno != 0)
 			break;
 	}
-	if (status_code == 2)
-		server.addPipe(client.getRequest().getPipeFd(), EPOLLIN, client);
+	if (infno > 0)
+		server.addPipe(infno, EPOLLIN, client);
 }
 
 void	process_connection(Server&	server, int epollcount)

@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/30 19:17:45 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/17 13:33:31 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/17 15:59:18 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -161,6 +161,7 @@ int	get_script_output(Client& client)
 	if (!recv_msg(r.getScripOutput(), r.getPipeFd()))
 	{
 		r.getResponse().setBody(r.getScripOutput());
+		//waitpid(, NULL, 0);
 		send_response(r, r.getResponse(), client.getFd(), 0);
 		return 0;
 	}

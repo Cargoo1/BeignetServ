@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/01 13:36:16 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/16 19:06:23 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/17 15:18:00 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,7 @@ int	read_with_boundaries(Request& r, std::string& raw_body)
 	{
 		consume_until_crlf(raw_body);
 		int	return_value = read_trailer_fields(temp_r, raw_body);
-		if (return_value == 1)
+		if (return_value == false)
 			return 1;
 		else if (return_value > 1)
 			return return_value;
@@ -71,9 +71,9 @@ int	read_with_boundaries(Request& r, std::string& raw_body)
 			r.getHeader().setFilename(temp_r.getHeader().data_values[1]);
 		}
 		else
-			print_log(TEXT_BLUE, NULL, "\nClient Comment:\n@@@\n" +
+			print_log(TEXT_BLUE, NULL, "\nClient Comment:\n@@@@@@@@@@\n>>>" +
 							raw_body.substr(0, boundary_pos) +
-							"@@@\n", 0);
+							"<<<\n@@@@@@@@@@\n", 0);
 		raw_body.erase(0, boundary_pos + boundary.length());
 		if (raw_body.find("--") == 0)
 		{
@@ -94,7 +94,7 @@ bool	read_body(Request& r, std::string& raw_body)
 		return true;
 	if (r.getBytesRead() + r.bytes_2_read > r.getLocConfBlock()->getCMBS())
 		throw Request::ErrorRequest(content_too_large, "Body max size reached!");
-	if (it->second.find("multipart/") != std::string::npos)
+	if (it != r.getHeader().getFields().end() && it->second.find("multipart/") != std::string::npos)
 		return read_with_boundaries(r, raw_body);
 	temp_str = raw_body.substr(0, r.bytes_2_read);
 	r.getRawBody().append(temp_str, 0, temp_str.length());

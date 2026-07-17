@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/16 20:36:21 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/16 21:00:47 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/17 15:07:44 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,17 +43,17 @@ bool	is_a_cgi_request(std::string const& uri, size_t& path_extra_pos)
 	for (size_t i = 0; i < EXTENSIONS_SIZE; i++)
 	{
 		ext_pos = uri.find(cgi_extensions[i]);
-		ext_pos += cgi_extensions[i].length() - 1;
-		if (uri.length() - 1 < ext_pos)
+		ext_pos += cgi_extensions[i].length();
+		if (uri.length() < ext_pos)
 			continue;
-		else if (ext_pos == uri.length() - 1)
+		else if (ext_pos == uri.length())
 		{
 			path_extra_pos = uri.length();
 			return true;
 		}
-		else if (uri.at(ext_pos + 1) == '/')
+		else if (uri.at(ext_pos) == '/')
 		{
-			path_extra_pos = ext_pos + 1;
+			path_extra_pos = ext_pos;
 			return true;
 		}
 	}

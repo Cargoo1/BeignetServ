@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/03 17:39:25 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/17 13:32:36 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/17 15:22:26 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,3 +113,5 @@ bool	is_a_cgi_request(std::string const& uri, size_t& path_extra_pos);
 int		get_script_output(Client& client);
 
 void	check_idle_scripts(Server& server);
+
+int	execute_script(Request const& r, HttpResponse& response);

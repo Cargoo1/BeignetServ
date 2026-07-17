@@ -36,6 +36,8 @@ namespace {
 
 int router(Request const& r, HttpResponse& response) {
 	locationConfig const&	location_block = *r.getLocConfBlock();
+	int		infno = 0;
+
 	if (!checkAllowedMethods(location_block, r.getHeader().getMethod()))
 	{
 		response.setStatusCode(method_not_allowed);
@@ -48,14 +50,14 @@ int router(Request const& r, HttpResponse& response) {
 	}
 	try
 	{
-		dispatcher_method(r, response);
+		infno = dispatcher_method(r, response);
 	}
 	catch (Request::ErrorRequest& e)
 	{
 		response.setStatusCode(e.getErrorCode());
 		return -1;
 	}
-	return (0);
+	return (infno);
 }
 
 locationConfig longestMatchingPath(const std::string &path,const serverConfig &server_bloc) {
@@ -111,13 +113,11 @@ bool checkClientMaxBodySize(Request const& r) {
 	return (true);
 }
 
-void dispatcher_method(Request const& r, HttpResponse &response) {
+int dispatcher_method(Request const& r, HttpResponse &response) {
 	std::string reqMethod(r.getHeader().getMethod());
 	if (r.getHeader().is_a_script())
-	{
-		;
-	}
-	if (reqMethod == "GET"){
+		return execute_script(r, response);
+	else if (reqMethod == "GET"){
 		GetMethod	method(r);
 		method.executeMethod(response);
 	}
@@ -129,4 +129,5 @@ void dispatcher_method(Request const& r, HttpResponse &response) {
 		PostMethod	method(r);
 		method.executeMethod(response);
 	}
+	return 0;
 }
