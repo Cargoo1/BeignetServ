@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uploads</title>
+  <link rel="stylesheet" href="/uploads/style.css">
+</head>
+<body>
+  <main>
+    <section class="hero">
+      <span class="eyebrow">/uploads</span>
+      <h1>Page uploads.</h1>
+      <p>
+        Cette page sert à tester POST pour envoyer un fichier et DELETE pour supprimer un fichier déjà présent.
+      </p>
+      <div class="links">
+        <a class="button" href="/">Retour à l&apos;accueil</a>
+      </div>
+    </section>
+
+    <section class="shell">
+      <div class="panel">
+        <h2>Test POST</h2>
+        <p>Le formulaire envoie vers <code>/uploads</code> avec un fichier et un petit commentaire.</p>
+
+        <form method="post" action="/uploads" enctype="multipart/form-data">
+          <div class="form-grid">
+            <label class="span-2">
+              Fichier à envoyer
+              <input type="file" name="file">
+            </label>
+
+            <label class="span-2">
+              Commentaire
+              <textarea name="comment" placeholder="Texte libre pour le debug."></textarea>
+            </label>
+          </div>
+
+          <div class="links">
+            <button class="button" type="submit">Envoyer en POST</button>
+          </div>
+        </form>
+
+        <h2 class="section-title">Test DELETE</h2>
+        <p>Le bouton ci-dessous envoie une requête DELETE sur un fichier de test.</p>
+
+        <div class="form-grid delete-grid">
+          <label class="span-2">
+            Chemin à supprimer
+            <input id="delete-path" type="text" value="/uploads/delete-target.html">
+          </label>
+        </div>
+
+        <div class="links">
+          <button class="button secondary" type="button" onclick="sendDelete()">Envoyer en DELETE</button>
+          <a class="button secondary" href="/uploads/delete-target.html">Voir le fichier cible</a>
+        </div>
+
+        <div class="status" id="status">Prêt pour les tests POST et DELETE.</div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    async function sendDelete() {
+      const status = document.getElementById('status');
+      const target = document.getElementById('delete-path').value.trim();
+      if (!target) {
+        status.textContent = 'Entrez un chemin avant de lancer DELETE.';
+        return;
+      }
+      status.textContent = 'Envoi de la requête DELETE...';
+      try {
+        const response = await fetch(target, { method: 'DELETE' });
+        status.textContent = 'DELETE terminé avec le statut ' + response.status + '.';
+      } catch (error) {
+        status.textContent = 'Erreur pendant le DELETE.';
+      }
+    }
+  </script>
+</body>
+</html>
