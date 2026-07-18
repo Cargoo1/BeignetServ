@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/03 17:41:28 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/16 23:45:37 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/18 23:25:59 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@
 #include <sys/socket.h>
 #include <Client.hpp>
 #include <sys/types.h>
+#include <unistd.h>
 #include <utils.hpp>
 #include <vector>
 
@@ -235,6 +236,20 @@ int		recv_msg(std::string& str, int cfd)
 	return 0;
 }
 
+int		read_msg(std::string& str, int fd)
+{
+	char	buff[BUFF_SIZE];
+
+	std::memset(buff, 0, BUFF_SIZE);
+	int		bytes_read = read(fd, &buff, BUFF_SIZE);
+	if (bytes_read == 0)
+		return 0;
+	else if (bytes_read < 0)
+		return -1;
+	str.append(buff, bytes_read);
+	return 1;
+}
+
 
 int	split(std::vector<std::string>& vector, std::string const& str, char c)
 {
@@ -346,4 +361,20 @@ locationConfig const&	find_location_block(std::string const& uri, serverConfig c
 	if (longest_match < 0)
 		return loc_confs.at(0);
 	return loc_confs.at(longest_match);
+}
+
+void free_double_char_ptr(char **ptr)
+{
+	if (!ptr)
+		return;
+	for (std::size_t i = 0; ptr[i]; i++)
+		delete ptr[i];
+	delete [] ptr;
+}
+
+char *ft_create_c_str(std::string const& str)
+{
+	char *new_str = new char[str.size() + 1];
+	std::memcpy(new_str, str.c_str(), str.length() + 1);
+	return new_str;
 }

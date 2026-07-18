@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/12 15:15:33 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/17 13:28:55 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/18 20:52:30 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@ Server::Server(Server const& other) : _server_conf(other._server_conf)
 Server::Server(std::vector<serverConfig> const& servers_conf) : _server_conf(servers_conf)
 {
 	std::time(&this->_last_check);
+	std::time(&this->_last_check_scripts);
 	this->_epollfd = -1;
 	return ;
 }
@@ -126,6 +127,8 @@ void	Server::addPipe(int pipe_fd, uint32_t events, Client& client)
 	this->setEinf(pipe_fd, events);
 	epoll_ctl(this->_epollfd, EPOLL_CTL_ADD, pipe_fd, &this->_einf);
 	this->_pipes.insert(std::pair<int, Client*>(pipe_fd, &client));
+	client.setLastScriptComm();
+	client.getRequest().setPipeFd(pipe_fd);
 	log = "Pipe added to Epoll pool: " + toStr(pipe_fd) + "\n";
 	print_log(TEXT_GREEN, NULL, log, 0);
 }
@@ -151,9 +154,12 @@ std::map<int, Client*> const&	Server::getPipes(void)
 
 void	Server::deletePipe(int pipe_fd)
 {
+	if (this->_pipes.find(pipe_fd) == this->_pipes.end())
+		return;
 	print_log(TEXT_YELLOW, NULL, "Closing and deleting pipe: " + toStr(pipe_fd), 0);
 	epoll_ctl(this->_epollfd, EPOLL_CTL_DEL, pipe_fd, &this->_einf);
 	close(pipe_fd);
+	this->_pipes.at(pipe_fd)->getRequest().setPipeFd(-1);
 	this->_pipes.erase(pipe_fd);
 }
 

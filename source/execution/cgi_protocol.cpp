@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/30 19:17:45 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/17 15:59:18 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/19 00:12:18 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 
 #include <bits/stdc++.h>
 #include <cerrno>
+#include <cstddef>
 #include <cstring>
 #include <sys/socket.h>
 #include <vector>
@@ -32,22 +33,6 @@ namespace {
 		char *dup = new char[s.size() + 1];
 		std::memcpy(dup, s.c_str(), s.size() + 1);
 		return dup;
-	}
-
-	std::size_t ft_Dstrlengt (char **str) {
-		std::size_t i = 0;
-		while (str[i] != 0)
-			i++;
-		return (i);
-	}
-
-	void freeExecVariabl(char **toFree) {
-		
-		std::size_t length = ft_Dstrlengt(toFree);
-		for (std::size_t i = 0; i < length; i++) {
-			delete [] toFree[i];
-		}
-		delete [] toFree;
 	}
 
 	std::string find_extension(const std::string &cgi, const locationConfig &loc) {
@@ -158,10 +143,10 @@ namespace {
 int	get_script_output(Client& client)
 {
 	Request&	r = client.getRequest();
-	if (!recv_msg(r.getScripOutput(), r.getPipeFd()))
+	if (!read_msg(r.getScripOutput(), r.getPipeFd()))
 	{
 		r.getResponse().setBody(r.getScripOutput());
-		//waitpid(, NULL, 0);
+		waitpid(r.getPipeFd(), NULL, 0);
 		send_response(r, r.getResponse(), client.getFd(), 0);
 		return 0;
 	}
@@ -179,7 +164,7 @@ void	check_idle_scripts(Server& server)
 	std::map<int, Client*>::const_iterator	it;
 	for (it = server.getPipes().begin(); it != server.getPipes().end();)
 	{
-		if (curr_time - it->second->getLastScriptComm() < 60)
+		if (it->second && curr_time - it->second->getLastScriptComm() < 60)
 		{
 			++it;
 			continue;
@@ -199,7 +184,11 @@ int	execute_script(Request const& r, HttpResponse& response)
 	std::string extension = find_extension(script_path, *r.getLocConfBlock());
 	if (extension == "") {
 		if (r.getLocConfBlock()->hasIndex()) 
-			script_path = r.getLocConfBlock()->getIndex();
+		{
+			size_t last_slash_pos = script_path.find_last_of('/');
+			script_path.erase(last_slash_pos + 1, std::string::npos);
+			script_path.append(r.getLocConfBlock()->getIndex());
+		}
 		else
 			throw Request::ErrorRequest(not_found, "CGI: the script either dosn't exist or a non supported language"); 
 	}
@@ -223,14 +212,14 @@ int	execute_script(Request const& r, HttpResponse& response)
 		execve(args[0], args, env);
 		print_log(TEXT_RED, NULL, strerror(errno), true);
 		//need to exit properly!!!!!
-		freeExecVariabl(args);
-		freeExecVariabl(env);
+		free_double_char_ptr(env);
+		free_double_char_ptr(args);
 		exit(1);
 	}
 	if (pid == -1)
 	{
-		freeExecVariabl(args);
-		freeExecVariabl(env);
+		free_double_char_ptr(env);
+		free_double_char_ptr(args);
 		throw Request::ErrorRequest(internal_server_error, "CGI: pid == -1");
 	}
 	close(pipefd[1]);

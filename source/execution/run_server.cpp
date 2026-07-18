@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 19:10:40 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/17 15:52:05 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/18 20:52:34 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -155,6 +155,8 @@ void	check_idle_clients(Server& server)
 								+ it->second.getIp() + ":"
 								+ it->second.getPort() + ", fd: "
 								+ toStr(it->first), 0);
+		if (it->second.getRequest().getPipeFd() != -1)
+			server.deletePipe(it->second.getRequest().getPipeFd());
 		server.deleteClient((it++)->first);
 	}
 	server.setLastCheck();
@@ -181,7 +183,7 @@ void	get_client_request(Server& server, int fd)
 		server.addPipe(infno, EPOLLIN, client);
 }
 
-void	process_connection(Server&	server, int epollcount)
+void	process_data(Server&	server, int epollcount)
 {
 	for (int i = 0; i < epollcount; i++)
 	{
@@ -271,7 +273,7 @@ int	run(std::vector<serverConfig> const& servers_conf)
 			print_log(TEXT_RED, NULL, std::string("Poll: ") + strerror(errno), 1);
 			return errno;
 		}
-		process_connection(server, epollcount);
+		process_data(server, epollcount);
 	}
 	return 1;
 }

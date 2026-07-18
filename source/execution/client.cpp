@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/21 15:12:53 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/17 15:03:18 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/18 19:45:04 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ int	main(int argc, char **argv)
 		exit(1);
 	}
 	char buff[100000];
-	std::string msg = "POST /test.py HTTP/1.1\r\nHost:localhost:8080\r\nTransfer-Encoding:chunked\r\n\r\n";
+	std::string msg = "POST /uploads/test.ws HTTP/1.1\r\nHost:localhost:8080\r\nTransfer-Encoding:chunked\r\n\r\n";
 	// int bytes_sent = send(sfd, msg.c_str(), msg.length(), 0);
 	send(sfd, msg.c_str(), msg.length(), 0);
 	// sleep(5);

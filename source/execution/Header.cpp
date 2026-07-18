@@ -6,7 +6,7 @@
 /*   By: ratel <ratel@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 19:03:36 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/16 21:40:58 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/18 20:27:21 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -163,16 +163,41 @@ namespace { size_t	parse_path(std::string& uri)
 	}
 }
 
+namespace
+{
+bool	set_root_path(Request const& r, std::string& path)
+{
+	std::string	prefix = ".";
+	std::string	root;
+	if (r.getHeader().getMethod() == "POST" && !r.getLocConfBlock()->getUploadStore().empty())
+		root = r.getLocConfBlock()->getUploadStore();
+	else if (!r.getLocConfBlock()->getRoot().empty())
+		root = r.getLocConfBlock()->getRoot();
+	else
+		root = r.getServerBlock()->getRoot();
+	if (root.at(0) != '/')
+		prefix += '/';
+	path.insert(0, prefix + root);
+	return true;
+}
+}
+
 void	Header::setTargetResource(std::string& uri, Request& r)
 {
 	if (uri.empty())
 		throw Request::ErrorRequest(bad_request, "Empty URI");
-	std::string	prefix = ".";
-	std::string	root;
-	size_t	separator_pos = parse_path(uri);
-	size_t	path_extra_pos = uri.npos;
 	r.setLocConfBlock(find_location_block(uri, *r.getServerBlock()));
-	this->_target_resource = uri.substr(0, separator_pos);
+	set_root_path(r, this->_target_resource);
+	this->_target_resource.append(uri);
+	size_t	separator_pos = parse_path(this->_target_resource);
+	if (separator_pos != std::string::npos
+		&& separator_pos < this->_target_resource.length())
+	{
+		separator_pos++;
+		this->_query_string = this->_target_resource.substr(separator_pos);
+		this->_target_resource.erase(separator_pos, std::string::npos);
+	}
+	size_t	path_extra_pos = std::string::npos;
 	if (is_a_cgi_request(this->_target_resource, path_extra_pos))
 	{
 		if (path_extra_pos != std::string::npos)
@@ -182,18 +207,6 @@ void	Header::setTargetResource(std::string& uri, Request& r)
 		}
 		this->_is_a_script = true;
 	}
-	if (r.getLocConfBlock()->getRoot().empty())
-		root = r.getServerBlock()->getRoot();
-	else
-		root = r.getLocConfBlock()->getRoot();
-	if (root.at(0) != '/')
-		prefix += '/';
-	this->_target_resource = prefix + root + this->_target_resource;
-	if (separator_pos == std::string::npos)
-		return;
-	if (separator_pos < uri.length())
-		separator_pos++;
-	this->_query_string = uri.substr(separator_pos, std::string::npos);
 }
 
 bool	Header::setProtocolV(std::string& protocol)

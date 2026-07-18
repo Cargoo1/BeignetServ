@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/03 17:39:25 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/17 15:22:26 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/18 23:26:35 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,3 +115,9 @@ int		get_script_output(Client& client);
 void	check_idle_scripts(Server& server);
 
 int	execute_script(Request const& r, HttpResponse& response);
+
+int		read_msg(std::string& str, int fd);
+
+void	free_double_char_ptr(char **ptr);
+
+char	*ft_create_c_str(std::string const& str);
