@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/03 17:39:25 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/18 23:26:35 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/20 18:01:00 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,10 @@
 #include <cstring>
 
 #include "Server.hpp"
+
 #include "serverConfig.hpp"
+
+#include <CgiChild.hpp>
 
 enum MIME { JPG, PNG, HTML, CSS,TXT, CGI_PY, APP};
 
@@ -110,7 +113,7 @@ void	consume_until_crlf(std::string& str);
 
 bool	is_a_cgi_request(std::string const& uri, size_t& path_extra_pos);
 
-int		get_script_output(Client& client);
+int		get_script_output(CgiChild& child);
 
 void	check_idle_scripts(Server& server);
 
@@ -121,3 +124,7 @@ int		read_msg(std::string& str, int fd);
 void	free_double_char_ptr(char **ptr);
 
 char	*ft_create_c_str(std::string const& str);
+
+void	ft_clean_exit(CgiChild const& child, std::string const& log);
+
+void	find_extension(std::string const& file_path, std::string& extension);

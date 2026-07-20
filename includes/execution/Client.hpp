@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/14 19:47:36 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/17 13:06:23 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/20 16:16:28 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,8 +29,6 @@ public:
 	std::string const&	getPort(void) const;
 	time_t			getLastComm(void) const;
 	void			setLastComm(void);
-	time_t			getLastScriptComm(void) const;
-	void			setLastScriptComm(void);
 	Request&		getRequest(void);
 	void			setIpPort(std::string const& ip, std::string const& port);
 	std::string&	getNotConstMsg(void);
@@ -39,7 +37,6 @@ public:
 private:
 	Request		_r;
 	time_t		_last_communication;
-	time_t		_last_script_communication;
 	std::string	_ip;
 	std::string	_port;
 	std::string	_message;

@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/16 20:36:21 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/17 15:07:44 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/20 17:10:04 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,12 +46,7 @@ bool	is_a_cgi_request(std::string const& uri, size_t& path_extra_pos)
 		ext_pos += cgi_extensions[i].length();
 		if (uri.length() < ext_pos)
 			continue;
-		else if (ext_pos == uri.length())
-		{
-			path_extra_pos = uri.length();
-			return true;
-		}
-		else if (uri.at(ext_pos) == '/')
+		else if (ext_pos == uri.length() || uri.at(ext_pos) == '/')
 		{
 			path_extra_pos = ext_pos;
 			return true;
@@ -60,4 +55,24 @@ bool	is_a_cgi_request(std::string const& uri, size_t& path_extra_pos)
 	if (is_in_cgi_dir(uri))
 		return true;
 	return false;
+}
+
+void	find_extension(std::string const& file_path, std::string& extension)
+{
+	std::string	cgi_extensions[EXTENSIONS_SIZE] = {".py", ".cgi", ".ws"};
+	size_t	ext_pos = 0;
+
+	for (size_t i = 0; i < EXTENSIONS_SIZE; i++)
+	{
+		ext_pos = file_path.find(cgi_extensions[i]);
+		ext_pos += cgi_extensions[i].length();
+		if (file_path.length() < ext_pos)
+			continue;
+		else if (ext_pos == file_path.length() || file_path.at(ext_pos) == '/')
+		{
+			extension = cgi_extensions[i];
+			break;
+		}
+	}
+	return ;
 }

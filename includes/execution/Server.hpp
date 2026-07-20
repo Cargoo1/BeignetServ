@@ -6,11 +6,12 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/12 15:08:39 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/17 13:32:24 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/20 18:02:20 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
+#include "CgiChild.hpp"
 #include "Request.hpp"
 #include <cstddef>
 #include <ctime>
@@ -44,10 +45,10 @@ public:
 	time_t						getLastCheckScripts(void) const;
 	void						setLastCheckScripts(void);
 	void						addClient(int fd, uint32_t events, std::string const& ip, std::string const& port);
-	void						addPipe(int pipe_fd, uint32_t events, Client& client);
-	std::map<int, Client*> const&		getPipes(void);
+	void						addCgiChild(uint32_t events, Client& client);
+	std::map<int, CgiChild>&		getCgiChilds(void);
 	void						deleteClient(int fd);
-	void						deletePipe(int pipe_fd);
+	void						deleteCgiChild(int pipe_fd);
 private:
 	std::vector<int>			_sfds;
 	time_t						_last_check;
@@ -56,5 +57,5 @@ private:
 	std::vector<serverConfig> const&	_server_conf;
 	struct epoll_event			_einf, _eventQueue[MAX_EVENTS];
 	std::map<int, Client>		_clients;
-	std::map<int, Client*>		_pipes;
+	std::map<int, CgiChild>		_scripts_childs;
 };

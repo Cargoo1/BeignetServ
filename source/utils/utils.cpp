@@ -6,11 +6,12 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/03 17:41:28 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/18 23:25:59 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/20 15:39:14 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "serverConfig.hpp"
+#include "utils_logs.hpp"
 #include <cctype>
 #include <cmath>
 #include <cstddef>
@@ -377,4 +378,12 @@ char *ft_create_c_str(std::string const& str)
 	char *new_str = new char[str.size() + 1];
 	std::memcpy(new_str, str.c_str(), str.length() + 1);
 	return new_str;
+}
+
+void	ft_clean_exit(CgiChild const& child, std::string const& log)
+{
+	print_log(TEXT_RED, NULL, log, true);
+	free_double_char_ptr(child.getArgs());
+	free_double_char_ptr(child.getEnv());
+	exit(errno);
 }

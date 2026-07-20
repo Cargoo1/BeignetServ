@@ -6,10 +6,11 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/30 19:17:45 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/19 00:12:18 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/20 16:43:48 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "CgiChild.hpp"
 #include "Client.hpp"
 #include "HttpResponse.hpp"
 #include "Request.hpp"
@@ -140,17 +141,19 @@ namespace {
 
 }
 
-int	get_script_output(Client& client)
+int	get_script_output(CgiChild& script)
 {
-	Request&	r = client.getRequest();
-	if (!read_msg(r.getScripOutput(), r.getPipeFd()))
+	std::string	msg;
+	Request&	r = script.getClientOwner().getRequest();
+	if (!read_msg(msg, script.getPipe()[0])) 
 	{
-		r.getResponse().setBody(r.getScripOutput());
+		r.getResponse().setBody(script.getOutput());
 		waitpid(r.getPipeFd(), NULL, 0);
-		send_response(r, r.getResponse(), client.getFd(), 0);
+		send_response(r, r.getResponse(), script.getClientOwner().getFd(), 0);
 		return 0;
 	}
-	client.setLastScriptComm();
+	script.setLastComm();
+	script.appedOutput(msg);
 	return 1;
 }
 
@@ -161,16 +164,16 @@ void	check_idle_scripts(Server& server)
 	std::time(&curr_time);
 	if (curr_time - server.getLastCheckScripts() < 1)
 		return;
-	std::map<int, Client*>::const_iterator	it;
-	for (it = server.getPipes().begin(); it != server.getPipes().end();)
+	std::map<int, CgiChild>::const_iterator	it;
+	for (it = server.getCgiChilds().begin(); it != server.getCgiChilds().end();)
 	{
-		if (it->second && curr_time - it->second->getLastScriptComm() < 60)
+		if (curr_time - it->second.getLastComm() < 60)
 		{
 			++it;
 			continue;
 		}
 		print_log(TEXT_YELLOW, NULL, "Removing iddle pipe: " + toStr(it->first), 0);
-		server.deletePipe((it++)->first);
+		server.deleteCgiChild((it++)->first);
 	}
 	server.setLastCheckScripts();
 }

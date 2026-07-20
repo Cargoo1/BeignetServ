@@ -6,24 +6,29 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/18 22:41:57 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/19 00:09:28 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/20 17:56:07 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "Client.hpp"
 #include "Request.hpp"
+#include "locationConfig.hpp"
 #include "utils.hpp"
 #include "utils_logs.hpp"
 #include <CgiChild.hpp>
 #include <cerrno>
 #include <cstdlib>
 #include <cstring>
+#include <ctime>
 #include <unistd.h>
-CgiChild::CgiChild() : _env(NULL), _args(NULL), _pid(-1)
+CgiChild::CgiChild(Client& client) : _env(NULL), _args(NULL), _client_owner(client), _pid(-1)
 {
+	std::time(&this->_last_communication);
+	this->_file_path = client.getRequest().getHeader().getTargetResource();
 	return;
 }
 
-CgiChild::CgiChild(CgiChild const& other)
+CgiChild::CgiChild(CgiChild const& other) : _client_owner(other._client_owner)
 {
 	this->_pid = other._pid;
 	this->_pipe_fd[0] = other._pipe_fd[0];
@@ -32,6 +37,7 @@ CgiChild::CgiChild(CgiChild const& other)
 	this->_file_path = other._file_path;
 	this->_extension = other._extension;
 	this->_output = other._output;
+	this->_last_communication = other._last_communication;
 }
 
 CgiChild::~CgiChild()
@@ -49,6 +55,58 @@ CgiChild& CgiChild::operator=(CgiChild const& other)
 	this->~CgiChild();
 	new (this) CgiChild(other);
 	return (*this);
+}
+
+namespace
+{
+bool	change_script_name(Request& r, std::string& file_name)
+{
+	if (!r.getLocConfBlock()->hasIndex())
+		return false;
+	size_t last_slash_pos = file_name.find_last_of('/');
+	file_name.erase(last_slash_pos + 1, std::string::npos);
+	file_name.append(r.getLocConfBlock()->getIndex());
+	return true;
+}
+
+void	find_interpreter(std::string const& extension, std::string& interpreter, locationConfig const& location_conf_block)
+{
+	std::map<std::string, std::string>::const_iterator	it = location_conf_block.getCGI().find(extension);
+	if (it == location_conf_block.getCGI().end())
+		return ;
+	interpreter = it->second;
+	return;
+}
+
+}
+
+int		CgiChild::execute_cgi()
+{
+	find_extension(this->_file_path, this->_extension);
+	find_interpreter(this->_extension, this->_interpreter, *this->_client_owner.getRequest().getLocConfBlock());
+	if (pipe(this->_pipe_fd) == -1)	
+		return errno;
+	if (this->_extension.empty() && !change_script_name(this->_client_owner.getRequest(), this->_file_path))
+	{
+		print_log(TEXT_YELLOW, NULL, "Could not execute cgi, script misssing", 1);
+		return -1;
+	}
+	if (access(this->_file_path.c_str(), F_OK) != 0)
+	{
+		print_log(TEXT_YELLOW, NULL, "Could not execute cgi, script misssing", 1);
+		return -1;
+	}
+	if (access(this->_file_path.c_str(), R_OK | X_OK) != 0)
+	{
+		print_log(TEXT_YELLOW, NULL, "Could not execute cgi, permission denied", 1);
+		return -1;
+	}
+	this->create_args(this->_interpreter);
+	this->create_env(this->_client_owner.getRequest());
+	if (fork_child() != 0)
+		return internal_server_error;
+	close(this->_pipe_fd[1]);
+	return 0;
 }
 	
 int		CgiChild::create_args(std::string const& interpreter)
@@ -100,30 +158,95 @@ int		CgiChild::create_env(Request const& r)
 	return 0;
 }
 
-void	CgiChild::fork_child()
+int	CgiChild::fork_child()
 {
 	if (this->_pipe_fd[1] < 0)
-		throw Request::ErrorRequest(internal_server_error, "Unitialized pipe");
+	{
+		print_log(TEXT_YELLOW, NULL, "Unitialized pipe", 1);
+		return internal_server_error;
+	}
 	this->_pid = fork();
 	if (this->_pid == -1)
-		throw Request::ErrorRequest(internal_server_error, "Fork failed");
+	{
+		print_log(TEXT_YELLOW, NULL, strerror(errno), 1);
+		return internal_server_error;
+	}
 	if (this->_pid == 0)
 	{
-		if (dup2(this->_pipe_fd[1], STDOUT_FILENO) == -1)
-		{
-			print_log(TEXT_RED, NULL, strerror(errno), true);
-			exit(errno);
-		}
-
+		if (dup2(this->_pipe_fd[1], STDOUT_FILENO) == -1
+			|| close(this->_pipe_fd[0]) == -1
+			|| close(this->_pipe_fd[1]) == -1)
+			ft_clean_exit(*this, strerror(errno));
+		if (!this->_args || !this->_env)
+			ft_clean_exit(*this, "Could not execute script missing execve parameters");
+		execve(this->_args[0], this->_args, this->_env);
+		ft_clean_exit(*this, strerror(errno));
 	}
+	return 0;
 }
-	char const**	getArgs(void);
-	char const**	getEnv(void);
-	std::string const&	getFilename(void);
-	std::string const&	getFilepath(void);
-	std::string const&	getExtension(void);
-	std::string const&	getOutput(void);
-	void	appedOutput(std::string const& str);
-	void	setFilename(std::string const& str);
-	void	setFilepath(std::string const& str);
-	void	setExtension(std::string const& str);
+
+char**	CgiChild::getArgs(void)
+{
+	return this->_args;
+}
+
+char**	CgiChild::getEnv(void)
+{
+	return this->_env;
+}
+
+std::string const&	CgiChild::getFilename(void) const
+{
+	return this->_file_name;
+}
+
+std::string const&	CgiChild::getFilepath(void) const
+{
+	return this->_file_path;
+}
+
+std::string const&	CgiChild::getExtension(void) const
+{
+	return this->_extension;
+}
+
+std::string const&	CgiChild::getOutput(void) const
+{
+	return this->_output;
+}
+
+void	CgiChild::appedOutput(std::string const& str)
+{
+	this->_output.append(str);
+}
+
+void	CgiChild::setFilename(std::string const& str)
+{
+	this->_file_name = str;
+}
+
+void	CgiChild::setFilepath(std::string const& str)
+{
+	this->_file_path = str;
+}
+
+void	CgiChild::setExtension(std::string const& str)
+{
+	this->_extension = str;
+}
+
+Client&	CgiChild::getClientOwner(void)
+{
+	return this->_client_owner;
+}
+
+time_t			CgiChild::getLastComm(void) const
+{
+	return this->_last_communication;
+}
+
+void	CgiChild::setLastComm(void)
+{
+	std::time(&this->_last_communication);
+}
+

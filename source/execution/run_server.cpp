@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 19:10:40 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/18 20:52:34 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/20 18:02:33 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -156,7 +156,7 @@ void	check_idle_clients(Server& server)
 								+ it->second.getPort() + ", fd: "
 								+ toStr(it->first), 0);
 		if (it->second.getRequest().getPipeFd() != -1)
-			server.deletePipe(it->second.getRequest().getPipeFd());
+			server.deleteCgiChild(it->second.getRequest().getPipeFd());
 		server.deleteClient((it++)->first);
 	}
 	server.setLastCheck();
@@ -180,17 +180,17 @@ void	get_client_request(Server& server, int fd)
 			break;
 	}
 	if (infno > 0)
-		server.addPipe(infno, EPOLLIN, client);
+		server.addCgiChild(EPOLLIN, client);
 }
 
 void	process_data(Server&	server, int epollcount)
 {
 	for (int i = 0; i < epollcount; i++)
 	{
-		if (server.getPipes().find(server.getEventQueue()[i].data.fd)
-			!= server.getPipes().end())
+		if (server.getCgiChilds().find(server.getEventQueue()[i].data.fd)
+			!= server.getCgiChilds().end())
 		{
-			get_script_output(*server.getPipes().at(server.getEventQueue()[i].data.fd));
+			get_script_output(server.getCgiChilds().at(server.getEventQueue()[i].data.fd));
 			continue;
 		}
 		if (server.getEventQueue()[i].events & EPOLLHUP)
