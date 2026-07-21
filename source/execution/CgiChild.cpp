@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/18 22:41:57 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/21 14:52:06 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/21 16:03:03 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,7 +108,10 @@ int		CgiChild::execute_cgi()
 		print_log(TEXT_YELLOW, NULL, "Could not execute cgi, script misssing", 1);
 		return not_found;
 	}
-	if (access(this->_file_path.c_str(), R_OK | X_OK) != 0)
+	int	access_opts = R_OK;
+	if (this->_interpreter.empty())
+		access_opts = access_opts | X_OK;
+	if (access(this->_file_path.c_str(), access_opts) != 0)
 	{
 		print_log(TEXT_YELLOW, NULL, "Could not execute cgi, permission denied", 1);
 		return forbiden;
