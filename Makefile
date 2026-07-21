@@ -1,5 +1,5 @@
 CXX = c++
-CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -I$(HEADER_DIR)/$(EXEC_DIR) -I$(HEADER_DIR)/$(EXEP_DIR) -I$(HEADER_DIR)/$(PAR_DIR) -I$(HEADER_DIR)/$(CONF_DIR) -I$(HEADER_DIR)/$(MTD_DIR) -I$(HEADER_DIR)/$(UTILS_DIR) -g3 -fsanitize=address
+CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -I$(HEADER_DIR)/$(EXEC_DIR) -I$(HEADER_DIR)/$(EXEP_DIR) -I$(HEADER_DIR)/$(PAR_DIR) -I$(HEADER_DIR)/$(CONF_DIR) -I$(HEADER_DIR)/$(MTD_DIR) -I$(HEADER_DIR)/$(UTILS_DIR) -g3 
 
 NAME = WebServ
 
@@ -32,6 +32,7 @@ HEADER = $(HEADER_DIR)/$(EXEP_DIR)/configException.hpp		\
 		 $(HEADER_DIR)/$(EXEC_DIR)/send_http_response.hpp	\
 		 $(HEADER_DIR)/$(UTILS_DIR)/utils.hpp				\
 		 $(HEADER_DIR)/$(EXEC_DIR)/parse_body.hpp			\
+		 $(HEADER_DIR)/$(EXEC_DIR)/CgiChild.hpp				\
 		 $(HEADER_DIR)/$(UTILS_DIR)/utils_logs.hpp			\
 
 
@@ -68,6 +69,7 @@ SRCS = $(SRCS_DIR)/$(EXEP_DIR)/configException.cpp			\
 	   $(SRCS_DIR)/$(EXEC_DIR)/parse_body.cpp				\
 	   $(SRCS_DIR)/$(UTILS_DIR)/utils_cgi.cpp				\
 	   $(SRCS_DIR)/$(EXEC_DIR)/cgi_protocol.cpp				\
+	   $(SRCS_DIR)/$(EXEC_DIR)/CgiChild.cpp					\
 	   $(SRCS_DIR)/main.cpp
 
 OBJ_DIR = obj

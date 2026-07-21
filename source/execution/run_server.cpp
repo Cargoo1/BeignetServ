@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 19:10:40 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/20 18:02:33 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/21 15:39:10 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include "utils_logs.hpp"
 #include <configParser.hpp>
 #include <cstddef>
+#include <cstdlib>
 #include <ctime>
 #include <map>
 #include <netinet/in.h>
@@ -176,11 +177,11 @@ void	get_client_request(Server& server, int fd)
 	while (!client.getMsg().empty())
 	{
 		infno = handle_request(server.getClients().at(fd), server);
-		if (infno != 0)
+		if (infno != DONE)
 			break;
 	}
-	if (infno > 0)
-		server.addCgiChild(EPOLLIN, client);
+	if (infno == RUN_CGI)
+		server.addCgiChild(EPOLLIN, server.getClients().at(fd));
 }
 
 void	process_data(Server&	server, int epollcount)
@@ -190,7 +191,8 @@ void	process_data(Server&	server, int epollcount)
 		if (server.getCgiChilds().find(server.getEventQueue()[i].data.fd)
 			!= server.getCgiChilds().end())
 		{
-			get_script_output(server.getCgiChilds().at(server.getEventQueue()[i].data.fd));
+			if (get_script_output(server.getCgiChilds().at(server.getEventQueue()[i].data.fd)) == 0)
+				server.deleteCgiChild(server.getEventQueue()[i].data.fd);
 			continue;
 		}
 		if (server.getEventQueue()[i].events & EPOLLHUP)

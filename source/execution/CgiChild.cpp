@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/18 22:41:57 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/20 17:56:07 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/21 14:52:06 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include "utils_logs.hpp"
 #include <CgiChild.hpp>
 #include <cerrno>
+#include <cstddef>
 #include <cstdlib>
 #include <cstring>
 #include <ctime>
@@ -25,10 +26,12 @@ CgiChild::CgiChild(Client& client) : _env(NULL), _args(NULL), _client_owner(clie
 {
 	std::time(&this->_last_communication);
 	this->_file_path = client.getRequest().getHeader().getTargetResource();
+	this->_pipe_fd[0] = -1;
+	this->_pipe_fd[1] = -1;
 	return;
 }
 
-CgiChild::CgiChild(CgiChild const& other) : _client_owner(other._client_owner)
+CgiChild::CgiChild(CgiChild const& other) : _env(NULL), _args(NULL), _client_owner(other._client_owner)
 {
 	this->_pid = other._pid;
 	this->_pipe_fd[0] = other._pipe_fd[0];
@@ -42,10 +45,15 @@ CgiChild::CgiChild(CgiChild const& other) : _client_owner(other._client_owner)
 
 CgiChild::~CgiChild()
 {
+	print_log(TEXT_YELLOW, NULL, "CgiChild destructor called", false);
 	if (this->_env)
 		free_double_char_ptr(this->_env);
 	if (this->_args)
 		free_double_char_ptr(this->_args);
+	if (this->_pipe_fd[0] >= 0)
+		close(this->_pipe_fd[0]);
+	if (this->_pipe_fd[1] >= 0)
+		close(this->_pipe_fd[1]);
 }
 
 CgiChild& CgiChild::operator=(CgiChild const& other)
@@ -79,33 +87,36 @@ void	find_interpreter(std::string const& extension, std::string& interpreter, lo
 }
 
 }
+void	CgiChild::setPipe(int* pipe_fd)
+{
+	this->_pipe_fd[0] = pipe_fd[0];
+	this->_pipe_fd[1] = pipe_fd[1];
+	return;
+}
 
 int		CgiChild::execute_cgi()
 {
 	find_extension(this->_file_path, this->_extension);
 	find_interpreter(this->_extension, this->_interpreter, *this->_client_owner.getRequest().getLocConfBlock());
-	if (pipe(this->_pipe_fd) == -1)	
-		return errno;
-	if (this->_extension.empty() && !change_script_name(this->_client_owner.getRequest(), this->_file_path))
+	if ((this->_extension.empty() || this->_extension == ".ws") && !change_script_name(this->_client_owner.getRequest(), this->_file_path))
 	{
 		print_log(TEXT_YELLOW, NULL, "Could not execute cgi, script misssing", 1);
-		return -1;
+		return not_found;
 	}
 	if (access(this->_file_path.c_str(), F_OK) != 0)
 	{
 		print_log(TEXT_YELLOW, NULL, "Could not execute cgi, script misssing", 1);
-		return -1;
+		return not_found;
 	}
 	if (access(this->_file_path.c_str(), R_OK | X_OK) != 0)
 	{
 		print_log(TEXT_YELLOW, NULL, "Could not execute cgi, permission denied", 1);
-		return -1;
+		return forbiden;
 	}
 	this->create_args(this->_interpreter);
 	this->create_env(this->_client_owner.getRequest());
 	if (fork_child() != 0)
 		return internal_server_error;
-	close(this->_pipe_fd[1]);
 	return 0;
 }
 	
@@ -176,12 +187,21 @@ int	CgiChild::fork_child()
 		if (dup2(this->_pipe_fd[1], STDOUT_FILENO) == -1
 			|| close(this->_pipe_fd[0]) == -1
 			|| close(this->_pipe_fd[1]) == -1)
-			ft_clean_exit(*this, strerror(errno));
+		{
+			print_log(TEXT_RED, NULL, strerror(errno), true);
+			exit(errno);
+		}
 		if (!this->_args || !this->_env)
-			ft_clean_exit(*this, "Could not execute script missing execve parameters");
+		{
+			print_log(TEXT_RED, NULL, "Could not execute script execve arguments missing", true);
+			exit(errno);
+		}
 		execve(this->_args[0], this->_args, this->_env);
-		ft_clean_exit(*this, strerror(errno));
+		print_log(TEXT_RED, NULL, strerror(errno), true);
+		exit(errno);
 	}
+	close(this->_pipe_fd[1]);
+	this->_pipe_fd[1] = -1;
 	return 0;
 }
 
@@ -250,3 +270,7 @@ void	CgiChild::setLastComm(void)
 	std::time(&this->_last_communication);
 }
 
+int const*	CgiChild::getPipe(void) const
+{
+	return this->_pipe_fd;
+}

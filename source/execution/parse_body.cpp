@@ -6,13 +6,14 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/01 13:36:16 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/17 15:18:00 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/21 15:37:52 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "parse_body.hpp"
 #include "Client.hpp"
 #include "Request.hpp"
+#include "run_server.hpp"
 #include <cstddef>
 #include <cstring>
 #include <map>
@@ -28,15 +29,15 @@ bool	read_trailer_fields(Request& r, std::string& raw_body)
 {
 	try
 	{
-		if (parse_fields(raw_body, r) == false)
-			return false;
+		if (parse_fields(raw_body, r) == INCOMPLETE)
+			return INCOMPLETE;
 	}
 	catch(Request::ErrorRequest &e)
 	{
 		print_log(TEXT_RED, &e, e.what(), 1);
 		return e.getErrorCode();
 	}
-	return true;
+	return DONE;
 }
 
 int	read_with_boundaries(Request& r, std::string& raw_body)
@@ -60,8 +61,8 @@ int	read_with_boundaries(Request& r, std::string& raw_body)
 	{
 		consume_until_crlf(raw_body);
 		int	return_value = read_trailer_fields(temp_r, raw_body);
-		if (return_value == false)
-			return 1;
+		if (return_value == INCOMPLETE)
+			return INCOMPLETE;
 		else if (return_value > 1)
 			return return_value;
 		boundary_pos = raw_body.find(boundary);
@@ -78,11 +79,11 @@ int	read_with_boundaries(Request& r, std::string& raw_body)
 		if (raw_body.find("--") == 0)
 		{
 			consume_until_crlf(raw_body);
-			return 0;
+			return DONE;
 		}
 		boundary_pos = raw_body.find(boundary);
 	}
-	return 1;
+	return INCOMPLETE;
 }
 
 bool	read_body(Request& r, std::string& raw_body)
@@ -91,7 +92,7 @@ bool	read_body(Request& r, std::string& raw_body)
 	std::map<std::string, std::string>::const_iterator	it = r.getHeader().getFields().find("Content-Type");
 
 	if (!r.bytes_2_read)
-		return true;
+		return DONE;
 	if (r.getBytesRead() + r.bytes_2_read > r.getLocConfBlock()->getCMBS())
 		throw Request::ErrorRequest(content_too_large, "Body max size reached!");
 	if (it != r.getHeader().getFields().end() && it->second.find("multipart/") != std::string::npos)
@@ -101,11 +102,11 @@ bool	read_body(Request& r, std::string& raw_body)
 	r.addBytesRead(temp_str.length());
 	raw_body.erase(0, temp_str.length());
 	if (r.bytes_2_read != 0)
-		return false;
-	return true;
+		return INCOMPLETE;
+	return DONE;
 }
 
-bool	read_chunked_body(Request& r, std::string& raw_body)
+int	read_chunked_body(Request& r, std::string& raw_body)
 {
 	size_t crlf_pos;
 	crlf_pos = raw_body.find(CRLF, 0, CRLF_LEN);
@@ -115,49 +116,47 @@ bool	read_chunked_body(Request& r, std::string& raw_body)
 		if (!r.waiting_chunk)
 		{
 			chunk_size = raw_body.substr(0, crlf_pos);
-			print_log(TEXT_BLUE, NULL, "CHUNKED SIZE READ: " + chunk_size + '\n', false);
 			consume_until_crlf(raw_body);
 			r.bytes_2_read = hex_to_int(chunk_size);
 			if (r.bytes_2_read == 0)
 			{
 				r.is_body_read = true;
-				return true;
+				return DONE;
 			}
 		}
-		if (read_body(r, raw_body) == false)
+		if (read_body(r, raw_body) == INCOMPLETE)
 		{
 			r.waiting_chunk = true;
-			return false;
+			return INCOMPLETE;
 		}
-		print_log(TEXT_BLUE, NULL, "DONE READING: " + raw_body + "<-\n", false);
 		if (raw_body.find(CRLF) == raw_body.npos)
-			return false;
+			return INCOMPLETE;
 		raw_body.erase(0, CRLF_LEN);
 		r.waiting_chunk = false;
 		crlf_pos = raw_body.find(CRLF, 0, CRLF_LEN);
 	}
-	return false;
+	return INCOMPLETE;
 }
 
-bool	parse_body(Request& r, std::string& raw_body)
+int	parse_body(Request& r, std::string& raw_body)
 {
 	std::map<std::string, std::string> const&	fields = r.getHeader().getFields();
 
 	if (fields.find("Transfer-Encoding") != fields.end())
 	{
-		if (!r.is_body_read && read_chunked_body(r, raw_body) == false)
-			return false;
-		if (read_trailer_fields(r, raw_body) == false)
-			return false;
+		if (!r.is_body_read && read_chunked_body(r, raw_body) == INCOMPLETE)
+			return INCOMPLETE;
+		if (read_trailer_fields(r, raw_body) == INCOMPLETE)
+			return INCOMPLETE;
 	}
 	else if (fields.find("Content-Length") != fields.end())
 	{
 		r.bytes_2_read = ft_atoull(fields.at("Content-Length").c_str());
-		if (read_body(r, raw_body) == 1)
-			return false;
+		if (read_body(r, raw_body) == INCOMPLETE)
+			return INCOMPLETE;
 	}
 	r.setBodyLen(r.getBytesRead());
-	return true;
+	return DONE;
 }
 
 

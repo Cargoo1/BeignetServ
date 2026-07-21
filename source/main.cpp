@@ -1,6 +1,9 @@
 
 #include "run_server.hpp"
+#include "utils_logs.hpp"
+#include <cerrno>
 #include <iostream>
+#include <stdexcept>
 #include <stdlib.h>
 #include <configParser.hpp>
 
@@ -20,6 +23,15 @@ int	main(int ac, char **av)
 		std::cerr << e.what() << std::endl;
 		return 1;
 	}
-	int exit_sts = run(server.getServers());
+	int	exit_sts = 0;
+	try
+	{
+		exit_sts = run(server.getServers());
+	}
+	catch (std::runtime_error& e)
+	{
+		print_log(TEXT_RED, NULL, e.what(), true);
+		return errno;
+	}
 	return (exit_sts);
 }

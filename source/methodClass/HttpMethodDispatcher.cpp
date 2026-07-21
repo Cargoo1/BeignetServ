@@ -116,7 +116,7 @@ bool checkClientMaxBodySize(Request const& r) {
 int dispatcher_method(Request const& r, HttpResponse &response) {
 	std::string reqMethod(r.getHeader().getMethod());
 	if (r.getHeader().is_a_script())
-		return execute_script(r, response);
+		return 2;
 	else if (reqMethod == "GET"){
 		GetMethod	method(r);
 		method.executeMethod(response);

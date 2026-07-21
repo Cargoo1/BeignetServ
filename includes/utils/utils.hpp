@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/03 17:39:25 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/20 18:01:00 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/21 12:54:01 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,7 +124,5 @@ int		read_msg(std::string& str, int fd);
 void	free_double_char_ptr(char **ptr);
 
 char	*ft_create_c_str(std::string const& str);
-
-void	ft_clean_exit(CgiChild const& child, std::string const& log);
 
 void	find_extension(std::string const& file_path, std::string& extension);

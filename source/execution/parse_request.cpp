@@ -6,13 +6,14 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/07 19:49:10 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/14 18:36:16 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/21 15:32:55 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
 #include "Header.hpp"
 #include "HttpResponse.hpp"
+#include "run_server.hpp"
 #include <cctype>
 #include <cstddef>
 #include <fstream>
@@ -139,7 +140,7 @@ void	init_map_fields(std::map<std::string, field_function>& map_fields)
 	}
 }
 
-bool	parse_fields(std::string& request,
+int	parse_fields(std::string& request,
 						Request& r)
 {
 	std::string	line;
@@ -153,9 +154,9 @@ bool	parse_fields(std::string& request,
 		line = request.substr(0, crlf_pos);
 		consume_until_crlf(request);
 		if (line.empty())
-			return true;
+			return DONE;
 		parse_line(line, header, map_fields, r);
 		crlf_pos = request.find(CRLF);
 	}
-	return false;
+	return INCOMPLETE;
 }

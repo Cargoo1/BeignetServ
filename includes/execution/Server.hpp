@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/12 15:08:39 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/20 18:02:20 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/21 13:07:08 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ public:
 	time_t						getLastCheckScripts(void) const;
 	void						setLastCheckScripts(void);
 	void						addClient(int fd, uint32_t events, std::string const& ip, std::string const& port);
-	void						addCgiChild(uint32_t events, Client& client);
+	int							addCgiChild(uint32_t events, Client& client);
 	std::map<int, CgiChild>&		getCgiChilds(void);
 	void						deleteClient(int fd);
 	void						deleteCgiChild(int pipe_fd);

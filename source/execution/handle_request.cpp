@@ -6,7 +6,7 @@
 /*   By: ratel <ratel@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/11 19:40:38 by alejandroca       #+#    #+#             */
-/*   Updated: 2026/07/17 15:52:25 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/21 15:38:53 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include <send_http_response.hpp>
 #include "HttpResponse.hpp"
 #include "Server.hpp"
+#include "run_server.hpp"
 #include "utils.hpp"
 #include "utils_logs.hpp"
 #include <iostream>
@@ -52,7 +53,7 @@ int	handle_request(Client& client, Server const& server)
 	{
 		try
 		{
-			if (parse_fields(client.getNotConstMsg(), r) == false)
+			if (parse_fields(client.getNotConstMsg(), r) == INCOMPLETE)
 				return 1;
 			if (r.getHeader().getFields().find("Host") == r.getHeader().getFields().end())
 				throw Request::ErrorRequest(bad_request, "Host field missing");
@@ -73,8 +74,8 @@ int	handle_request(Client& client, Server const& server)
 	}
 	try
 	{
-		if (parse_body(r, client.getNotConstMsg()) == false)
-			return 1;
+		if (parse_body(r, client.getNotConstMsg()) == INCOMPLETE)
+			return INCOMPLETE;
 	}
 	catch (Request::ErrorRequest& e)
 	{
@@ -84,10 +85,10 @@ int	handle_request(Client& client, Server const& server)
 		return -1;
 	}
 	int infno = router(r, response);
-	if (infno > 0)
+	if (infno == RUN_CGI)
 		return infno;
 	send_response(r, response, client.getFd(), 0);
-	return 0;
+	return DONE;
 }
 
 

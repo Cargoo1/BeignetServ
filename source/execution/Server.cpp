@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/12 15:15:33 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/20 18:02:15 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/21 14:44:51 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,11 +16,13 @@
 #include "utils.hpp"
 #include "utils_logs.hpp"
 #include <Client.hpp>
+#include <cstdlib>
 #include <ctime>
 #include <serverConfig.hpp>
 #include <iostream>
 #include <Server.hpp>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #include <sys/epoll.h>
 #include <sys/poll.h>
@@ -123,21 +125,31 @@ void	Server::addClient(int fd, uint32_t events, std::string const& ip, std::stri
 	print_log(TEXT_GREEN, NULL, log, 0);
 }
 
-void	Server::addCgiChild(uint32_t events, Client& client)
+int	Server::addCgiChild(uint32_t events, Client& client)
 {
 	std::string	log;
-	std::stringstream	ss;
-	CgiChild	child(client);
+	int	pipe_fd[2];
+	if (pipe(pipe_fd) == -1)	
+	{
+		print_log(TEXT_RED, NULL, strerror(errno), true);
+		return errno;
+	}
+	this->_scripts_childs.insert(std::pair<int, CgiChild>(pipe_fd[0], CgiChild(client)));
+	CgiChild&	child = this->_scripts_childs.at(pipe_fd[0]);
+	child.setPipe(pipe_fd);
 	int	infno = child.execute_cgi();
 	if (infno != 0)
+	{
 		send_response(client.getRequest(), client.getRequest().getResponse(), client.getFd(), infno);
+		this->deleteCgiChild(child.getPipe()[0]);
+		return -1;
+	}
 	this->setEinf(child.getPipe()[0], events);
 	epoll_ctl(this->_epollfd, EPOLL_CTL_ADD, child.getPipe()[0], &this->_einf);
-	this->_scripts_childs.insert(std::pair<int, CgiChild>(child.getPipe()[0], child));
-
 	client.getRequest().setPipeFd(child.getPipe()[0]);
 	log = "Pipe added to Epoll pool: " + toStr(child.getPipe()[0]) + "\n";
 	print_log(TEXT_GREEN, NULL, log, 0);
+	return 0;
 }
 
 void	Server::deleteClient(int fd)

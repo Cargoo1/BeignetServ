@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 19:14:10 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/09 14:36:43 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/21 15:32:46 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,5 +37,11 @@
 #include <utils.hpp>
 
 #define TIMEOUT 0
+
+#define RUN_CGI	2
+
+#define INCOMPLETE 1
+
+#define DONE 0
 
 int	run(std::vector<serverConfig> const&	servers_conf);
