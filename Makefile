@@ -30,6 +30,7 @@ HEADER = $(HEADER_DIR)/$(EXEP_DIR)/configException.hpp		\
 		 $(HEADER_DIR)/$(EXEC_DIR)/Header.hpp				\
 		 $(HEADER_DIR)/$(EXEC_DIR)/HttpResponse.hpp			\
 		 $(HEADER_DIR)/$(EXEC_DIR)/send_http_response.hpp	\
+		 $(HEADER_DIR)/$(EXEC_DIR)/SessionManager.hpp		\
 		 $(HEADER_DIR)/$(UTILS_DIR)/utils.hpp				\
 		 $(HEADER_DIR)/$(EXEC_DIR)/parse_body.hpp			\
 		 $(HEADER_DIR)/$(EXEC_DIR)/CgiChild.hpp				\
@@ -56,6 +57,7 @@ SRCS = $(SRCS_DIR)/$(EXEP_DIR)/configException.cpp			\
 	   $(SRCS_DIR)/$(EXEC_DIR)/Header.cpp					\
 	   $(SRCS_DIR)/$(EXEC_DIR)/HttpResponse.cpp				\
 	   $(SRCS_DIR)/$(EXEC_DIR)/send_http_response.cpp		\
+	   $(SRCS_DIR)/$(EXEC_DIR)/SessionManager.cpp			\
 	   $(SRCS_DIR)/$(UTILS_DIR)/utils.cpp					\
 	   $(SRCS_DIR)/$(UTILS_DIR)/utils_logs.cpp				\
 	   $(SRCS_DIR)/$(UTILS_DIR)/utils_string.cpp			\

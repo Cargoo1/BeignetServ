@@ -45,12 +45,17 @@ class Header
 		std::string const&						getQueryStr(void) const;
 		std::string const&						getPathInfo(void) const;
 
+		std::string const						&getCookie(void) const;
+		std::string						&getCookie(void);
+
+
 		bool	setMethod(std::string& method);
 		void	setTargetResource(std::string& uri, Request& r);
 		bool	setProtocolV(std::string& protocol);
 		void	setHost(std::string& host);
 		void	setContent_len(std::string& content_len);
 		void	setContent_type(std::string& content_type);
+		void	setCookie(std::string& cookie);
 		std::string const*	getContentType(void) const;
 		void	setContent_dispo(std::string& content_type);
 		std::string&	getBoundary(void);

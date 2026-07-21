@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Session Counter</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <main>
+    <section class="hero">
+      <span class="eyebrow">Session demo</span>
+      <h1>Cookie and session demo</h1>
+      <p>
+        Cette page montre un compteur stocké côté serveur et attaché à un cookie de
+        session. Chaque navigateur garde sa propre valeur.
+      </p>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h2>Compteur</h2>
+        <p class="status" style="font-size: clamp(2.8rem, 10vw, 5rem); font-weight: 800; text-align: center; margin: 18px 0 22px;">{{COUNTER}}</p>
+        <div class="links">
+          <form method="get" action="/counter">
+            <button class="button" type="submit" name="action" value="inc">+1</button>
+          </form>
+          <form method="get" action="/counter">
+            <button class="button secondary" type="submit" name="action" value="reset">Reset</button>
+          </form>
+        </div>
+        <p class="hint" style="margin-top: 18px;">
+          Le serveur pose un cookie, lit la session, puis renvoie cette page avec la
+          valeur courante.
+        </p>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

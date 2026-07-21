@@ -4,11 +4,13 @@
 #include "Request.hpp"
 #include <HttpMethod.hpp>
 
-int router(Request const& r, HttpResponse& response);
+class Server;
+
+int router(Request const& r, HttpResponse& response, Server& server);
 
 /* Helpers */
 
 locationConfig longestMatchingPath(const std::string &path,const serverConfig &server_bloc);
 bool checkAllowedMethods(const locationConfig &location_block, const std::string &method);
 bool checkClientMaxBodySize(Request const& r);
-int		dispatcher_method(Request const& r, HttpResponse &rsp);
+int	dispatcher_method(Request const& r, HttpResponse &rsp, Server& server);

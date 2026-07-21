@@ -1,7 +1,10 @@
 #include "Request.hpp"
 #include "utils.hpp"
 #include <GetMethod.hpp>
+#include <Server.hpp>
 
+#include <ctime>
+#include <fstream>
 #include <iostream>
 #include <unistd.h>
 #include <limits.h>
@@ -9,7 +12,77 @@
 #include <sys/stat.h>
 #include <dirent.h>
 
-GetMethod::GetMethod(Request const& r) : HttpMethod(r) {};
+namespace {
+	const std::string kCounterRoute = "/counter";
+	const std::string kSessionCookieName = "beignet_session";
+	const std::string kCounterPlaceholder = "{{COUNTER}}";
+
+	std::string trim(std::string value)
+	{
+		std::string::size_type start = value.find_first_not_of(" \t");
+		std::string::size_type end = value.find_last_not_of(" \t");
+		if (start == std::string::npos || end == std::string::npos)
+			return "";
+		return value.substr(start, end - start + 1);
+	}
+
+	std::string extractCookieValue(std::string const& cookieHeader, std::string const& cookieName)
+	{
+		std::string::size_type start = 0;
+		while (start < cookieHeader.size())
+		{
+			std::string::size_type end = cookieHeader.find(';', start);
+			std::string token = trim(cookieHeader.substr(start, end == std::string::npos ? std::string::npos : end - start));
+			std::string::size_type separator = token.find('=');
+			if (separator != std::string::npos && token.substr(0, separator) == cookieName)
+				return trim(token.substr(separator + 1));
+			if (end == std::string::npos)
+				break;
+			start = end + 1;
+		}
+		return "";
+	}
+
+	std::string extractAction(Request const& request)
+	{
+		std::string query = getQuery(request.getHeader().getTargetResource() + "?" + request.getHeader().getQueryStr());
+		std::string::size_type actionPos = query.find("action=");
+		if (actionPos == std::string::npos)
+			return "";
+		return query.substr(actionPos + 7);
+	}
+
+	std::string createSessionId()
+	{
+		static unsigned long long sequence = 0;
+		std::ostringstream stream;
+		stream << std::time(0) << '-' << ++sequence;
+		return stream.str();
+	}
+
+	std::string loadTemplate(std::string const& filePath)
+	{
+		std::ifstream file(filePath.c_str());
+		if (!file.is_open())
+			return "";
+		std::ostringstream buffer;
+		buffer << file.rdbuf();
+		return buffer.str();
+	}
+
+	std::string renderCounterPage(std::string const& filePath, unsigned int counter)
+	{
+		std::string page = loadTemplate(filePath);
+		if (page.empty())
+			return page;
+		std::string::size_type pos = page.find(kCounterPlaceholder);
+		if (pos != std::string::npos)
+			page.replace(pos, kCounterPlaceholder.size(), toStr(counter));
+		return page;
+	}
+}
+
+GetMethod::GetMethod(Request const& r, Server& server) : HttpMethod(r), _server(server) {};
 
 GetMethod::~GetMethod() {};
 
@@ -42,16 +115,30 @@ void GetMethod::executeMethod(HttpResponse &rsp) {
 	if (stat(path.c_str(), &path_stat) < 0) 
 		throw Request::ErrorRequest(not_found, "GET: no such file or directory (stat)");
 	if (S_ISDIR(path_stat.st_mode)) {
-		// if (path.at(path.size()-1) != '/') {
-		// 	rsp.setStatusCode(301);
-		// 	rsp.addField("Location", path + "/");
-		// 	return;
-		// }
 		if (this->_request.getLocConfBlock()->hasIndex()) {
 			std::string indexPath = path + "/" + this->_request.getLocConfBlock()->getIndex();
 			if (stat(indexPath.c_str(), &path_stat) == 0) {
 				if (S_ISREG(path_stat.st_mode)) {
-					if (!rsp.setBodyFromFile(indexPath))
+					if (this->_request.getLocConfBlock()->getPath() == kCounterRoute) {
+						std::string sessionId = extractCookieValue(this->_request.getHeader().getCookie(), kSessionCookieName);
+						if (sessionId.empty())
+							sessionId = createSessionId();
+						std::string action = extractAction(this->_request);
+						SessionManager& sessions = _server.getSession();
+						if (action == "inc")
+							sessions.incrCounter(sessionId);
+						else if (action == "reset")
+							sessions.restCounter(sessionId);
+						else
+							(void)sessions.getUserCounter(sessionId);
+						unsigned int counter = sessions.getUserCounter(sessionId);
+						std::string page = renderCounterPage(indexPath, counter);
+						if (page.empty())
+							throw Request::ErrorRequest(not_found, "GET: the counter page does not exist");
+						rsp.setBody(page);
+						rsp.addField("Set-Cookie", kSessionCookieName + "=" + sessionId + "; Path=/counter; HttpOnly; SameSite=Lax");
+					}
+					else if (!rsp.setBodyFromFile(indexPath))
 						throw Request::ErrorRequest(not_found, "GET: the index.html file does not exist");
 				rsp.setContentType(find_content_type(indexPath));
 				rsp.addContentLength();

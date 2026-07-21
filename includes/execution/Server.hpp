@@ -13,6 +13,7 @@
 #pragma once
 #include "CgiChild.hpp"
 #include "Request.hpp"
+#include "SessionManager.hpp"
 #include <cstddef>
 #include <ctime>
 #include <serverConfig.hpp>
@@ -49,6 +50,8 @@ public:
 	std::map<int, CgiChild>&		getCgiChilds(void);
 	void						deleteClient(int fd);
 	void						deleteCgiChild(int pipe_fd);
+	SessionManager				&getSession();
+	const SessionManager				&getSession() const;
 private:
 	std::vector<int>			_sfds;
 	time_t						_last_check;
@@ -58,4 +61,5 @@ private:
 	struct epoll_event			_einf, _eventQueue[MAX_EVENTS];
 	std::map<int, Client>		_clients;
 	std::map<int, CgiChild>		_scripts_childs;
+	SessionManager				_sessions;
 };

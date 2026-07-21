@@ -37,7 +37,7 @@
 
 // 	}
 
-int	handle_request(Client& client, Server const& server)
+int	handle_request(Client& client, Server& server)
 {
 	if (!client.getRequest().getReqInProg())
 	{
@@ -84,7 +84,7 @@ int	handle_request(Client& client, Server const& server)
 		client.getNotConstMsg().clear();
 		return -1;
 	}
-	int infno = router(r, response);
+	int infno = router(r, response, server);
 	if (infno == RUN_CGI)
 		return infno;
 	send_response(r, response, client.getFd(), 0);

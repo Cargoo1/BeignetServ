@@ -116,7 +116,7 @@ void	parse_line(std::string & line,
 	(header.*(it->second))(line);
 }
 
-#define FIELDS_SIZE 5
+#define FIELDS_SIZE 6
 
 void	init_map_fields(std::map<std::string, field_function>& map_fields)
 {
@@ -125,12 +125,15 @@ void	init_map_fields(std::map<std::string, field_function>& map_fields)
 												"Content-Length",
 												"Transfer-Encoding",
 												"Content-Type",
-												"Content-Disposition"};
+												"Content-Disposition",
+												"Cookie"
+											};
 	field_function	fn_fields[FIELDS_SIZE] = {&Header::setHost,
 												&Header::setContent_len,
 												&Header::setTransfer_encoding,
 												&Header::setContent_type,
-												&Header::setContent_dispo};
+												&Header::setContent_dispo,
+												&Header::setCookie};
 
 	for (size_t i = 0; i < FIELDS_SIZE; i++)
 	{

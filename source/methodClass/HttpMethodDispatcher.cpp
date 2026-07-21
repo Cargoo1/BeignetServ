@@ -34,7 +34,7 @@ namespace {
 	}
 }
 
-int router(Request const& r, HttpResponse& response) {
+int router(Request const& r, HttpResponse& response, Server& server) {
 	locationConfig const&	location_block = *r.getLocConfBlock();
 	int		infno = 0;
 
@@ -50,7 +50,7 @@ int router(Request const& r, HttpResponse& response) {
 	}
 	try
 	{
-		infno = dispatcher_method(r, response);
+		infno = dispatcher_method(r, response, server);
 	}
 	catch (Request::ErrorRequest& e)
 	{
@@ -113,12 +113,12 @@ bool checkClientMaxBodySize(Request const& r) {
 	return (true);
 }
 
-int dispatcher_method(Request const& r, HttpResponse &response) {
+int dispatcher_method(Request const& r, HttpResponse &response, Server& server) {
 	std::string reqMethod(r.getHeader().getMethod());
 	if (r.getHeader().is_a_script())
 		return 2;
 	else if (reqMethod == "GET"){
-		GetMethod	method(r);
+		GetMethod	method(r, server);
 		method.executeMethod(response);
 	}
 	else if (reqMethod == "DELETE") {

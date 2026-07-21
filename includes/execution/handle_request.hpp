@@ -18,4 +18,4 @@
 #include <vector>
 #include <serverConfig.hpp>
 
-int	handle_request(Client& client, Server const& server);
+int	handle_request(Client& client, Server& server);

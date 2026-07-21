@@ -12,6 +12,7 @@
 
 #include "CgiChild.hpp"
 #include "Request.hpp"
+#include "SessionManager.hpp"
 #include "send_http_response.hpp"
 #include "utils.hpp"
 #include "utils_logs.hpp"
@@ -190,4 +191,12 @@ time_t	Server::getLastCheckScripts(void) const
 void	Server::setLastCheckScripts(void)
 {
 	std::time(&this->_last_check_scripts);
+}
+
+SessionManager				&Server::getSession() {
+	return (this->_sessions);
+}
+
+const SessionManager				&Server::getSession() const {
+	return (this->_sessions);
 }

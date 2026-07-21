@@ -193,8 +193,7 @@ void	Header::setTargetResource(std::string& uri, Request& r)
 	if (separator_pos != std::string::npos
 		&& separator_pos < this->_target_resource.length())
 	{
-		separator_pos++;
-		this->_query_string = this->_target_resource.substr(separator_pos);
+		this->_query_string = this->_target_resource.substr(separator_pos + 1);
 		this->_target_resource.erase(separator_pos, std::string::npos);
 	}
 	size_t	path_extra_pos = std::string::npos;
@@ -245,6 +244,17 @@ void	Header::setContent_len(std::string& content_len)
 			throw Request::ErrorRequest(bad_request, "Invalid Content-Length");
 	}
 	this->_map_fields["Content-Length"] = content_len;
+}
+
+void	Header::setCookie(std::string& cookie)
+{
+	if (cookie.empty())
+		throw Request::ErrorRequest(bad_request, "Invalid Cookie");
+	size_t	colon_pos = cookie.find_first_of(":");
+	if (colon_pos == std::string::npos)
+		throw Request::ErrorRequest(bad_request, "Invalid Cookie");
+	cookie.erase(0, colon_pos + 1);
+	this->_map_fields["Cookie"] = cookie;
 }
 
 void	Header::setContent_type(std::string& content_type)
@@ -373,4 +383,19 @@ std::string const*	Header::getContentType(void) const
 	if (this->_map_fields.find("Content-Type") == this->_map_fields.end())
 		return NULL;
 	return &this->_map_fields.at("Content-Type");
+}
+
+std::string const&	Header::getCookie(void) const
+{
+	if (this->_map_fields.find("Cookie") == this->_map_fields.end())
+	{
+		static const std::string empty_cookie;
+		return empty_cookie;
+	}
+	return this->_map_fields.at("Cookie");
+}
+
+std::string&	Header::getCookie(void)
+{
+	return this->_map_fields["Cookie"];
 }
