@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/08 15:51:44 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/16 23:48:58 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/22 23:16:25 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@
 Request::Request()
 {
 	this->_request_in_progress = false;
+	this->is_cgi_in_progress = false;
 	this->_body_len = 0;
 	this->_bytes_read = 0;
 	this->_locConf_block = NULL;
@@ -46,6 +47,7 @@ Request::Request(const Request& other)
 	this->_body = other._body;
 	this->_response = other._response;
 	this->_request_in_progress = other._request_in_progress;
+	this->is_cgi_in_progress = other.is_cgi_in_progress;
 	this->_body_len = other._body_len;
 	this->_bytes_read = other._bytes_read;
 	this->_locConf_block = other._locConf_block;

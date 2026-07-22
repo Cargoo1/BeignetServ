@@ -6,7 +6,7 @@
 /*   By: ratel <ratel@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/11 19:40:38 by alejandroca       #+#    #+#             */
-/*   Updated: 2026/07/22 18:40:23 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/22 23:11:40 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,6 @@ int	handle_request(Client& client, Server& server)
 		client.getRequest().setReqInProg(true);
 		client.getRequest().setServerBlock(find_server_block(client, server.getServerConf()));
 	}
-	HttpResponse response;
 	Request&	r = client.getRequest();
 	print_log(TEXT_CYAN, NULL, "CLIENT INPUT:\n@@@@@@@@@@\n>>>" +
 								client.getMsg() +
@@ -62,14 +61,14 @@ int	handle_request(Client& client, Server& server)
 		catch(Request::ErrorRequest& e)
 		{
 			print_log(TEXT_RED, &e, e.what(), 1);
-			send_response(r, response, client.getFd(), e.getErrorCode());
+			send_response(r, r.getResponse(), client.getFd(), e.getErrorCode());
 			client.getNotConstMsg().clear();
 			return -1;
 		}
 	}
 	if (!r.getLocConfBlock() || !r.getServerBlock())
 	{
-		send_response(r, response, client.getFd(), internal_server_error);
+		send_response(r, r.getResponse(), client.getFd(), internal_server_error);
 		return -1;
 	}
 	try
@@ -80,14 +79,14 @@ int	handle_request(Client& client, Server& server)
 	catch (Request::ErrorRequest& e)
 	{
 		print_log(TEXT_RED, &e, e.what(), 1);
-		send_response(r, response, client.getFd(), e.getErrorCode());
+		send_response(r, r.getResponse(), client.getFd(), e.getErrorCode());
 		client.getNotConstMsg().clear();
 		return -1;
 	}
-	int infno = router(r, response, server);
+	int infno = router(r, r.getResponse(), server);
 	if (infno == RUN_CGI)
 		return server.addCgiChild(EPOLLIN, client);
-	send_response(r, response, client.getFd(), 0);
+	send_response(r, r.getResponse(), client.getFd(), 0);
 	return DONE;
 }
 

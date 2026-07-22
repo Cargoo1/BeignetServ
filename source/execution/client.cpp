@@ -6,11 +6,13 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/21 15:12:53 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/21 13:34:22 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/22 20:36:55 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <cerrno>
 #include <climits>
+#include <csignal>
 #include <cstddef>
 #include <cstdio>
 #include <cstring>
@@ -30,6 +32,9 @@ int	main(int argc, char **argv)
 	// 	std::cerr << "Error: args" << std::endl;
 	// 	return (EXIT_FAILURE);
 	// }
+	kill(1275868, SIGKILL);
+	std::cout << strerror(errno);
+	return 1;
 	std::map<std::string, std::string> test;
 	test["lol"] = "so";
 	std::cout << test["lol"];

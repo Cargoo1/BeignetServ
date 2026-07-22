@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 19:14:10 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/21 15:32:46 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/22 20:18:40 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,8 @@
 
 #include <vector>
 
+#include <utils_execution.hpp>
+
 #include <iostream>
 
 #include <serverConfig.hpp>
@@ -44,6 +46,6 @@
 
 #define DONE 0
 
-extern volatile bool stopExec;
+extern volatile bool stop_server;
 
 int	run(std::vector<serverConfig> const&	servers_conf);

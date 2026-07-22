@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/16 20:36:21 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/20 17:10:04 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/22 23:49:23 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ bool	is_in_cgi_dir(std::string const& uri)
 
 bool	is_a_cgi_request(std::string const& uri, size_t& path_extra_pos)
 {
-	std::string	cgi_extensions[EXTENSIONS_SIZE] = {".py", ".cgi", ".ws"};
+	std::string	cgi_extensions[EXTENSIONS_SIZE] = {".py", ".bla", ".ws"};
 	size_t	ext_pos = 0;
 
 	for (size_t i = 0; i < EXTENSIONS_SIZE; i++)

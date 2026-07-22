@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/12 15:15:33 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/22 18:40:36 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/22 23:26:45 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,10 +16,12 @@
 #include "run_server.hpp"
 #include "send_http_response.hpp"
 #include "utils.hpp"
+#include "utils_execution.hpp"
 #include "utils_logs.hpp"
 #include <Client.hpp>
 #include <cstdlib>
 #include <ctime>
+#include <exception>
 #include <serverConfig.hpp>
 #include <iostream>
 #include <Server.hpp>
@@ -50,6 +52,29 @@ Server::Server(std::vector<serverConfig> const& servers_conf) : _server_conf(ser
 Server::~Server(void)
 {
 	return;
+}
+
+void	Server::close_server(bool remove_from_epoll)
+{
+	this->close_server_sockets();
+	this->close_all_clients(remove_from_epoll);
+	close(this->_epollfd);
+}
+
+void	Server::close_all_clients(bool remove_from_epoll)
+{
+	std::map<int, Client>::iterator	it;
+	for (it = this->_clients.begin(); it != this->_clients.end();)
+		this->deleteClient((it++)->first, remove_from_epoll);
+}
+
+void	Server::close_server_sockets(void)
+{
+	std::vector<int>::iterator	it_sfds;
+	std::vector<Client>::iterator	it_clients;
+
+	for (it_sfds = this->_sfds.begin(); it_sfds != this->_sfds.end(); it_sfds++)
+		close(*it_sfds);
 }
 
 Server&	Server::operator=(Server const& other)
@@ -140,12 +165,18 @@ int	Server::addCgiChild(uint32_t events, Client& client)
 	CgiChild&	child = this->_scripts_childs.at(pipe_fd[0]);
 	child.setPipe(pipe_fd);
 	int	infno = child.execute_cgi();
-	if (infno != 0)
+	if (infno < 0)
+	{
+		this->close_server(false);
+		throw std::exception();
+	}
+	else if (infno != 0)
 	{
 		send_response(client.getRequest(), client.getRequest().getResponse(), client.getFd(), infno);
 		this->deleteCgiChild(child.getPipe()[0]);
 		return -1;
 	}
+	client.getRequest().is_cgi_in_progress = true;
 	this->setEinf(child.getPipe()[0], events);
 	epoll_ctl(this->_epollfd, EPOLL_CTL_ADD, child.getPipe()[0], &this->_einf);
 	client.getRequest().setPipeFd(child.getPipe()[0]);
@@ -154,16 +185,19 @@ int	Server::addCgiChild(uint32_t events, Client& client)
 	return INCOMPLETE;
 }
 
-void	Server::deleteClient(int fd)
+void	Server::deleteClient(int fd, bool remove_from_epoll)
 {
 	std::string	fd_str;
 	ft_itoa(fd, fd_str);
-	print_log(TEXT_YELLOW, NULL, "Closing connection and deleting client: "+
-			this->_clients.at(fd)._ip+
-			":" +
-			this->_clients.at(fd)._port+
-			" " + fd_str, 0);
-	epoll_ctl(this->_epollfd, EPOLL_CTL_DEL, fd, &this->_einf);
+	if (remove_from_epoll)
+	{
+		print_log(TEXT_YELLOW, NULL, "Closing connection and deleting client: "+
+				this->_clients.at(fd)._ip+
+				":" +
+				this->_clients.at(fd)._port+
+				" " + fd_str, 0);
+		epoll_ctl(this->_epollfd, EPOLL_CTL_DEL, fd, &this->_einf);
+	}
 	close(fd);
 	this->_clients.erase(fd);
 }
@@ -179,7 +213,6 @@ void	Server::deleteCgiChild(int pipe_fd)
 		return;
 	print_log(TEXT_YELLOW, NULL, "Closing and deleting pipe: " + toStr(pipe_fd), 0);
 	epoll_ctl(this->_epollfd, EPOLL_CTL_DEL, pipe_fd, &this->_einf);
-	close(pipe_fd);
 	this->_scripts_childs.at(pipe_fd).getClientOwner().getRequest().setPipeFd(-1);
 	this->_scripts_childs.erase(pipe_fd);
 }

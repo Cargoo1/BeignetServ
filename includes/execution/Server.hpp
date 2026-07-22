@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/12 15:08:39 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/21 13:07:08 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/22 22:21:57 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,10 +48,13 @@ public:
 	void						addClient(int fd, uint32_t events, std::string const& ip, std::string const& port);
 	int							addCgiChild(uint32_t events, Client& client);
 	std::map<int, CgiChild>&		getCgiChilds(void);
-	void						deleteClient(int fd);
+	void						deleteClient(int fd, bool remove_from_epoll);
 	void						deleteCgiChild(int pipe_fd);
 	SessionManager				&getSession();
 	const SessionManager				&getSession() const;
+	void						close_server(bool remove_from_epoll);
+	void						close_server_sockets(void);
+	void						close_all_clients(bool remove_from_epoll);
 private:
 	std::vector<int>			_sfds;
 	time_t						_last_check;

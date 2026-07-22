@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/03 17:41:28 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/21 12:46:30 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/22 20:07:30 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -390,6 +390,6 @@ void	ft_clean_exit(CgiChild& child, std::string const& log)
 }
 
 void ft_handler(int sig) {
-	(void)sig;
-	stopExec = true;
+	print_log(TEXT_RED, NULL, "Signal recived: " + toStr(sig) + " stoping server", 1);
+	stop_server = true;
 }

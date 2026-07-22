@@ -2,6 +2,7 @@
 #include "run_server.hpp"
 #include "utils_logs.hpp"
 #include <cerrno>
+#include <exception>
 #include <iostream>
 #include <stdexcept>
 #include <stdlib.h>
@@ -28,10 +29,9 @@ int	main(int ac, char **av)
 	{
 		exit_sts = run(server.getServers());
 	}
-	catch (std::runtime_error& e)
+	catch (std::exception& e)
 	{
-		print_log(TEXT_RED, NULL, e.what(), true);
-		return errno;
+		exit_sts = errno;
 	}
 	return (exit_sts);
 }

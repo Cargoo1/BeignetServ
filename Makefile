@@ -35,6 +35,7 @@ HEADER = $(HEADER_DIR)/$(EXEP_DIR)/configException.hpp		\
 		 $(HEADER_DIR)/$(EXEC_DIR)/parse_body.hpp			\
 		 $(HEADER_DIR)/$(EXEC_DIR)/CgiChild.hpp				\
 		 $(HEADER_DIR)/$(UTILS_DIR)/utils_logs.hpp			\
+		 $(HEADER_DIR)/$(UTILS_DIR)/utils_execution.hpp		\
 
 
 SRCS_DIR = source
@@ -72,6 +73,7 @@ SRCS = $(SRCS_DIR)/$(EXEP_DIR)/configException.cpp			\
 	   $(SRCS_DIR)/$(UTILS_DIR)/utils_cgi.cpp				\
 	   $(SRCS_DIR)/$(EXEC_DIR)/cgi_protocol.cpp				\
 	   $(SRCS_DIR)/$(EXEC_DIR)/CgiChild.cpp					\
+	   $(SRCS_DIR)/$(UTILS_DIR)/utils_execution.cpp			\
 	   $(SRCS_DIR)/main.cpp
 
 OBJ_DIR = obj

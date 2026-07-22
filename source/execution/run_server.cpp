@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 19:10:40 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/22 18:32:20 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/22 23:25:39 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@
 #include <signal.h>
 #include <sys/epoll.h>
 
-volatile bool stopExec = false;
+volatile bool stop_server = false;
 
 int		getListenerSocket(const std::string &host, const std::string &port)
 {
@@ -76,39 +76,6 @@ int		getListenerSocket(const std::string &host, const std::string &port)
 		throw std::runtime_error("Listen: " + std::string(strerror(errno)));
 	return sfd;
 }
-
-int	close_all_clients(Server& server)
-{
-	if (server.getClients().size() <= 0)
-		return 0;
-	for (size_t i = 0; i < server.getClients().size(); i++)
-		server.deleteClient(i);
-	return 1;
-}
-
-void	close_servers(Server& server)
-{
-	std::vector<int>::iterator	it_sfds;
-	std::vector<Client>::iterator	it_clients;
-
-	for (it_sfds = server.getSfds().begin(); it_sfds != server.getSfds().end(); it_sfds++)
-	{
-		close(*it_sfds);
-	}
-	close_all_clients(server);
-	close(server.getEpollfd());
-}
-/*
-void	add_client(int pfd, std::vector<struct pollfd> &pfds, std::vector<Server> &clients)
-{
-	struct pollfd temp;
-	temp.events = POLLIN;
-	temp.fd = pfd;
-	temp.revents = 0;
-	pfds.push_back(temp);
-	clients.push_back(Server(pfd, POLLIN));
-}
-*/
 
 void	accept_client(Server& server, int fd)
 {
@@ -161,7 +128,7 @@ void	check_idle_clients(Server& server)
 								+ toStr(it->first), 0);
 		if (it->second.getRequest().getPipeFd() != -1)
 			server.deleteCgiChild(it->second.getRequest().getPipeFd());
-		server.deleteClient((it++)->first);
+		server.deleteClient((it++)->first, true);
 	}
 	server.setLastCheck();
 }
@@ -171,9 +138,11 @@ void	get_client_request(Server& server, int fd)
 	Client&	client = server.getClients().at(fd);
 	int		infno = 0;
 
+	if (client.getRequest().is_cgi_in_progress)
+		return ;
 	if (recv_msg(client.getNotConstMsg(), fd) != 0)
 	{
-		server.deleteClient(fd);
+		server.deleteClient(fd, true);
 		return;
 	}
 	client.setLastComm();
@@ -198,7 +167,7 @@ void	process_data(Server&	server, int epollcount)
 		}
 		if (server.getEventQueue()[i].events & EPOLLHUP)
 		{
-			server.deleteClient(server.getEventQueue()[i].data.fd);
+			server.deleteClient(server.getEventQueue()[i].data.fd, true);
 			continue;
 		}
 		if (server.getEventQueue()[i].data.fd <= server.getSfds().back())
@@ -237,7 +206,6 @@ int		set_epoll(Server& server)
 	return 0;
 }
 
-
 int	run(std::vector<serverConfig> const& servers_conf)
 {
 	Server	server(servers_conf);
@@ -259,13 +227,11 @@ int	run(std::vector<serverConfig> const& servers_conf)
 		return 1;
 	print_log(TEXT_BLUE, NULL, "Waiting connections...", 0);
 	signal(SIGINT, ft_handler);
-	while(stopExec == false)
+	while(!stop_server)
 	{
 		int epollcount = epoll_wait(server.getEpollfd(),
 									server.getEventQueue(),
 									MAX_EVENTS, 1000);
-		if (epollcount < 0)
-			return -1;
 		if (epollcount == TIMEOUT)
 		{
 			check_idle_clients(server);
@@ -273,11 +239,12 @@ int	run(std::vector<serverConfig> const& servers_conf)
 		}
 		else if (epollcount < 0)
 		{
-			close_servers(server);
-			print_log(TEXT_RED, NULL, std::string("Poll: ") + strerror(errno), 1);
+			server.close_server(true);
+			print_log(TEXT_RED, NULL, std::string("Epoll: ") + strerror(errno), 1);
 			return errno;
 		}
 		process_data(server, epollcount);
 	}
+	server.close_server(true);
 	return 1;
 }

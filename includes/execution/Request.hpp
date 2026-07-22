@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/08 14:23:48 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/16 23:48:11 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/22 23:16:06 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,6 +68,7 @@ class	Request
 		bool				is_body_read;
 		bool				is_body_being_read;
 		bool				waiting_chunk;
+		bool				is_cgi_in_progress;
 		size_t				bytes_2_read;
 		std::string			data_name;
 		bool				setPipeFd(int pipe_fd);

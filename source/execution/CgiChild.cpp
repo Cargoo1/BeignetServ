@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/18 22:41:57 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/21 16:03:03 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/22 23:50:15 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <ctime>
+#include <stdexcept>
 #include <unistd.h>
 CgiChild::CgiChild(Client& client) : _env(NULL), _args(NULL), _client_owner(client), _pid(-1)
 {
@@ -45,7 +46,6 @@ CgiChild::CgiChild(CgiChild const& other) : _env(NULL), _args(NULL), _client_own
 
 CgiChild::~CgiChild()
 {
-	print_log(TEXT_YELLOW, NULL, "CgiChild destructor called", false);
 	if (this->_env)
 		free_double_char_ptr(this->_env);
 	if (this->_args)
@@ -98,7 +98,7 @@ int		CgiChild::execute_cgi()
 {
 	find_extension(this->_file_path, this->_extension);
 	find_interpreter(this->_extension, this->_interpreter, *this->_client_owner.getRequest().getLocConfBlock());
-	if ((this->_extension.empty() || this->_extension == ".ws") && !change_script_name(this->_client_owner.getRequest(), this->_file_path))
+	if ((this->_extension.empty() || this->_extension == ".bla") && !change_script_name(this->_client_owner.getRequest(), this->_file_path))
 	{
 		print_log(TEXT_YELLOW, NULL, "Could not execute cgi, script misssing", 1);
 		return not_found;
@@ -118,9 +118,8 @@ int		CgiChild::execute_cgi()
 	}
 	this->create_args(this->_interpreter);
 	this->create_env(this->_client_owner.getRequest());
-	if (fork_child() != 0)
-		return internal_server_error;
-	return 0;
+	int	status = this->fork_child();
+	return status;
 }
 	
 int		CgiChild::create_args(std::string const& interpreter)
@@ -192,16 +191,16 @@ int	CgiChild::fork_child()
 			|| close(this->_pipe_fd[1]) == -1)
 		{
 			print_log(TEXT_RED, NULL, strerror(errno), true);
-			exit(errno);
+			return -1;
 		}
 		if (!this->_args || !this->_env)
 		{
-			print_log(TEXT_RED, NULL, "Could not execute script execve arguments missing", true);
-			exit(errno);
+			print_log(TEXT_RED, NULL, "Could not execute script arguments missing", true);
+			return -1;
 		}
 		execve(this->_args[0], this->_args, this->_env);
 		print_log(TEXT_RED, NULL, strerror(errno), true);
-		exit(errno);
+		return -1;
 	}
 	close(this->_pipe_fd[1]);
 	this->_pipe_fd[1] = -1;
