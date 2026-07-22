@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 
-enum L_CONF { METHOD, L_ROOT, L_INDEX, AUTO_I, UPLD_S, CGI, REDIR, L_CLIENT_MAX_BODY, L_NONE};
+enum L_CONF { METHOD, L_ROOT, L_INDEX, INDEX_CGI, AUTO_I, UPLD_S, CGI, REDIR, L_CLIENT_MAX_BODY, L_NONE};
 enum MTHD { GET, POST, DELETE, PUT, HEAD, OPTIONS, PATCH};
 
 class locationConfig {
@@ -52,6 +52,11 @@ class locationConfig {
 		std::map<std::string, std::string> &getCGI();
 		const std::map<std::string, std::string> &getCGI() const;
 
+		bool const& hasIndexCgi() const;
+
+		std::string &getIndexCgi();
+		const std::string &getIndexCgi() const;
+
 	private:
 		std::string							_path;
 		std::vector<std::string>			_methods;
@@ -61,6 +66,8 @@ class locationConfig {
 		bool								_autoindex;
 		std::string							_uploadStore;
 		std::map<std::string, std::string>	_cgi;
+		std::string							_indexCgi;
+		bool								_hasIndexCgi;
 		bool								_hasRedirect;
 		int									_redirectCode;
 		std::string							_redirectUrl;

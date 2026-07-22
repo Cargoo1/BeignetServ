@@ -24,12 +24,14 @@
 #include <cerrno>
 #include <cstddef>
 #include <cstring>
+
 #include <sys/socket.h>
 #include <vector>
 #include <sys/stat.h>
 #include <sys/wait.h>
 
 namespace { 
+
 	char *ft_dupStrC(const std::string &s) {
 		char *dup = new char[s.size() + 1];
 		std::memcpy(dup, s.c_str(), s.size() + 1);
@@ -186,11 +188,11 @@ int	execute_script(Request const& r, HttpResponse& response)
 	//std::string cgiPath = getQuery_path(targetR);
 	std::string extension = find_extension(script_path, *r.getLocConfBlock());
 	if (extension == "") {
-		if (r.getLocConfBlock()->hasIndex()) 
+		if (r.getLocConfBlock()->hasIndexCgi()) 
 		{
 			size_t last_slash_pos = script_path.find_last_of('/');
 			script_path.erase(last_slash_pos + 1, std::string::npos);
-			script_path.append(r.getLocConfBlock()->getIndex());
+			script_path.append(r.getLocConfBlock()->getIndexCgi());
 		}
 		else
 			throw Request::ErrorRequest(not_found, "CGI: the script either dosn't exist or a non supported language"); 

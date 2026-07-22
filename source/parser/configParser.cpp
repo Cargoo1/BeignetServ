@@ -35,6 +35,7 @@ L_CONF		find_LocDir(const std::string &local_confDir) {
 	if (local_confDir == "methods") return (METHOD);
 	if (local_confDir == "root") return (L_ROOT);
 	if (local_confDir == "index") return (L_INDEX);
+	if (local_confDir == "index_cgi") return (INDEX_CGI);
 	if (local_confDir == "autoindex") return (AUTO_I);
 	if (local_confDir == "upload_store") return (UPLD_S);
 	if (local_confDir == "cgi") return (CGI);
@@ -310,7 +311,7 @@ void configParser::_parseServer(serverConfig &servTo_pars) {
 
 void configParser::_parseLocation(locationConfig &locTo_add) {
 	if (!isValid_path(_peek().getValue()))
-		throw configException("Error: location path syntax:", _peek().getLine(), _peek().getValue());
+		throw configException("Error: location path syntax", _peek().getLine(), _peek().getValue());
 	locTo_add._path = _consume().getValue();
 	_expect("{");
 	while (_peek().getValue() != "}") {
@@ -329,7 +330,7 @@ void configParser::_parseLocationDir(locationConfig &locTo_pars) {
 				if (string_verifFunc(_peek().getValue(), isupper))
 					methds.push_back(_consume().getValue());
 				else
-					throw configException("Error: methods syntax:", _peek().getLine(), _peek().getValue());
+					throw configException("Error: methods syntax", _peek().getLine(), _peek().getValue());
 			}
 			locTo_pars._methods = methds;
 			_expect(";");
@@ -337,18 +338,28 @@ void configParser::_parseLocationDir(locationConfig &locTo_pars) {
 		}
 		case L_ROOT: {
 			if (!isValid_path(_peek().getValue()))
-				throw configException("Error: root path syntax:", _peek().getLine(), _peek().getValue());
+				throw configException("Error: root path syntax", _peek().getLine(), _peek().getValue());
 			locTo_pars._root = _consume().getValue();
 			_expect(";");
 			break;
 		}
 		case L_INDEX: {
 			if (!isValid_path(_peek().getValue()))
-				throw configException("Error: index syntax:", _peek().getLine(), _peek().getValue());
+				throw configException("Error: index syntax", _peek().getLine(), _peek().getValue());
 			if (locTo_pars._hasIndex == true)
 				throw configException("Error: index syntax: duplicate entries", _peek().getLine(), _peek().getValue());
 			locTo_pars._hasIndex = true;
 			locTo_pars._index = _consume().getValue();
+			_expect(";");
+			break;
+		}
+		case INDEX_CGI: {
+			if (!string_verifFunc(_peek().getValue(), isspecial))
+				throw configException("Error: index cgi have unknown characters", _peek().getLine(), _peek().getValue());
+			if (locTo_pars._hasIndexCgi == true)
+				throw configException("Error: location have multiple index_cgi", _peek().getLine(), _peek().getValue());
+			locTo_pars._hasIndexCgi = true;
+			locTo_pars._indexCgi = _consume().getValue();
 			_expect(";");
 			break;
 		}
@@ -361,31 +372,31 @@ void configParser::_parseLocationDir(locationConfig &locTo_pars) {
 		}
 		case UPLD_S: {
 			if (!isValid_path(_peek().getValue()))
-				throw configException("Error: upload_store syntax:", _peek().getLine(), _peek().getValue());
+				throw configException("Error: upload_store syntax", _peek().getLine(), _peek().getValue());
 			locTo_pars._uploadStore = _consume().getValue();
 			_expect(";");
 			break;
 		}
 		case CGI: {
 			if (!isValid_extCgi(_peek().getValue()))
-				throw configException("Error: cgi extention syntax:", _peek().getLine(), _peek().getValue());
+				throw configException("Error: cgi extention syntax", _peek().getLine(), _peek().getValue());
 			std::string ext = _consume().getValue();
 			if (!isValid_path(_peek().getValue()))
-				throw configException("Error: cgi path syntax:", _peek().getLine(), _peek().getValue());
+				throw configException("Error: cgi path syntax", _peek().getLine(), _peek().getValue());
 			locTo_pars._cgi[ext] = _consume().getValue();
 			_expect(";");
 			break;
 		}
 		case REDIR: {
 			if (!string_verifFunc(_peek().getValue(), isdigit))
-				throw configException("Error: redir code must be numerics characters:", _peek().getLine(), _peek().getValue());
+				throw configException("Error: redir code must be numerics characters", _peek().getLine(), _peek().getValue());
 			int code = toInt(_consume().getValue());
 			if (_peek().getValue() != ";") {
 				if (!isValid_url(_peek().getValue()))
-					throw configException("Error: redir url syntax:", _peek().getLine(), _peek().getValue());
+					throw configException("Error: redir url syntax", _peek().getLine(), _peek().getValue());
 				locTo_pars._redirectUrl = _consume().getValue();
 				if (code < RDIR_MIN || code > RDIR_MAX)
-					throw configException("Error: redir code to url must be 3xx:", _peek().getLine(), _peek().getValue());
+					throw configException("Error: redir code to url must be 3xx", _peek().getLine(), _peek().getValue());
 			}
 			locTo_pars._redirectCode = code;
 			locTo_pars._hasRedirect = true;
@@ -394,14 +405,14 @@ void configParser::_parseLocationDir(locationConfig &locTo_pars) {
 		}
 		case L_CLIENT_MAX_BODY: {
 			if(!isValid_clientBodySize(_peek().getValue()))
-				throw configException("Error: client_max_body_size syntax:", _peek().getLine(), _peek().getValue());
+				throw configException("Error: client_max_body_size syntax", _peek().getLine(), _peek().getValue());
 			locTo_pars._clientMaxBodySize = convert_clientBodySize(_consume().getValue());
 			locTo_pars._hasClientMaxBodySize = true;
 			_expect(";");
 			break;
 		}
 		default:
-			throw configException("Error: location directive unknown: ", tmp.getLine(), tmp.getValue());
+			throw configException("Error: location directive unknown", tmp.getLine(), tmp.getValue());
 	}
 }
 
@@ -411,21 +422,21 @@ void configParser::_parseDirective(serverConfig &toParse) {
 	{
 		case LISTEN: {
 			if (!parse_digitCode(_peek().getValue(), PORT_MIN, PORT_MAX) && !parseIP(_peek().getValue()))
-				throw configException("Error: listen port syntax error:", _peek().getLine(), _peek().getValue());
+				throw configException("Error: listen port syntax error", _peek().getLine(), _peek().getValue());
 			toParse._listen = _consume().getValue();
 			_expect(";");
 			break;
 		}
 		case SERVER_NAME: {
 				if (!string_verifFunc(_peek().getValue(), isspecial))
-					throw configException("Error: server name syntax error:", _peek().getLine(), _peek().getValue());
+					throw configException("Error: server name syntax error", _peek().getLine(), _peek().getValue());
 			toParse._serverName = _consume().getValue();
 			_expect(";");
 			break;
 		}
 		case ROOT: {
 			if (!isValid_path(_peek().getValue()))
-				throw configException("Error: root syntax:", _peek().getLine(), _peek().getValue());
+				throw configException("Error: root syntax", _peek().getLine(), _peek().getValue());
 			toParse._root = _consume().getValue();
 			_expect(";");
 			break;
@@ -438,7 +449,7 @@ void configParser::_parseDirective(serverConfig &toParse) {
 			if (!check_double(codes))
 				throw configException("Error: duplicate error_codes", _peek().getLine());
 			if (!isValid_path(_peek().getValue()))
-				throw configException("Error: url error page syntax: ", _peek().getLine(), _peek().getValue());
+				throw configException("Error: url error page syntax", _peek().getLine(), _peek().getValue());
 			std::string url = _consume().getValue();
 			for (std::size_t code = 0; code < codes.size(); code++)
 				toParse._errorPages[codes[code]] = url;
@@ -447,7 +458,7 @@ void configParser::_parseDirective(serverConfig &toParse) {
 		}
 		case INDEX: {
 			if (!isValid_path(_peek().getValue()))
-				throw configException("Error: index syntax:", _peek().getLine(), _peek().getValue());
+				throw configException("Error: index syntax", _peek().getLine(), _peek().getValue());
 			if (toParse._hasIndex == true)
 				throw configException("Error: index syntax: duplicate entries", _peek().getLine(), _peek().getValue());
 			toParse._hasIndex = true;
@@ -457,7 +468,7 @@ void configParser::_parseDirective(serverConfig &toParse) {
 		}
 		case CLIENT_MAX_BODY: {
 			if(!isValid_clientBodySize(_peek().getValue()))
-				throw configException("Error: client_max_body_size syntax:", _peek().getLine(), _peek().getValue());
+				throw configException("Error: client_max_body_size syntax", _peek().getLine(), _peek().getValue());
 			toParse._clientMaxBodySize = convert_clientBodySize(_consume().getValue());
 			_expect(";");
 			break;

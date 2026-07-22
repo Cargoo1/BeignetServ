@@ -27,8 +27,8 @@ public:
 	int		create_args(std::string const& interpreter);
 	int		create_env(Request const& r);
 	int		fork_child();
-	char**	getArgs(void);
-	char**	getEnv(void);
+	char**	getArgs(void) const;
+	char**	getEnv(void) const;
 	std::string const&	getFilename(void) const;
 	std::string const&	getFilepath(void) const;
 	std::string const&	getExtension(void) const;

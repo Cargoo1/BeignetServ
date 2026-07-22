@@ -69,11 +69,11 @@ namespace
 {
 bool	change_script_name(Request& r, std::string& file_name)
 {
-	if (!r.getLocConfBlock()->hasIndex())
+	if (!r.getLocConfBlock()->hasIndexCgi())
 		return false;
 	size_t last_slash_pos = file_name.find_last_of('/');
 	file_name.erase(last_slash_pos + 1, std::string::npos);
-	file_name.append(r.getLocConfBlock()->getIndex());
+	file_name.append(r.getLocConfBlock()->getIndexCgi());
 	return true;
 }
 
@@ -208,12 +208,12 @@ int	CgiChild::fork_child()
 	return 0;
 }
 
-char**	CgiChild::getArgs(void)
+char**	CgiChild::getArgs(void) const
 {
 	return this->_args;
 }
 
-char**	CgiChild::getEnv(void)
+char**	CgiChild::getEnv(void) const
 {
 	return this->_env;
 }

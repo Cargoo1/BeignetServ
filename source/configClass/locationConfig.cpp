@@ -1,7 +1,7 @@
 #include <locationConfig.hpp>
 
-locationConfig::locationConfig() : _hasIndex(false), _autoindex(false), _hasRedirect(false), _hasClientMaxBodySize(false) {}
-locationConfig::locationConfig(const locationConfig &rhs) : _path(rhs._path), _methods(rhs._methods), _root(rhs._root), _index(rhs._index), _hasIndex(rhs._hasIndex), _autoindex(rhs._autoindex), _uploadStore(rhs._uploadStore), _cgi(rhs._cgi), _hasRedirect(rhs._hasRedirect), _redirectCode(rhs._redirectCode), _redirectUrl(rhs._redirectUrl), _clientMaxBodySize(rhs._clientMaxBodySize), _hasClientMaxBodySize(rhs._hasClientMaxBodySize) {}
+locationConfig::locationConfig() : _hasIndex(false), _autoindex(false), _hasIndexCgi(false), _hasRedirect(false), _hasClientMaxBodySize(false) {}
+locationConfig::locationConfig(const locationConfig &rhs) : _path(rhs._path), _methods(rhs._methods), _root(rhs._root), _index(rhs._index), _hasIndex(rhs._hasIndex), _autoindex(rhs._autoindex), _uploadStore(rhs._uploadStore), _cgi(rhs._cgi), _indexCgi(rhs._indexCgi), _hasIndexCgi(rhs._hasIndexCgi), _hasRedirect(rhs._hasRedirect), _redirectCode(rhs._redirectCode), _redirectUrl(rhs._redirectUrl), _clientMaxBodySize(rhs._clientMaxBodySize), _hasClientMaxBodySize(rhs._hasClientMaxBodySize) {}
 locationConfig::~locationConfig() {}
 
 locationConfig &locationConfig::operator=(const locationConfig &rhs) {
@@ -13,7 +13,9 @@ locationConfig &locationConfig::operator=(const locationConfig &rhs) {
 		this->_hasIndex = rhs._hasIndex;
 		this->_autoindex = rhs._autoindex;
 		this->_uploadStore = rhs._uploadStore;
-		this->_cgi = rhs._cgi; 
+		this->_cgi = rhs._cgi;
+		this->_indexCgi = rhs._indexCgi;
+		this->_hasIndexCgi = rhs._hasIndexCgi;
 		this->_hasRedirect = rhs._hasRedirect; 
 		this->_redirectCode = rhs._redirectCode; 
 		this->_redirectUrl = rhs._redirectUrl; 
@@ -109,4 +111,16 @@ std::map<std::string, std::string> &locationConfig::getCGI() {
 
 const std::map<std::string, std::string> &locationConfig::getCGI() const {
 	return (this->_cgi);
+}
+
+bool const &locationConfig::hasIndexCgi() const {
+	return (this->_hasIndexCgi);
+}
+
+std::string &locationConfig::getIndexCgi() {
+	return (this->_indexCgi);
+}
+
+const std::string &locationConfig::getIndexCgi() const {
+	return (this->_indexCgi);
 }
