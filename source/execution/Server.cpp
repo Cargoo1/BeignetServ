@@ -6,13 +6,14 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/12 15:15:33 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/21 14:44:51 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/22 18:40:36 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "CgiChild.hpp"
 #include "Request.hpp"
 #include "SessionManager.hpp"
+#include "run_server.hpp"
 #include "send_http_response.hpp"
 #include "utils.hpp"
 #include "utils_logs.hpp"
@@ -150,7 +151,7 @@ int	Server::addCgiChild(uint32_t events, Client& client)
 	client.getRequest().setPipeFd(child.getPipe()[0]);
 	log = "Pipe added to Epoll pool: " + toStr(child.getPipe()[0]) + "\n";
 	print_log(TEXT_GREEN, NULL, log, 0);
-	return 0;
+	return INCOMPLETE;
 }
 
 void	Server::deleteClient(int fd)

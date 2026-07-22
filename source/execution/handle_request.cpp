@@ -6,7 +6,7 @@
 /*   By: ratel <ratel@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/11 19:40:38 by alejandroca       #+#    #+#             */
-/*   Updated: 2026/07/21 15:38:53 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/22 18:40:23 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,7 +86,7 @@ int	handle_request(Client& client, Server& server)
 	}
 	int infno = router(r, response, server);
 	if (infno == RUN_CGI)
-		return infno;
+		return server.addCgiChild(EPOLLIN, client);
 	send_response(r, response, client.getFd(), 0);
 	return DONE;
 }

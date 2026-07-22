@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 19:10:40 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/21 15:39:10 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/22 18:32:20 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -183,8 +183,6 @@ void	get_client_request(Server& server, int fd)
 		if (infno != DONE)
 			break;
 	}
-	if (infno == RUN_CGI)
-		server.addCgiChild(EPOLLIN, server.getClients().at(fd));
 }
 
 void	process_data(Server&	server, int epollcount)

@@ -2,6 +2,7 @@
 #include "HttpResponse.hpp"
 #include "Request.hpp"
 #include "locationConfig.hpp"
+#include "run_server.hpp"
 #include "serverConfig.hpp"
 #include "utils.hpp"
 #include <HttpMethodDispatcher.hpp>
@@ -116,7 +117,7 @@ bool checkClientMaxBodySize(Request const& r) {
 int dispatcher_method(Request const& r, HttpResponse &response, Server& server) {
 	std::string reqMethod(r.getHeader().getMethod());
 	if (r.getHeader().is_a_script())
-		return 2;
+		return RUN_CGI;
 	else if (reqMethod == "GET"){
 		GetMethod	method(r, server);
 		method.executeMethod(response);
