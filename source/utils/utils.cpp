@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "serverConfig.hpp"
+#include "run_server.hpp"
 #include "utils_logs.hpp"
 #include <cctype>
 #include <cmath>
@@ -369,7 +370,7 @@ void free_double_char_ptr(char **ptr)
 	if (!ptr)
 		return;
 	for (std::size_t i = 0; ptr[i]; i++)
-		delete ptr[i];
+		delete [] ptr[i];
 	delete [] ptr;
 }
 
@@ -386,4 +387,9 @@ void	ft_clean_exit(CgiChild& child, std::string const& log)
 	free_double_char_ptr(child.getArgs());
 	free_double_char_ptr(child.getEnv());
 	exit(errno);
+}
+
+void ft_handler(int sig) {
+	(void)sig;
+	stopExec = true;
 }

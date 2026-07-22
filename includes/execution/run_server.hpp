@@ -44,4 +44,6 @@
 
 #define DONE 0
 
+extern volatile bool stopExec;
+
 int	run(std::vector<serverConfig> const&	servers_conf);

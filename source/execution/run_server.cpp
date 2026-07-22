@@ -32,7 +32,10 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <vector>
+#include <signal.h>
 #include <sys/epoll.h>
+
+volatile bool stopExec = false;
 
 int		getListenerSocket(const std::string &host, const std::string &port)
 {
@@ -257,7 +260,8 @@ int	run(std::vector<serverConfig> const& servers_conf)
 	if (set_epoll(server) < 0)
 		return 1;
 	print_log(TEXT_BLUE, NULL, "Waiting connections...", 0);
-	while(true)
+	signal(SIGINT, ft_handler);
+	while(stopExec == false)
 	{
 		int epollcount = epoll_wait(server.getEpollfd(),
 									server.getEventQueue(),

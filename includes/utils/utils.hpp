@@ -126,3 +126,5 @@ void	free_double_char_ptr(char **ptr);
 char	*ft_create_c_str(std::string const& str);
 
 void	find_extension(std::string const& file_path, std::string& extension);
+
+void ft_handler(int sig);
