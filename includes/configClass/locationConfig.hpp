@@ -37,8 +37,8 @@ class locationConfig {
 
 		bool const& getAutoindex() const;
 
-		std::size_t &getCMBS();
-		const std::size_t &getCMBS() const;
+		unsigned long long &getCMBS();
+		const unsigned long long &getCMBS() const;
 
 		int &getRedirectCode();
 		const int &getRedirectCode() const;
@@ -71,6 +71,6 @@ class locationConfig {
 		bool								_hasRedirect;
 		int									_redirectCode;
 		std::string							_redirectUrl;
-		std::size_t							_clientMaxBodySize;
+		unsigned long long					_clientMaxBodySize;
 		bool								_hasClientMaxBodySize;
 };

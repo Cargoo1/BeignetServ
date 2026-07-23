@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/03 17:39:25 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/21 12:54:01 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/23 21:11:20 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,9 @@ enum	client_error
 	method_not_allowed,
 	payload_too_large = 415,
 	content_too_large = 413,
-	internal_server_error = 500
+	internal_server_error = 500,
+	http_version_not_supported = 505,
+	bad_geteway = 502
 };
 
 typedef enum	e_scripts_ext
@@ -113,7 +115,7 @@ void	consume_until_crlf(std::string& str);
 
 bool	is_a_cgi_request(std::string const& uri, size_t& path_extra_pos);
 
-int		get_script_output(CgiChild& child);
+int		get_script_output(Server& server, int pipe_fd);
 
 void	check_idle_scripts(Server& server);
 

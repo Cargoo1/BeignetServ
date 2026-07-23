@@ -1,5 +1,6 @@
 #include <configParser.hpp>
 #include <configException.hpp>
+#include <limits>
 #include <parserUtils.hpp>
 
 #include <algorithm>
@@ -143,24 +144,24 @@ bool		isValid_method(const std::vector<std::string> &methods, const locationConf
 	return (true);
 }
 
-std::size_t	convert_clientBodySize(const std::string &conv) {
-		std::size_t ret = toInt(conv);
-		std::size_t max_size = (size_t)-1;
+unsigned long long convert_clientBodySize(const std::string &conv) {
+		unsigned long long ret = toInt(conv);
+		unsigned long long max_size = (std::numeric_limits<int>::max()) - 1;
 
 		switch (conv.at(conv.size()-1))
 		{
 			case 'k':
-				if (ret * 1000 > max_size)
+				if (ret > max_size / 1000)
 					throw std::out_of_range("Error: risk overflow client_max_body_size");
 				ret = ret * 1000;
 				break;
 			case 'm':
-				if (ret * 1e6 > max_size)
+				if (ret > max_size / 1e6)
 					throw std::out_of_range("Error: risk overflow client_max_body_size");
 				ret = ret * 1e6;
 				break;
 			case 'g':
-				if (ret * 1e9 > max_size)
+				if (ret > max_size / 1e9)
 					throw std::out_of_range("Error: risk overflow client_max_body_size");
 				ret = ret * 1e9;
 				break;

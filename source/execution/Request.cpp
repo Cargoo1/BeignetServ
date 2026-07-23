@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/08 15:51:44 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/22 23:16:25 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/23 18:44:17 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@
 #include <sys/types.h>
 #include <iostream>
 
-Request::Request()
+Request::Request() : _header(*this)
 {
 	this->_request_in_progress = false;
 	this->is_cgi_in_progress = false;
@@ -41,7 +41,7 @@ Request::~Request()
 	return;
 }
 
-Request::Request(const Request& other)
+Request::Request(const Request& other) : _header(*this)
 {
 	this->_header = other._header;
 	this->_body = other._body;

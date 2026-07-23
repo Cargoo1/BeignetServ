@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 19:10:40 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/22 23:25:39 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/23 21:11:05 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -156,24 +156,19 @@ void	get_client_request(Server& server, int fd)
 
 void	process_data(Server&	server, int epollcount)
 {
+	int		fd = 0;
 	for (int i = 0; i < epollcount; i++)
 	{
-		if (server.getCgiChilds().find(server.getEventQueue()[i].data.fd)
+		fd = server.getEventQueue()[i].data.fd;
+		if (server.getCgiChilds().find(fd)
 			!= server.getCgiChilds().end())
-		{
-			if (get_script_output(server.getCgiChilds().at(server.getEventQueue()[i].data.fd)) == 0)
-				server.deleteCgiChild(server.getEventQueue()[i].data.fd);
-			continue;
-		}
-		if (server.getEventQueue()[i].events & EPOLLHUP)
-		{
-			server.deleteClient(server.getEventQueue()[i].data.fd, true);
-			continue;
-		}
-		if (server.getEventQueue()[i].data.fd <= server.getSfds().back())
-			accept_client(server, server.getEventQueue()[i].data.fd);
+			get_script_output(server, fd);
+		else if (server.getEventQueue()[i].events & EPOLLHUP)
+			server.deleteClient(fd, true);
+		else if (fd <= server.getSfds().back())
+			accept_client(server, fd);
 		else
-			get_client_request(server, server.getEventQueue()[i].data.fd);
+			get_client_request(server, fd);
 	}
 	check_idle_clients(server);
 	check_idle_scripts(server);

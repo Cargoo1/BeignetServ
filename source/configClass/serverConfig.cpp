@@ -68,10 +68,10 @@ const std::map<int, std::string> &serverConfig::errorPages() const {
 	return (this->_errorPages);
 }
 
-std::size_t &serverConfig::getCMBS() {
+unsigned long long &serverConfig::getCMBS() {
 	return (this->_clientMaxBodySize);
 }
 
-const std::size_t &serverConfig::getCMBS() const {
+const unsigned long long &serverConfig::getCMBS() const {
 	return (this->_clientMaxBodySize);
 }

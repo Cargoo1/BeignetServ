@@ -26,7 +26,7 @@ void DeleteMethod::executeMethod(HttpResponse &rsp) {
 		if (!_removeDirectoryRecursive(path))
 			throw Request::ErrorRequest(internal_server_error, "DELETE: removal function failed");
 	}
-	else if (!std::remove(path.c_str())) {
+	else if (std::remove(path.c_str()) != 0) {
 		std::string error_msg = strerror(errno);
 		std::string msg = "DELETE: " + error_msg;
 		throw Request::ErrorRequest(internal_server_error, msg.c_str());

@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 18:35:09 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/16 21:41:17 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/23 20:20:13 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ class	Request;
 class Header
 {
 	public:
-		Header();
+		Header(Request const& r);
 		Header(Header const& other);
 		~Header();
 
@@ -58,6 +58,7 @@ class Header
 		void	setCookie(std::string& cookie);
 		std::string const*	getContentType(void) const;
 		void	setContent_dispo(std::string& content_type);
+		void	setStatus(std::string& str);
 		std::string&	getBoundary(void);
 		void	setTransfer_encoding(std::string& transfer_encoding);
 		bool	is_header_parsed(void) const;
@@ -67,9 +68,11 @@ class Header
 		void				setFilename(std::string const& str);
 		std::string			data_values[2];
 		bool				is_method_parsed;
+		Request const&		getRequest() const;
 	private:
 		std::map<std::string, std::string>	_map_fields;
 		bool								_is_header_parsed;
+		Request const&						_request;
 		bool								_is_a_script;
 		std::string							_method;
 		std::string							_boundary;

@@ -6,14 +6,16 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/18 22:41:57 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/22 23:50:15 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/24 00:06:42 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
 #include "Request.hpp"
 #include "locationConfig.hpp"
+#include "send_http_response.hpp"
 #include "utils.hpp"
+#include "utils_execution.hpp"
 #include "utils_logs.hpp"
 #include <CgiChild.hpp>
 #include <cerrno>
@@ -98,7 +100,7 @@ int		CgiChild::execute_cgi()
 {
 	find_extension(this->_file_path, this->_extension);
 	find_interpreter(this->_extension, this->_interpreter, *this->_client_owner.getRequest().getLocConfBlock());
-	if ((this->_extension.empty() || this->_extension == ".bla") && !change_script_name(this->_client_owner.getRequest(), this->_file_path))
+	if ((this->_extension.empty() || this->_extension == ".ws") && !change_script_name(this->_client_owner.getRequest(), this->_file_path))
 	{
 		print_log(TEXT_YELLOW, NULL, "Could not execute cgi, script misssing", 1);
 		return not_found;
@@ -119,6 +121,12 @@ int		CgiChild::execute_cgi()
 	this->create_args(this->_interpreter);
 	this->create_env(this->_client_owner.getRequest());
 	int	status = this->fork_child();
+	size_t	len = this->_client_owner.getRequest().getBody().length();
+	write(this->_pipe_fd[1], this->_client_owner.getRequest().getBody().c_str(), this->_client_owner.getRequest().getBody().length());
+	if (len != this->_client_owner.getRequest().getBody().length())
+		print_log(TEXT_RED, NULL, "Could not send all the body", 1);
+	close(this->_pipe_fd[1]);
+	this->_pipe_fd[1] = -1;
 	return status;
 }
 	
@@ -187,6 +195,7 @@ int	CgiChild::fork_child()
 	if (this->_pid == 0)
 	{
 		if (dup2(this->_pipe_fd[1], STDOUT_FILENO) == -1
+			|| dup2(this->_pipe_fd[0], 0) == -1
 			|| close(this->_pipe_fd[0]) == -1
 			|| close(this->_pipe_fd[1]) == -1)
 		{
@@ -202,8 +211,6 @@ int	CgiChild::fork_child()
 		print_log(TEXT_RED, NULL, strerror(errno), true);
 		return -1;
 	}
-	close(this->_pipe_fd[1]);
-	this->_pipe_fd[1] = -1;
 	return 0;
 }
 
@@ -232,7 +239,7 @@ std::string const&	CgiChild::getExtension(void) const
 	return this->_extension;
 }
 
-std::string const&	CgiChild::getOutput(void) const
+std::string&	CgiChild::getOutput(void)
 {
 	return this->_output;
 }

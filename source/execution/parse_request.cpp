@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/07 19:49:10 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/21 15:32:55 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/23 20:41:14 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include "Header.hpp"
 #include "HttpResponse.hpp"
 #include "run_server.hpp"
+#include "utils_logs.hpp"
 #include <cctype>
 #include <cstddef>
 #include <fstream>
@@ -26,8 +27,7 @@
 #include <Request.hpp>
 #include <utils.hpp>
 #include <vector>
-
-typedef void(Header::*field_function)(std::string &);
+#include <parse_request.hpp>
 
 void	remove_spaces(std::string& line, size_t pos)
 {
@@ -41,12 +41,20 @@ void	remove_spaces(std::string& line, size_t pos)
 void	remove_whitespace(std::string& line)
 {
 	size_t	pos = 0;
+	bool	quotations = false;
 
-	while (pos < line.length())
+	for (;pos < line.length(); ++pos)
 	{
+		if (quotations && line.at(pos) != '\"')
+			continue;
+		if (!quotations && line.at(pos) == '\"')
+		{
+			quotations = true;
+			continue;
+		}
 		if (std::isspace(line.at(pos)))
 			line.erase(pos, 1);
-		pos++;
+		quotations = false;
 	}
 }
 
@@ -86,8 +94,10 @@ void	parse_method(std::string &line, Header& header, Request& r)
 
 size_t	check_field_line_syntax(std::string const& line)
 {
+	if (line.empty())
+		throw Request::ErrorRequest(bad_request, "Empty field");
 	size_t	colon_pos = line.find_first_of(':', 0);
-	if (colon_pos == std::string::npos)
+	if (colon_pos == 0 || colon_pos == line.length() - 1 || colon_pos == std::string::npos)
 		throw Request::ErrorRequest(bad_request, "Invalid field syntax");
 	size_t	whitespace_pos = line.find_first_of(' ', 0);
 	if (whitespace_pos < colon_pos)
@@ -106,17 +116,19 @@ void	parse_line(std::string & line,
 		header.is_method_parsed = true;
 		return;
 	}
+	size_t	colon_pos = check_field_line_syntax(line);
+	std::string field_name = line.substr(0, colon_pos);
+	line.erase(0, colon_pos + 1);
 	remove_whitespace(line);
-	if (line.empty())
-		return;
 	std::map<std::string, field_function>::iterator it;
-	it = fields.find(line.substr(0, check_field_line_syntax(line)));
+	it = fields.find(field_name);
 	if (it == fields.end())
 		return;
+	print_log(TEXT_MAGENTA, NULL, "DEBUG:" + line, false);
 	(header.*(it->second))(line);
 }
 
-#define FIELDS_SIZE 6
+#define FIELDS_SIZE 7
 
 void	init_map_fields(std::map<std::string, field_function>& map_fields)
 {
@@ -126,14 +138,16 @@ void	init_map_fields(std::map<std::string, field_function>& map_fields)
 												"Transfer-Encoding",
 												"Content-Type",
 												"Content-Disposition",
-												"Cookie"
+												"Cookie",
+												"Status"
 											};
 	field_function	fn_fields[FIELDS_SIZE] = {&Header::setHost,
 												&Header::setContent_len,
 												&Header::setTransfer_encoding,
 												&Header::setContent_type,
 												&Header::setContent_dispo,
-												&Header::setCookie};
+												&Header::setCookie,
+												&Header::setStatus};
 
 	for (size_t i = 0; i < FIELDS_SIZE; i++)
 	{

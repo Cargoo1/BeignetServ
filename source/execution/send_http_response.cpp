@@ -6,7 +6,7 @@
 /*   By: ratel <ratel@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 21:54:03 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/22 23:57:16 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/23 22:56:55 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,34 +94,13 @@ void	send_error_response(HttpResponse& response, serverConfig const& serverConf)
 		create_default_error_response(response, not_found);
 }
 
-int	sendall(int fd, char const* buf, size_t &len)
-{
-	int	bytes_sent = 0;
-	int	bytes_left = len;
-	int	total_bytes_sent = 0;
-
-	while (total_bytes_sent < static_cast<int>(len))
-	{
-		bytes_sent = send(fd, buf + total_bytes_sent, bytes_left, 0);
-		if (bytes_sent < 0)
-		{
-			std::cerr << "Fail sending response to the client, " << strerror(errno) << '\n';
-			return -1;
-		}
-		bytes_left -= len;
-		total_bytes_sent += bytes_sent;
-	}
-	len = total_bytes_sent;
-	return 0;
-}
-
 int	send_response(Request& r, HttpResponse &response, int cfd, int status_code)
 {
 	if (status_code)
 		response.setStatusCode(status_code);
 	std::string msg;
 	response.addField("Server", "Beignetserv/0.1");
-	if (response.getStatusCode() >= 400)
+	if (response.getStatusCode() >= 400 && !r.is_cgi_in_progress)
 		send_error_response(response, *r.getServerBlock());
 	response.addField("Content-Length", toStr(response.getBody().length()));
 	msg = response.toHttpString();
@@ -138,24 +117,3 @@ int	send_response(Request& r, HttpResponse &response, int cfd, int status_code)
 	}
 	return 0;
 }
-
-// int	send_response(Request& r, int status_code, serverConfig const& server_block, int cfd, 
-// 					locationConfig const& loc_block)
-// {
-// 	(void)loc_block;
-// 	HttpResponse	response;
-// 	std::string		msg;
-// 	response.addField("Server", "Beignetserv/0.1");
-// 	if (status_code >= 400)
-// 		send_error_response(response, server_block, status_code);
-// 	msg = response.toHttpString();
-// 	int	len = msg.length();
-// 	sendall(cfd, msg.c_str(), len);
-// 	r = Request();
-// 	if (static_cast<size_t>(len) != msg.length())
-// 	{
-// 		std::cerr << "Failed sending all bytes in the response\n";
-// 		return -1;
-// 	}
-// 	return 0;
-// }

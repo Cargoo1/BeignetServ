@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/18 22:25:37 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/21 13:51:42 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/23 20:31:58 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #pragma once
@@ -32,7 +32,7 @@ public:
 	std::string const&	getFilename(void) const;
 	std::string const&	getFilepath(void) const;
 	std::string const&	getExtension(void) const;
-	std::string const&	getOutput(void) const;
+	std::string&	getOutput(void);
 	Client&	getClientOwner(void);
 	int		getPid(void) const;
 	int const*	getPipe(void) const;

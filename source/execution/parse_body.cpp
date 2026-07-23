@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/01 13:36:16 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/21 15:37:52 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/23 23:51:56 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,7 +102,10 @@ bool	read_body(Request& r, std::string& raw_body)
 	r.addBytesRead(temp_str.length());
 	raw_body.erase(0, temp_str.length());
 	if (r.bytes_2_read != 0)
+	{
+		r.waiting_chunk = true;
 		return INCOMPLETE;
+	}
 	return DONE;
 }
 
@@ -125,10 +128,7 @@ int	read_chunked_body(Request& r, std::string& raw_body)
 			}
 		}
 		if (read_body(r, raw_body) == INCOMPLETE)
-		{
-			r.waiting_chunk = true;
 			return INCOMPLETE;
-		}
 		if (raw_body.find(CRLF) == raw_body.npos)
 			return INCOMPLETE;
 		raw_body.erase(0, CRLF_LEN);
@@ -151,10 +151,12 @@ int	parse_body(Request& r, std::string& raw_body)
 	}
 	else if (fields.find("Content-Length") != fields.end())
 	{
-		r.bytes_2_read = ft_atoull(fields.at("Content-Length").c_str());
+		if (!r.waiting_chunk)
+			r.bytes_2_read = ft_atoull(fields.at("Content-Length").c_str());
 		if (read_body(r, raw_body) == INCOMPLETE)
 			return INCOMPLETE;
 	}
+	r.waiting_chunk = false;
 	r.setBodyLen(r.getBytesRead());
 	return DONE;
 }

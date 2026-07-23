@@ -37,8 +37,8 @@ class serverConfig {
 		std::map<int, std::string> &errorPages();
 		const std::map<int, std::string> &errorPages() const;
 
-		std::size_t &getCMBS();
-		const std::size_t &getCMBS() const;
+		unsigned long long &getCMBS();
+		const unsigned long long &getCMBS() const;
 
 	private:
 		std::string					_listen;
@@ -47,6 +47,6 @@ class serverConfig {
 		std::string					_index;
 		bool						_hasIndex;
 		std::map<int, std::string>	_errorPages;
-		std::size_t					_clientMaxBodySize;
+		unsigned long long			_clientMaxBodySize;
 		std::vector<locationConfig>	_locations;
 };

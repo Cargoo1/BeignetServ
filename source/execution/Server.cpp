@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/12 15:15:33 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/22 23:26:45 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/23 22:22:01 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -155,6 +155,7 @@ int	Server::addCgiChild(uint32_t events, Client& client)
 {
 	std::string	log;
 	int	pipe_fd[2];
+
 	if (pipe(pipe_fd) == -1)	
 	{
 		print_log(TEXT_RED, NULL, strerror(errno), true);

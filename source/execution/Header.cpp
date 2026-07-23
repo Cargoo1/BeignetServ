@@ -6,7 +6,7 @@
 /*   By: ratel <ratel@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 19:03:36 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/18 20:27:21 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/23 22:55:49 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,14 +20,17 @@
 #include <iostream>
 #include <utils.hpp>
 
-Header::Header() : is_method_parsed(false),
+Header::Header(Request const& r) : is_method_parsed(false),
 					_is_header_parsed(false),
+					_request(r),
 					_is_a_script(false)
 {
+	Request const& temp = this->_request;
+	(void)temp;
 	return;
 }
 
-Header::Header(Header const& other)
+Header::Header(Header const& other) : _request(other._request)
 {
 	this->_map_fields = other._map_fields;
 	this->_method = other._method;
@@ -43,14 +46,24 @@ Header&		Header::operator=(Header const& other)
 {
 	if (this == &other)
 		return *this;
-	this->~Header();
-	new (this) Header(other);
+	this->_map_fields = other._map_fields;
+	this->_method = other._method;
+	this->_protocol_v = other._protocol_v;
+	this->_target_resource = other._target_resource;
+	this->_is_header_parsed = other._is_header_parsed;
+	this->is_method_parsed = other.is_method_parsed;
+	this->_is_a_script = other._is_a_script;
 	return *this;
 }
 
 Header::~Header()
 {
 	return;
+}
+
+Request const&	Header::getRequest(void) const
+{
+	return this->_request;
 }
 
 std::string&	Header::getMethod(void)
@@ -106,7 +119,7 @@ bool	Header::setMethod(std::string& method)
 	if (method.compare(0, 3, "GET") &&
 		method.compare(0, 4, "POST") &&
 		method.compare(0, 6, "DELETE"))
-		throw Request::ErrorRequest(method_not_allowed, "method_not_allowed");
+		throw Request::ErrorRequest(bad_request, "Not a valid method");
 	this->_method = method;
 	return true;
 }
@@ -212,9 +225,8 @@ bool	Header::setProtocolV(std::string& protocol)
 {
 	if (protocol.empty())
 		throw Request::ErrorRequest(bad_request, "Empty protocol");
-	if (protocol.compare(0, 8, "HTTP/1.1") &&
-		protocol.compare(0, 9, "HTTP/1.1\r"))
-		throw Request::ErrorRequest(bad_request, "Request function has a different http version");
+	if (protocol.compare(0, 8, "HTTP/1.1"))
+		throw Request::ErrorRequest(http_version_not_supported, "Request function has a different http version");
 	this->_protocol_v= protocol;
 	return true;
 }
@@ -224,7 +236,7 @@ void	Header::setHost(std::string& host)
 	if (host.empty())
 		throw Request::ErrorRequest(bad_request, "Empty host");
 	size_t	colon_pos = host.find_first_of(":");
-	if (colon_pos == std::string::npos)
+	if (colon_pos == 0 || colon_pos == std::string::npos || colon_pos == host.length() - 1)
 		throw Request::ErrorRequest(bad_request, "Invalid host");
 	host.erase(0, colon_pos + 1);
 	this->getFields()["Host"] = host;
@@ -234,15 +246,13 @@ void	Header::setContent_len(std::string& content_len)
 {
 	if (content_len.empty())
 		throw Request::ErrorRequest(bad_request, "Invalid Content-Length");
-	size_t	colon_pos = content_len.find_first_of(":");
-	if (colon_pos == std::string::npos)
-		throw Request::ErrorRequest(bad_request, "Invalid Content-Length");
-	content_len.erase(0, colon_pos + 1);
 	for (size_t i = 0; i < content_len.length(); ++i)
 	{
 		if (!std::isdigit(content_len.at(i)))
 			throw Request::ErrorRequest(bad_request, "Invalid Content-Length");
 	}
+	if (ft_atoull(content_len.c_str()) > this->_request.getLocConfBlock()->getCMBS())
+		throw Request::ErrorRequest(content_too_large, "Content-Length too large");
 	this->_map_fields["Content-Length"] = content_len;
 }
 
@@ -250,20 +260,13 @@ void	Header::setCookie(std::string& cookie)
 {
 	if (cookie.empty())
 		throw Request::ErrorRequest(bad_request, "Invalid Cookie");
-	size_t	colon_pos = cookie.find_first_of(":");
-	if (colon_pos == std::string::npos)
-		throw Request::ErrorRequest(bad_request, "Invalid Cookie");
-	cookie.erase(0, colon_pos + 1);
 	this->_map_fields["Cookie"] = cookie;
 }
 
 void	Header::setContent_type(std::string& content_type)
 {
-	size_t	separator_pos = content_type.find_first_of(':',0);
+	size_t	separator_pos = 0;
 
-	if (separator_pos == content_type.npos)
-		throw Request::ErrorRequest(bad_request, "Incomplete field");
-	content_type.erase(0, separator_pos + 1);
 	this->_map_fields["Content-Type"] = content_type;
 	separator_pos = content_type.find_first_of(';', 0);
 	if (content_type.substr(0, separator_pos).find("multipart/") == content_type.npos)
@@ -298,10 +301,6 @@ void	Header::setTransfer_encoding(std::string& transfer_encoding)
 {
 	if (transfer_encoding.empty())
 		throw Request::ErrorRequest(bad_request, "Incomplete transfer_encoding");
-	size_t	colon_pos = transfer_encoding.find_first_of(":");
-	if (colon_pos == std::string::npos)
-		throw Request::ErrorRequest(bad_request, "Invalid transfer_encoding");
-	transfer_encoding.erase(0, colon_pos + 1);
 	if (transfer_encoding == "gzip" || transfer_encoding == "chunked")
 	{
 		this->_map_fields["Transfer-Encoding"] = transfer_encoding;
@@ -312,10 +311,6 @@ void	Header::setTransfer_encoding(std::string& transfer_encoding)
 
 void	Header::setContent_dispo(std::string& content_type)
 {
-	size_t	separator_pos = content_type.find(':');
-	if (separator_pos == content_type.npos)
-		throw Request::ErrorRequest(bad_request, "Incomplete field");
-	content_type.erase(0, separator_pos + 1);
 	this->_map_fields["Content-Disposition"] = content_type;
 	std::string	data_variables[2] = {"name", "filename"};
 	size_t begin_pos = 0;
@@ -331,6 +326,11 @@ void	Header::setContent_dispo(std::string& content_type)
 			continue;
 		this->data_values[i] = content_type.substr(begin_pos, end_pos - begin_pos);
 	}
+}
+
+void	Header::setStatus(std::string& str)
+{
+	this->_map_fields["Status"] = str;
 }
 
 std::string	&Header::getContentLenght(void)

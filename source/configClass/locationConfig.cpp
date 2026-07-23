@@ -73,11 +73,11 @@ bool const& locationConfig::getAutoindex() const {
 	return (this->_autoindex);
 }
 
-std::size_t &locationConfig::getCMBS() {
+unsigned long long &locationConfig::getCMBS() {
 	return (this->_clientMaxBodySize);
 }
 
-const std::size_t &locationConfig::getCMBS() const {
+const unsigned long long &locationConfig::getCMBS() const {
 	return (this->_clientMaxBodySize);
 }
 

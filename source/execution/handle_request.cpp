@@ -6,7 +6,7 @@
 /*   By: ratel <ratel@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/11 19:40:38 by alejandroca       #+#    #+#             */
-/*   Updated: 2026/07/22 23:11:40 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/23 23:00:04 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,7 @@ int	handle_request(Client& client, Server& server)
 		{
 			print_log(TEXT_RED, &e, e.what(), 1);
 			send_response(r, r.getResponse(), client.getFd(), e.getErrorCode());
-			client.getNotConstMsg().clear();
+			server.deleteClient(client.getFd(), true);
 			return -1;
 		}
 	}
@@ -80,7 +80,7 @@ int	handle_request(Client& client, Server& server)
 	{
 		print_log(TEXT_RED, &e, e.what(), 1);
 		send_response(r, r.getResponse(), client.getFd(), e.getErrorCode());
-		client.getNotConstMsg().clear();
+		server.deleteClient(client.getFd(), true);
 		return -1;
 	}
 	int infno = router(r, r.getResponse(), server);

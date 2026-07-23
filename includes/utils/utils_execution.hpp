@@ -1,25 +1,21 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   test.c                                             :+:      :+:    :+:   */
+/*   utils_execution.hpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/07/18 19:30:27 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/23 23:12:03 by acamargo         ###   ########.fr       */
+/*   Created: 2026/07/22 20:17:01 by acamargo          #+#    #+#             */
+/*   Updated: 2026/07/23 22:56:45 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stdio.h>
-#include <unistd.h>
+#pragma once
 
-int	main(int argc, char** argv, char** env)
-{
-	(void)argc;
-	(void)argv;
-	char	buff[250];
-	read(0, &buff, 249);
-	buff[249] = 0;
-	printf("%s\n", buff);
-	return 1;
-}
+#include <run_server.hpp>
+
+#include <Server.hpp>
+
+int	writeall(int fd, char const* buf, size_t &len);
+
+int	sendall(int fd, char const* buf, size_t &len);

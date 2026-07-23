@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/03 17:41:28 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/22 20:07:30 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/23 20:35:37 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,6 +58,12 @@ std::string const generate_reason_phrase(int code)
 			break;
 		case 500:
 			ret = "Payload Too Large";
+			break;
+		case http_version_not_supported:
+			ret = "HTTP Version Not Supported";
+			break;
+		case bad_geteway:
+			ret = "Bad Gateway";
 			break;
 		default:
 			ret = "OK";
