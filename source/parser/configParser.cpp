@@ -100,8 +100,10 @@ bool		isValid_url(const std::string &token) {
 
 bool		isValid_clientBodySize(const std::string &token) {
 		std::size_t i = 0;
-		while (isdigit(token.at(i)))
+		while (i < token.length() && isdigit(token.at(i)))
 			i++;
+		if (i >= token.length())
+			return (i == token.length());
 		char unite = tolower(token.at(i));
 		if (unite == 'k' || unite == 'm' || unite == 'g')
 			i++;
