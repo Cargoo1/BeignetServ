@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/18 22:25:37 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/23 20:31:58 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/25 01:00:49 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #pragma once
@@ -23,7 +23,8 @@ public:
 
 	CgiChild& operator=(CgiChild const& other);
 	
-	int		execute_cgi();
+	int		set_cgi();
+	int		execute_script();
 	int		create_args(std::string const& interpreter);
 	int		create_env(Request const& r);
 	int		fork_child();
@@ -35,14 +36,17 @@ public:
 	std::string&	getOutput(void);
 	Client&	getClientOwner(void);
 	int		getPid(void) const;
-	int const*	getPipe(void) const;
-	void	setPipe(int* pipe_fd);
+	int *	getOutputPipe(void);
+	void	setOutputPipe(int* pipe_fd);
+	int *	getInputPipe(void);
+	void	setInputPipe(int* pipe_fd);
 	void	appedOutput(std::string const& str);
 	void	setFilename(std::string const& str);
 	void	setFilepath(std::string const& str);
 	void	setExtension(std::string const& str);
 	time_t			getLastComm(void) const;
 	void			setLastComm(void);
+	bool	is_script_running;
 private:
 	char	**_env;
 	char	**_args;
@@ -53,6 +57,7 @@ private:
 	std::string		_file_path;
 	std::string		_extension;
 	std::string		_output;
-	int		_pipe_fd[2];
+	int		_output_pipe[2];
+	int		_input_pipe[2];
 	int		_pid;
 };

@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/12 15:15:33 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/23 22:22:01 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/25 00:59:39 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,9 +18,12 @@
 #include "utils.hpp"
 #include "utils_logs.hpp"
 #include <Client.hpp>
+#include <cerrno>
 #include <cstdlib>
+#include <cstring>
 #include <ctime>
 #include <exception>
+#include <map>
 #include <serverConfig.hpp>
 #include <iostream>
 #include <Server.hpp>
@@ -136,12 +139,21 @@ std::map<int, Client>&	Server::getClients(void)
 	return this->_clients;
 }
 
+void	Server::add_2_epoll(uint32_t events, int fd)
+{
+	this->setEinf(fd, events);
+	if (epoll_ctl(this->_epollfd, EPOLL_CTL_ADD, fd, &this->_einf) == -1)
+	{
+		close(fd);
+		throw std::runtime_error("Epoll: " + std::string(strerror(errno)));
+	}
+}
+
 void	Server::addClient(int fd, uint32_t events, std::string const& ip, std::string const& port)
 {
 	std::string	log;
 	std::stringstream	ss;
-	this->setEinf(fd, events);
-	epoll_ctl(this->_epollfd, EPOLL_CTL_ADD, fd, &this->_einf);
+	this->add_2_epoll(events, fd);
 	this->_clients.insert(std::pair<int, Client>(fd, Client(fd, events)));
 	this->_clients.at(fd).setIpPort(ip, port);
 	ss << fd;
@@ -151,37 +163,42 @@ void	Server::addClient(int fd, uint32_t events, std::string const& ip, std::stri
 	print_log(TEXT_GREEN, NULL, log, 0);
 }
 
-int	Server::addCgiChild(uint32_t events, Client& client)
+int	Server::addCgiChild(Client& client)
 {
 	std::string	log;
-	int	pipe_fd[2];
+	int	output_pipe[2];
+	int	input_pipe[2];
 
-	if (pipe(pipe_fd) == -1)	
+	if (pipe(output_pipe) == -1)	
 	{
 		print_log(TEXT_RED, NULL, strerror(errno), true);
-		return errno;
+		throw std::runtime_error("Pipe: " + std::string(strerror(errno)));
 	}
-	this->_scripts_childs.insert(std::pair<int, CgiChild>(pipe_fd[0], CgiChild(client)));
-	CgiChild&	child = this->_scripts_childs.at(pipe_fd[0]);
-	child.setPipe(pipe_fd);
-	int	infno = child.execute_cgi();
-	if (infno < 0)
+	if (pipe(input_pipe) == -1)
 	{
-		this->close_server(false);
-		throw std::exception();
+		close(output_pipe[0]);
+		close(output_pipe[1]);
+		throw std::runtime_error("Pipe: " + std::string(strerror(errno)));
 	}
-	else if (infno != 0)
+	this->_scripts_childs.insert(std::pair<int, CgiChild>(output_pipe[0], CgiChild(client)));
+	CgiChild&	child = this->_scripts_childs.at(output_pipe[0]);
+	child.setOutputPipe(output_pipe);
+	child.setInputPipe(input_pipe);
+	this->_input_pipes.insert(std::pair<int, CgiChild*>(input_pipe[1], &child));
+	this->add_2_epoll(EPOLLOUT, child.getInputPipe()[1]);
+	this->add_2_epoll(EPOLLIN, child.getOutputPipe()[0]);
+	log = "Child added to Epoll pool: " + toStr(child.getOutputPipe()[0]) + "\n";
+	print_log(TEXT_GREEN, NULL, log, 0);
+	client.getRequest().is_cgi_in_progress = true;
+	client.getRequest().setPipeFd(child.getOutputPipe()[0]);
+	int	infno = child.set_cgi();
+	if (infno != 0)
 	{
-		send_response(client.getRequest(), client.getRequest().getResponse(), client.getFd(), infno);
-		this->deleteCgiChild(child.getPipe()[0]);
+		child.getClientOwner().getRequest().getResponse().setStatusCode(infno);
+		child.getClientOwner().getRequest().is_request_done = true;
+		this->deleteCgiChild(child.getOutputPipe()[0]);
 		return -1;
 	}
-	client.getRequest().is_cgi_in_progress = true;
-	this->setEinf(child.getPipe()[0], events);
-	epoll_ctl(this->_epollfd, EPOLL_CTL_ADD, child.getPipe()[0], &this->_einf);
-	client.getRequest().setPipeFd(child.getPipe()[0]);
-	log = "Pipe added to Epoll pool: " + toStr(child.getPipe()[0]) + "\n";
-	print_log(TEXT_GREEN, NULL, log, 0);
 	return INCOMPLETE;
 }
 
@@ -214,6 +231,7 @@ void	Server::deleteCgiChild(int pipe_fd)
 	print_log(TEXT_YELLOW, NULL, "Closing and deleting pipe: " + toStr(pipe_fd), 0);
 	epoll_ctl(this->_epollfd, EPOLL_CTL_DEL, pipe_fd, &this->_einf);
 	this->_scripts_childs.at(pipe_fd).getClientOwner().getRequest().setPipeFd(-1);
+	this->_scripts_childs.at(pipe_fd).getClientOwner().getRequest().is_request_done =true;
 	this->_scripts_childs.erase(pipe_fd);
 }
 
@@ -231,6 +249,28 @@ SessionManager				&Server::getSession() {
 	return (this->_sessions);
 }
 
+std::map<int, CgiChild*>&	Server::getInputPipes(void)
+{
+	return this->_input_pipes;
+}
+
 const SessionManager				&Server::getSession() const {
 	return (this->_sessions);
+}
+
+void	Server::remove_from_epoll(int fd)
+{
+	std::map<int, Client>::iterator it_clients = this->_clients.find(fd);
+	if (it_clients != this->_clients.end())
+	{
+		this->deleteClient(fd, true);
+		return;
+	}
+	return;
+	std::map<int, CgiChild>::iterator it_childs = this->_scripts_childs.find(fd);
+	if (it_childs != this->_scripts_childs.end())
+	{
+		this->deleteCgiChild(fd);
+		return;
+	}
 }

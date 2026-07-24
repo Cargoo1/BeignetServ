@@ -6,13 +6,16 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 19:10:40 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/23 21:11:05 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/25 01:12:21 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "CgiChild.hpp"
 #include "Client.hpp"
 #include "Request.hpp"
+#include "send_http_response.hpp"
 #include "utils.hpp"
+#include "utils_execution.hpp"
 #include "utils_logs.hpp"
 #include <configParser.hpp>
 #include <cstddef>
@@ -24,6 +27,7 @@
 #include <cerrno>
 #include <cstring>
 #include <iostream>
+#include <set>
 #include <sstream>
 #include <stdexcept>
 #include <sys/poll.h>
@@ -56,11 +60,17 @@ int		getListenerSocket(const std::string &host, const std::string &port)
 	{
 		sfd = socket(temp->ai_family, temp->ai_socktype, temp->ai_protocol);
 		if (setsockopt(sfd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0)
+		{
+			close(sfd);
 			throw std::runtime_error(strerror(errno));
+		}
 		if (sfd < 0)
 			continue;
 		if (bind(sfd, temp->ai_addr, temp->ai_addrlen) < 0)
+		{
+			close(sfd);
 			continue;
+		}
 		break;
 	}
 	if (temp == NULL)
@@ -104,7 +114,7 @@ void	accept_client(Server& server, int fd)
 	client_info_len = sizeof(client_info);
 	getsockname(new_fd, (struct sockaddr*)&client_info, &client_info_len);
 	port << ntohs(client_info.sin_port);
-	server.addClient(new_fd, EPOLLIN | EPOLLHUP, ip.str(), port.str());
+	server.addClient(new_fd, EPOLLIN, ip.str(), port.str());
 }
 
 void	check_idle_clients(Server& server)
@@ -142,10 +152,17 @@ void	get_client_request(Server& server, int fd)
 		return ;
 	if (recv_msg(client.getNotConstMsg(), fd) != 0)
 	{
+		if (client.getRequest().getPipeFd() != -1)
+			server.deleteCgiChild(client.getRequest().getPipeFd());
 		server.deleteClient(fd, true);
 		return;
 	}
 	client.setLastComm();
+	handle_request(server.getClients().at(fd), server);
+	return;
+
+
+
 	while (!client.getMsg().empty())
 	{
 		infno = handle_request(server.getClients().at(fd), server);
@@ -154,21 +171,68 @@ void	get_client_request(Server& server, int fd)
 	}
 }
 
+void	handle_event(Server& server, uint32_t events, int fd)
+{
+	int	epollin = events & EPOLLIN;
+	int	epollout = events & EPOLLOUT;
+	int	epollup = events & EPOLLHUP;
+
+	if (server.getClients().find(fd) != server.getClients().end())
+	{
+		Client&	client = server.getClients().at(fd);
+		if (epollin && !client.getRequest().failed_request
+			&& !client.getRequest().is_request_done)
+			get_client_request(server, fd);
+		if (epollout && (client.getRequest().failed_request || client.getRequest().is_request_done))
+		{
+			send_response(client.getRequest(), client.getFd());
+			if (client.getRequest().failed_request)
+				server.deleteClient(fd, true);
+		}
+	}
+	else if (server.getCgiChilds().find(fd) != server.getCgiChilds().end())
+	{
+		CgiChild&	child = server.getCgiChilds().at(fd);
+		if (!child.is_script_running)
+			return;
+		if (epollin)
+			get_script_output(server, fd);
+		if (epollout)
+			send_response(child.getClientOwner().getRequest(), child.getClientOwner().getFd());
+		if (epollup)
+		{
+			child.getClientOwner().getRequest().failed_request = true;
+			child.getClientOwner().getRequest().getResponse().setStatusCode(bad_geteway);
+			server.remove_from_epoll(fd);
+			close_pipe(child.getOutputPipe());
+		}
+	}
+	else if (server.getInputPipes().find(fd) != server.getInputPipes().end())
+	{
+		CgiChild&	child = *server.getInputPipes().at(fd);
+		if (epollout && !child.is_script_running)
+		{
+			child.execute_script();
+			server.remove_from_epoll(fd);
+			close_pipe(child.getInputPipe());
+		}
+	}
+	return;
+}
+
 void	process_data(Server&	server, int epollcount)
 {
 	int		fd = 0;
 	for (int i = 0; i < epollcount; i++)
 	{
 		fd = server.getEventQueue()[i].data.fd;
-		if (server.getCgiChilds().find(fd)
-			!= server.getCgiChilds().end())
-			get_script_output(server, fd);
-		else if (server.getEventQueue()[i].events & EPOLLHUP)
-			server.deleteClient(fd, true);
-		else if (fd <= server.getSfds().back())
+		if (server.getEventQueue()[i].events & EPOLLHUP
+			&& server.getCgiChilds().find(fd) == server.getCgiChilds().end())
+			server.remove_from_epoll(fd);
+		else if (fd <= server.getSfds().back() && server.getEventQueue()[i].events & EPOLLIN)
 			accept_client(server, fd);
 		else
-			get_client_request(server, fd);
+			handle_event(server, server.getEventQueue()[i].events, fd);
 	}
 	check_idle_clients(server);
 	check_idle_scripts(server);
@@ -215,6 +279,7 @@ int	run(std::vector<serverConfig> const& servers_conf)
 		catch (std::exception &e)
 		{
 			std::cerr << e.what() << '\n';
+			server.close_server_sockets();
 			return 1;
 		}
 	}
@@ -224,6 +289,7 @@ int	run(std::vector<serverConfig> const& servers_conf)
 	signal(SIGINT, ft_handler);
 	while(!stop_server)
 	{
+		print_log(TEXT_MAGENTA, NULL, "Waiting epoll....", 0);
 		int epollcount = epoll_wait(server.getEpollfd(),
 									server.getEventQueue(),
 									MAX_EVENTS, 1000);

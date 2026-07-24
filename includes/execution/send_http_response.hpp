@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 23:09:27 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/23 22:23:10 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/24 22:38:38 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,6 @@
 // int	send_response(Request& r, int status_code, serverConfig const& serverConf,
 					// int cfd, locationConfig const& loc_block);
 
-int	send_response(Request& r, HttpResponse& response, int cfd, int status_code);
+int	send_response(Request& r, int cfd);
 
 int	sendall(int fd, char const* buf, size_t &len);

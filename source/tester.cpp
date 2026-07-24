@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/23 23:13:46 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/24 00:01:38 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/24 19:49:43 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,9 @@ int	main(int argc, char **argv, char **env)
 	if (it == fields.end())
 		return -1;
 	char	buff[250];
+	std::cerr << "???\n";
 	size_t bytes_read = read(0, &buff, 249);
+	std::cerr << "!!\n";
 	buff[bytes_read] = '\0';
 	std::string	input = buff;
 	it = fields.find("QUERY_STRING");

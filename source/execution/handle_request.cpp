@@ -6,7 +6,7 @@
 /*   By: ratel <ratel@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/11 19:40:38 by alejandroca       #+#    #+#             */
-/*   Updated: 2026/07/23 23:00:04 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/24 23:54:36 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,14 +61,15 @@ int	handle_request(Client& client, Server& server)
 		catch(Request::ErrorRequest& e)
 		{
 			print_log(TEXT_RED, &e, e.what(), 1);
-			send_response(r, r.getResponse(), client.getFd(), e.getErrorCode());
-			server.deleteClient(client.getFd(), true);
+			r.getResponse().setStatusCode(e.getErrorCode());
+			r.failed_request = true;
 			return -1;
 		}
 	}
 	if (!r.getLocConfBlock() || !r.getServerBlock())
 	{
-		send_response(r, r.getResponse(), client.getFd(), internal_server_error);
+		r.getResponse().setStatusCode(internal_server_error);
+		r.failed_request = true;
 		return -1;
 	}
 	try
@@ -79,14 +80,19 @@ int	handle_request(Client& client, Server& server)
 	catch (Request::ErrorRequest& e)
 	{
 		print_log(TEXT_RED, &e, e.what(), 1);
-		send_response(r, r.getResponse(), client.getFd(), e.getErrorCode());
-		server.deleteClient(client.getFd(), true);
+		r.getResponse().setStatusCode(e.getErrorCode());
+		r.failed_request = true;
 		return -1;
 	}
 	int infno = router(r, r.getResponse(), server);
 	if (infno == RUN_CGI)
-		return server.addCgiChild(EPOLLIN, client);
-	send_response(r, r.getResponse(), client.getFd(), 0);
+		return server.addCgiChild(client);
+	else if (infno != 0)
+	{
+		r.failed_request = true;
+		return infno;
+	}
+	r.is_request_done = true;
 	return DONE;
 }
 

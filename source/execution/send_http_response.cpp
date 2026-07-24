@@ -6,7 +6,7 @@
 /*   By: ratel <ratel@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 21:54:03 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/23 22:56:55 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/24 23:55:55 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,10 +94,9 @@ void	send_error_response(HttpResponse& response, serverConfig const& serverConf)
 		create_default_error_response(response, not_found);
 }
 
-int	send_response(Request& r, HttpResponse &response, int cfd, int status_code)
+int	send_response(Request& r, int cfd)
 {
-	if (status_code)
-		response.setStatusCode(status_code);
+	HttpResponse&	response = r.getResponse();
 	std::string msg;
 	response.addField("Server", "Beignetserv/0.1");
 	if (response.getStatusCode() >= 400 && !r.is_cgi_in_progress)

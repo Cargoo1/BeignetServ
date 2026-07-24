@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/22 20:16:17 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/23 22:56:37 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/25 00:06:42 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,3 +57,12 @@ int	sendall(int fd, char const* buf, size_t &len)
 	return 0;
 }
 
+void	close_pipe(int* pipe)
+{
+	if (pipe[0] > 0)
+		close(pipe[0]);
+	if (pipe[1] > 0)
+		close(pipe[1]);
+	pipe[0] = -1;
+	pipe[1] = -1;
+}

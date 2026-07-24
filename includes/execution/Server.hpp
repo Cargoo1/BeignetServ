@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/12 15:08:39 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/22 22:21:57 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/24 23:33:45 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,8 +46,9 @@ public:
 	time_t						getLastCheckScripts(void) const;
 	void						setLastCheckScripts(void);
 	void						addClient(int fd, uint32_t events, std::string const& ip, std::string const& port);
-	int							addCgiChild(uint32_t events, Client& client);
+	int							addCgiChild(Client& client);
 	std::map<int, CgiChild>&		getCgiChilds(void);
+	std::map<int, CgiChild*>&		getInputPipes(void);
 	void						deleteClient(int fd, bool remove_from_epoll);
 	void						deleteCgiChild(int pipe_fd);
 	SessionManager				&getSession();
@@ -55,6 +56,8 @@ public:
 	void						close_server(bool remove_from_epoll);
 	void						close_server_sockets(void);
 	void						close_all_clients(bool remove_from_epoll);
+	void						add_2_epoll(uint32_t events, int fd);
+	void						remove_from_epoll(int fd);
 private:
 	std::vector<int>			_sfds;
 	time_t						_last_check;
@@ -64,5 +67,6 @@ private:
 	struct epoll_event			_einf, _eventQueue[MAX_EVENTS];
 	std::map<int, Client>		_clients;
 	std::map<int, CgiChild>		_scripts_childs;
+	std::map<int, CgiChild*>	_input_pipes;
 	SessionManager				_sessions;
 };

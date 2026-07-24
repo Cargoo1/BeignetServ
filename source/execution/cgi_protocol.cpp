@@ -1,4 +1,4 @@
-/* ************************************************************************** */
+/* *************n************************************************************ */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   cgi_protocol.cpp                                   :+:      :+:    :+:   */
@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/30 19:17:45 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/23 21:16:36 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/25 00:38:49 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,32 +146,25 @@ namespace {
 
 }
 
-int	get_script_output(Server& server, int pipe_fd)
+int	handle_script_output(CgiChild& child, Server& server)
 {
-	std::string	msg;
-	CgiChild&	script = server.getCgiChilds().at(pipe_fd);
-	Request&	r = script.getClientOwner().getRequest();
-	if (read_msg(msg, script.getPipe()[0]) > 0)
-	{
-		script.setLastComm();
-		script.appedOutput(msg);
-		return 1;
-	}
-	Request	cgi_temp_request;
+	Request&	r = child.getClientOwner().getRequest();
+	Request		cgi_temp_request;
 	cgi_temp_request.getHeader().is_method_parsed = true;
 	try
 	{
-		parse_fields(script.getOutput(), cgi_temp_request);
+		parse_fields(child.getOutput(), cgi_temp_request);
 	}
 	catch (Request::ErrorRequest& e)
 	{
 		print_log(TEXT_RED, &e, e.what(), 1);
-		send_response(r, r.getResponse(), script.getClientOwner().getFd(), bad_geteway);
-		server.deleteCgiChild(pipe_fd);
+		r.getResponse().setStatusCode(bad_geteway);
+		r.is_request_done = true;
+		server.deleteCgiChild(child.getOutputPipe()[0]);
 		return -1;
 	}
-	waitpid(r.getPipeFd(), NULL, 0);
-	r.getResponse().setBody(script.getOutput());
+	waitpid(child.getPid(), NULL, 0);
+	r.getResponse().setBody(child.getOutput());
 	r.getResponse().setStatusCode(200);
 	std::map<std::string, std::string>::iterator it = cgi_temp_request.getHeader().getFields().find("Status");
 	if (it != cgi_temp_request.getHeader().getFields().end())
@@ -181,8 +174,22 @@ int	get_script_output(Server& server, int pipe_fd)
 			status = 200;
 		r.getResponse().setStatusCode(status);
 	}
-	send_response(r, r.getResponse(), script.getClientOwner().getFd(), 0);
-	server.deleteCgiChild(pipe_fd);
+	r.is_request_done = true;
+	server.deleteCgiChild(child.getOutputPipe()[0]);
+	return 0;
+}
+
+int	get_script_output(Server& server, int pipe_fd)
+{
+	std::string	msg;
+	CgiChild&	child = server.getCgiChilds().at(pipe_fd);
+	if (read_msg(msg, child.getOutputPipe()[0]) > 0)
+	{
+		child.setLastComm();
+		child.appedOutput(msg);
+		return 1;
+	}
+	handle_script_output(child, server);
 	return 0;
 }
 
