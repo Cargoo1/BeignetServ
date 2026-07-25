@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 19:10:40 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/25 15:24:28 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/25 18:00:19 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,15 +43,21 @@
 volatile bool stop_server = false;
 
 namespace {
-	void check_child(std::map<int, CgiChild> &childMap, Server &serv) {
+	void check_childs(std::map<int, CgiChild> &childMap, Server &serv) {
 		std::map<int, CgiChild>::iterator it = childMap.begin();
 		for (; it != childMap.end(); it++) {
-			if (it->second.is_done){
-				time_t curr;
-				std::time(&curr);
-				if (curr - it->second.getLastComm() >= 20)
-					serv.removeChild(it->second);
+			if (!it->second.is_done)
+				continue;
+			int return_value = waitpid(it->second.getPid(), NULL, WNOHANG);
+			if (return_value > 0)
+			{
+				serv.getCgiChilds().erase((it++));
+				continue ;
 			}
+			time_t curr;
+			std::time(&curr);
+			if (curr - it->second.getLastComm() >= 3)
+				serv.removeChild((it++)->first);
 		}
 	}
 }
@@ -165,9 +171,8 @@ void	get_client_request(Server& server, int fd)
 
 	if (recv_msg(client.getNotConstMsg(), fd) != 0)
 	{
-		//KILL PID if running
 		if (client.getRequest().getPipeFd() != -1)
-			server.deleteCgiChild(client.getRequest().getPipeFd());
+			server.removeChild(client.getRequest().getPipeFd());
 		server.deleteClient(fd, true);
 		return;
 	}
@@ -222,16 +227,17 @@ void	handle_event(Server& server, uint32_t events, int fd)
 			server.set_2_epoll(EPOLLIN, child.getClientOwner().getFd(), EPOLL_CTL_MOD);
 			if (child.getClientOwner().error_request)
 			{
-				;//KILL child delete cgichild delete client
-
+				server.removeChild(fd);
+				server.deleteClient(child.getClientOwner().getFd(), true);
 			}
 		}
 		if (epollup)
 		{
-			child.getClientOwner().error_request = true;
-			child.getClientOwner().getRequest().getResponse().setStatusCode(bad_geteway);
-			server.remove_from_epoll(fd);
-			//server.deleteCgiChild(int pipe_fd);
+			int infno = handle_script_output(child);
+			server.set_2_epoll(EPOLLIN, fd, EPOLL_CTL_DEL);
+			server.set_2_epoll(EPOLLIN | EPOLLOUT, child.getClientOwner().getFd(), EPOLL_CTL_MOD);
+			if (infno < 0)
+				server.removeChild(fd);
 		}
 	}
 	else if (server.getInputPipes().find(fd) != server.getInputPipes().end())
@@ -264,6 +270,7 @@ void	process_data(Server&	server, int epollcount)
 	}
 	check_idle_clients(server);
 	check_idle_scripts(server);
+	check_childs(server.getCgiChilds(), server);
 }
 
 #define MAX_EVENTS 10
@@ -317,14 +324,14 @@ int	run(std::vector<serverConfig> const& servers_conf)
 	signal(SIGINT, ft_handler);
 	while(!stop_server)
 	{
-		print_log(TEXT_MAGENTA, NULL, "Waiting epoll....", 0);
 		int epollcount = epoll_wait(server.getEpollfd(),
 									server.getEventQueue(),
 									MAX_EVENTS, 1000);
 		if (epollcount == TIMEOUT)
 		{
 			check_idle_clients(server);
-			check_child(server.getCgiChilds(), server);
+			check_idle_scripts(server);
+			check_childs(server.getCgiChilds(), server);
 			continue;
 		}
 		else if (epollcount < 0)

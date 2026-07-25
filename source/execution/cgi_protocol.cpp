@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/30 19:17:45 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/25 15:18:57 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/25 17:24:30 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include "Server.hpp"
 #include "locationConfig.hpp"
 #include "parserUtils.hpp"
+#include "run_server.hpp"
 #include "send_http_response.hpp"
 #include "utils.hpp"
 #include "utils_logs.hpp"
@@ -154,17 +155,21 @@ int	handle_script_output(CgiChild& child)
 	cgi_temp_request.getHeader().is_method_parsed = true;
 	try
 	{
-		parse_fields(child.getOutput(), cgi_temp_request);
+		if (parse_fields(child.getOutput(), cgi_temp_request) == INCOMPLETE)
+			throw Request::ErrorRequest(bad_geteway, "Not valid output");
 	}
 	catch (Request::ErrorRequest& e)
 	{
 		print_log(TEXT_RED, &e, e.what(), 1);
 		r.getResponse().setStatusCode(bad_geteway);
-		r.is_request_done = true;
+		child.getClientOwner().error_request = true;
 		//server.deleteCgiChild(child.getOutputPipe()[0]);
 		return -1;
 	}
-	waitpid(child.getPid(), NULL, 0);
+	int	process_status = waitpid(child.getPid(), NULL, 0);
+	if (process_status == 0)
+		child.setLastComm();
+	child.is_done = true;
 	r.getResponse().setBody(child.getOutput());
 	r.getResponse().setStatusCode(200);
 	std::map<std::string, std::string>::iterator it = cgi_temp_request.getHeader().getFields().find("Status");
@@ -176,7 +181,6 @@ int	handle_script_output(CgiChild& child)
 		r.getResponse().setStatusCode(status);
 	}
 	r.is_request_done = true;
-	//server.deleteCgiChild(child.getOutputPipe()[0]);
 	return 0;
 }
 
@@ -190,9 +194,11 @@ int	get_script_output(Server& server, int pipe_fd)
 		child.appedOutput(msg);
 		return 1;
 	}
-	handle_script_output(child);
+	int	infno = handle_script_output(child);
 	server.set_2_epoll(EPOLLIN, pipe_fd, EPOLL_CTL_DEL);
 	server.set_2_epoll(EPOLLIN | EPOLLOUT, child.getClientOwner().getFd(), EPOLL_CTL_MOD);
+	if (infno == -1)
+		server.removeChild(child.getOutputPipe()[0]);
 	return 0;
 }
 
@@ -206,13 +212,15 @@ void	check_idle_scripts(Server& server)
 	std::map<int, CgiChild>::const_iterator	it;
 	for (it = server.getCgiChilds().begin(); it != server.getCgiChilds().end();)
 	{
+		if (it->second.is_done)
+			continue;
 		if (curr_time - it->second.getLastComm() < 60)
 		{
 			++it;
 			continue;
 		}
 		print_log(TEXT_YELLOW, NULL, "Removing iddle pipe: " + toStr(it->first), 0);
-		server.deleteCgiChild((it++)->first);
+		server.removeChild((it++)->first);
 	}
 	server.setLastCheckScripts();
 }

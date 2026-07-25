@@ -17,7 +17,6 @@ namespace { const std::string getReasonPhrase(int code) {
 	std::string	ret;
 	switch (code)
 	{
-		
 		case 201:
 			ret = "Created\r\n";
 			break;
@@ -47,6 +46,9 @@ namespace { const std::string getReasonPhrase(int code) {
 			break;
 		case 500:
 			ret = "Internal server error\r\n";
+			break;
+		case bad_geteway:
+			ret = "Bad Gateway\r\n";
 			break;
 		default:
 			ret = "OK\r\n";

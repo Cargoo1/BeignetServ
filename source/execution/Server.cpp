@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/12 15:15:33 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/25 15:22:58 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/25 16:38:28 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 #include "utils_logs.hpp"
 #include <Client.hpp>
 #include <cerrno>
+#include <csignal>
 #include <cstdlib>
 #include <cstring>
 #include <ctime>
@@ -32,6 +33,7 @@
 #include <string>
 #include <sys/epoll.h>
 #include <sys/poll.h>
+#include <sys/wait.h>
 #include <unistd.h>
 #include <utility>
 #include <vector>
@@ -228,10 +230,10 @@ void	Server::deleteCgiChild(int pipe_fd)
 {
 	if (this->_scripts_childs.find(pipe_fd) == this->_scripts_childs.end())
 		return;
-	print_log(TEXT_YELLOW, NULL, "Closing and deleting pipe: " + toStr(pipe_fd), 0);
+	print_log(TEXT_YELLOW, NULL, "Removing pipe from epoll: " + toStr(pipe_fd), 0);
 	epoll_ctl(this->_epollfd, EPOLL_CTL_DEL, pipe_fd, &this->_einf);
 	this->_scripts_childs.at(pipe_fd).getClientOwner().getRequest().setPipeFd(-1);
-	this->_scripts_childs.erase(pipe_fd);
+	//this->_scripts_childs.erase(pipe_fd);
 }
 
 time_t	Server::getLastCheckScripts(void) const
@@ -274,7 +276,19 @@ void	Server::remove_from_epoll(int fd)
 	}
 }
 
-void	Server::removeChild(CgiChild &toDelete) {
-		kill(toDelete.getPid(), SIGTERM);
-		deleteCgiChild(toDelete.getOutputPipe()[0]);
+void	Server::removeChild(int pipe_fd)
+{
+	if (this->_scripts_childs.find(pipe_fd) == this->_scripts_childs.end())
+		return;
+	CgiChild& toDelete = this->_scripts_childs.at(pipe_fd);
+	int	process_status = 0;
+	int	return_value = 0;
+	return_value = waitpid(toDelete.getPid(), &process_status, WNOHANG);
+	if (return_value > 0)
+	{
+		this->_scripts_childs.erase(pipe_fd);
+		return;
 	}
+	kill(toDelete.getPid(), SIGKILL);
+	deleteCgiChild(toDelete.getOutputPipe()[0]);
+}

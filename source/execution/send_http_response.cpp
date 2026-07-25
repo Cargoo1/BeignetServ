@@ -6,7 +6,7 @@
 /*   By: ratel <ratel@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 21:54:03 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/24 23:55:55 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/25 17:29:30 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,7 +99,7 @@ int	send_response(Request& r, int cfd)
 	HttpResponse&	response = r.getResponse();
 	std::string msg;
 	response.addField("Server", "Beignetserv/0.1");
-	if (response.getStatusCode() >= 400 && !r.is_cgi_in_progress)
+	if (response.getStatusCode() >= 400)
 		send_error_response(response, *r.getServerBlock());
 	response.addField("Content-Length", toStr(response.getBody().length()));
 	msg = response.toHttpString();

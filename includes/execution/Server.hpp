@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/12 15:08:39 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/24 23:33:45 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/25 15:56:19 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ public:
 	void						close_all_clients(bool remove_from_epoll);
 	void						set_2_epoll(uint32_t events, int fd, int op);
 	void						remove_from_epoll(int fd);
-	void						removeChild(CgiChild &toDelete);
+	void						removeChild(int pipe_fd);
 private:
 	std::vector<int>			_sfds;
 	time_t						_last_check;

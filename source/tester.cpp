@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/23 23:13:46 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/24 19:49:43 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/25 17:09:52 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ int	main(int argc, char **argv, char **env)
 	}
 	std::map<std::string, std::string>::iterator it = fields.find("CONTENT_LENGTH");
 	if (it == fields.end())
-		return -1;
+		return 1;
 	char	buff[250];
 	std::cerr << "???\n";
 	size_t bytes_read = read(0, &buff, 249);
@@ -40,10 +40,19 @@ int	main(int argc, char **argv, char **env)
 	it = fields.find("QUERY_STRING");
 	std::string var("name=");
 	size_t	var_pos = it->second.find(var);
+	std::string	msg;
+	if (var_pos == std::string::npos)
+	{
+		std::cerr << "Not found\n";
+		msg = "Status: 404 Not found\n";
+		write(1, msg.c_str(), msg.length());
+		return 0;
+	}
 	std::string	filename = it->second.substr(var_pos + var.length(), filename.npos);
 	std::cerr << filename << '\n';
 	std::ofstream	fstream(filename.c_str());
 	fstream << input;
 	std::cerr << "sending\n";
-	write(1, "Status: 200 OK", 14);
+	msg = "Status: 200 OK\n";
+	write(1, msg.c_str(), msg.length());
 }

@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/18 22:41:57 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/25 01:00:35 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/25 18:00:09 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@ CgiChild::CgiChild(Client& client) : _env(NULL), _args(NULL), _client_owner(clie
 {
 	std::time(&this->_last_communication);
 	this->_file_path = client.getRequest().getHeader().getTargetResource();
+	this->is_done = false;
 	this->is_script_running = false;
 	this->_output_pipe[0] = -1;
 	this->_output_pipe[1] = -1;
@@ -41,6 +42,7 @@ CgiChild::CgiChild(CgiChild const& other) : _env(NULL), _args(NULL), _client_own
 {
 	this->_pid = other._pid;
 	this->is_script_running = other.is_script_running;
+	this->is_done = other.is_done;
 	this->_output_pipe[0] = other._output_pipe[0];
 	this->_output_pipe[1] = other._output_pipe[1];
 	this->_input_pipe[0] = other._input_pipe[0];
@@ -209,11 +211,11 @@ int	CgiChild::fork_child()
 			throw std::runtime_error("Dup2: " + std::string(strerror(errno)));
 		if (!this->_args || !this->_env)
 			throw std::runtime_error("execve args empty");
+		close_pipe(this->getInputPipe());
+		close_pipe(this->getOutputPipe());
 		execve(this->_args[0], this->_args, this->_env);
 		throw std::runtime_error("execve: " + std::string(strerror(errno)));
 	}
-	close(this->_input_pipe[0]);
-	this->_input_pipe[0] = -1;
 	close(this->_output_pipe[1]);
 	this->_output_pipe[1] = -1;
 	return 0;
