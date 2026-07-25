@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/30 19:17:45 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/25 00:38:49 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/25 15:18:57 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@
 #include <map>
 #include <parse_request.hpp>
 
+#include <sys/epoll.h>
 #include <sys/socket.h>
 #include <vector>
 #include <sys/stat.h>
@@ -146,7 +147,7 @@ namespace {
 
 }
 
-int	handle_script_output(CgiChild& child, Server& server)
+int	handle_script_output(CgiChild& child)
 {
 	Request&	r = child.getClientOwner().getRequest();
 	Request		cgi_temp_request;
@@ -160,7 +161,7 @@ int	handle_script_output(CgiChild& child, Server& server)
 		print_log(TEXT_RED, &e, e.what(), 1);
 		r.getResponse().setStatusCode(bad_geteway);
 		r.is_request_done = true;
-		server.deleteCgiChild(child.getOutputPipe()[0]);
+		//server.deleteCgiChild(child.getOutputPipe()[0]);
 		return -1;
 	}
 	waitpid(child.getPid(), NULL, 0);
@@ -171,11 +172,11 @@ int	handle_script_output(CgiChild& child, Server& server)
 	{
 		int	status = toInt(it->second);
 		if (status > 505 || status < 200)
-			status = 200;
+			status = bad_geteway;
 		r.getResponse().setStatusCode(status);
 	}
 	r.is_request_done = true;
-	server.deleteCgiChild(child.getOutputPipe()[0]);
+	//server.deleteCgiChild(child.getOutputPipe()[0]);
 	return 0;
 }
 
@@ -189,7 +190,9 @@ int	get_script_output(Server& server, int pipe_fd)
 		child.appedOutput(msg);
 		return 1;
 	}
-	handle_script_output(child, server);
+	handle_script_output(child);
+	server.set_2_epoll(EPOLLIN, pipe_fd, EPOLL_CTL_DEL);
+	server.set_2_epoll(EPOLLIN | EPOLLOUT, child.getClientOwner().getFd(), EPOLL_CTL_MOD);
 	return 0;
 }
 

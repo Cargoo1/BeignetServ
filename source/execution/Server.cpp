@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/12 15:15:33 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/25 00:59:39 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/25 15:22:58 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -231,7 +231,6 @@ void	Server::deleteCgiChild(int pipe_fd)
 	print_log(TEXT_YELLOW, NULL, "Closing and deleting pipe: " + toStr(pipe_fd), 0);
 	epoll_ctl(this->_epollfd, EPOLL_CTL_DEL, pipe_fd, &this->_einf);
 	this->_scripts_childs.at(pipe_fd).getClientOwner().getRequest().setPipeFd(-1);
-	this->_scripts_childs.at(pipe_fd).getClientOwner().getRequest().is_request_done =true;
 	this->_scripts_childs.erase(pipe_fd);
 }
 

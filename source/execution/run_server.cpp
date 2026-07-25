@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 19:10:40 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/25 01:12:21 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/25 15:24:28 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -163,27 +163,30 @@ void	get_client_request(Server& server, int fd)
 	Client&	client = server.getClients().at(fd);
 	int		infno = 0;
 
-	if (client.getRequest().is_cgi_in_progress)
-		return ;
 	if (recv_msg(client.getNotConstMsg(), fd) != 0)
 	{
+		//KILL PID if running
 		if (client.getRequest().getPipeFd() != -1)
 			server.deleteCgiChild(client.getRequest().getPipeFd());
 		server.deleteClient(fd, true);
 		return;
 	}
 	client.setLastComm();
-	handle_request(server.getClients().at(fd), server);
+	if (client.getRequest().is_cgi_in_progress)
+		return ;
+	infno = handle_request(server.getClients().at(fd), server);
+	if (infno == INCOMPLETE || infno == RUN_CGI)
+		return;
+	server.set_2_epoll(EPOLLIN | EPOLLOUT, fd, EPOLL_CTL_MOD);
 	return;
-
-
-
+	/*
 	while (!client.getMsg().empty())
 	{
 		infno = handle_request(server.getClients().at(fd), server);
 		if (infno != DONE)
 			break;
 	}
+	*/
 }
 
 void	handle_event(Server& server, uint32_t events, int fd)
@@ -195,14 +198,14 @@ void	handle_event(Server& server, uint32_t events, int fd)
 	if (server.getClients().find(fd) != server.getClients().end())
 	{
 		Client&	client = server.getClients().at(fd);
-		if (epollin && !client.getRequest().failed_request
+		if (epollin && !client.error_request
 			&& !client.getRequest().is_request_done)
 			get_client_request(server, fd);
-		if (epollout && (client.getRequest().failed_request || client.getRequest().is_request_done))
+		if (epollout && (client.error_request || client.getRequest().is_request_done))
 		{
 			send_response(client.getRequest(), client.getFd());
 			server.set_2_epoll(EPOLLIN, fd, EPOLL_CTL_MOD);
-			if (client.getRequest().failed_request)
+			if (client.error_request)
 				server.deleteClient(fd, true);
 		}
 	}
@@ -214,13 +217,21 @@ void	handle_event(Server& server, uint32_t events, int fd)
 		if (epollin)
 			get_script_output(server, fd);
 		if (epollout)
+		{
 			send_response(child.getClientOwner().getRequest(), child.getClientOwner().getFd());
+			server.set_2_epoll(EPOLLIN, child.getClientOwner().getFd(), EPOLL_CTL_MOD);
+			if (child.getClientOwner().error_request)
+			{
+				;//KILL child delete cgichild delete client
+
+			}
+		}
 		if (epollup)
 		{
-			child.getClientOwner().getRequest().failed_request = true;
+			child.getClientOwner().error_request = true;
 			child.getClientOwner().getRequest().getResponse().setStatusCode(bad_geteway);
 			server.remove_from_epoll(fd);
-			close_pipe(child.getOutputPipe());
+			//server.deleteCgiChild(int pipe_fd);
 		}
 	}
 	else if (server.getInputPipes().find(fd) != server.getInputPipes().end())
@@ -229,7 +240,8 @@ void	handle_event(Server& server, uint32_t events, int fd)
 		if (epollout && !child.is_script_running)
 		{
 			child.execute_script();
-			server.remove_from_epoll(fd);
+			//server.remove_from_epoll(fd);
+			server.set_2_epoll(EPOLLIN, fd, EPOLL_CTL_DEL);
 			close_pipe(child.getInputPipe());
 		}
 	}
