@@ -46,7 +46,8 @@ public:
 	void	setExtension(std::string const& str);
 	time_t			getLastComm(void) const;
 	void			setLastComm(void);
-	bool	is_script_running;
+	bool		is_script_running;
+	bool		is_done;
 private:
 	char	**_env;
 	char	**_args;

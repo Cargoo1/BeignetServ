@@ -35,6 +35,7 @@
 #include <unistd.h>
 #include <utility>
 #include <vector>
+#include "signal.h"
 
 Server::Server(Server const& other) : _server_conf(other._server_conf)
 {
@@ -273,3 +274,8 @@ void	Server::remove_from_epoll(int fd)
 		return;
 	}
 }
+
+void	Server::removeChild(CgiChild &toDelete) {
+		kill(toDelete.getPid(), SIGTERM);
+		deleteCgiChild(toDelete.getOutputPipe()[0]);
+	}

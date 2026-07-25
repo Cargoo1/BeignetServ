@@ -58,6 +58,7 @@ public:
 	void						close_all_clients(bool remove_from_epoll);
 	void						set_2_epoll(uint32_t events, int fd, int op);
 	void						remove_from_epoll(int fd);
+	void						removeChild(CgiChild &toDelete);
 private:
 	std::vector<int>			_sfds;
 	time_t						_last_check;

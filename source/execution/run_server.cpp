@@ -38,8 +38,23 @@
 #include <vector>
 #include <signal.h>
 #include <sys/epoll.h>
+#include <sys/wait.h>
 
 volatile bool stop_server = false;
+
+namespace {
+	void check_child(std::map<int, CgiChild> &childMap, Server &serv) {
+		std::map<int, CgiChild>::iterator it = childMap.begin();
+		for (; it != childMap.end(); it++) {
+			if (it->second.is_done){
+				time_t curr;
+				std::time(&curr);
+				if (curr - it->second.getLastComm() >= 20)
+					serv.removeChild(it->second);
+			}
+		}
+	}
+}
 
 int		getListenerSocket(const std::string &host, const std::string &port)
 {
@@ -297,6 +312,7 @@ int	run(std::vector<serverConfig> const& servers_conf)
 		if (epollcount == TIMEOUT)
 		{
 			check_idle_clients(server);
+			check_child(server.getCgiChilds(), server);
 			continue;
 		}
 		else if (epollcount < 0)
