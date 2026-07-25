@@ -186,6 +186,7 @@ void	handle_event(Server& server, uint32_t events, int fd)
 		if (epollout && (client.getRequest().failed_request || client.getRequest().is_request_done))
 		{
 			send_response(client.getRequest(), client.getFd());
+			server.set_2_epoll(EPOLLIN, fd, EPOLL_CTL_MOD);
 			if (client.getRequest().failed_request)
 				server.deleteClient(fd, true);
 		}

@@ -56,7 +56,7 @@ public:
 	void						close_server(bool remove_from_epoll);
 	void						close_server_sockets(void);
 	void						close_all_clients(bool remove_from_epoll);
-	void						add_2_epoll(uint32_t events, int fd);
+	void						set_2_epoll(uint32_t events, int fd, int op);
 	void						remove_from_epoll(int fd);
 private:
 	std::vector<int>			_sfds;

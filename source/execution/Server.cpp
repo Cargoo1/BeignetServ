@@ -139,10 +139,9 @@ std::map<int, Client>&	Server::getClients(void)
 	return this->_clients;
 }
 
-void	Server::add_2_epoll(uint32_t events, int fd)
-{
+void	Server::set_2_epoll(uint32_t events, int fd, int op) {
 	this->setEinf(fd, events);
-	if (epoll_ctl(this->_epollfd, EPOLL_CTL_ADD, fd, &this->_einf) == -1)
+	if (epoll_ctl(this->_epollfd, op, fd, &this->_einf) == -1)
 	{
 		close(fd);
 		throw std::runtime_error("Epoll: " + std::string(strerror(errno)));
@@ -153,7 +152,7 @@ void	Server::addClient(int fd, uint32_t events, std::string const& ip, std::stri
 {
 	std::string	log;
 	std::stringstream	ss;
-	this->add_2_epoll(events, fd);
+	this->set_2_epoll(events, fd, EPOLL_CTL_ADD);
 	this->_clients.insert(std::pair<int, Client>(fd, Client(fd, events)));
 	this->_clients.at(fd).setIpPort(ip, port);
 	ss << fd;
@@ -185,8 +184,8 @@ int	Server::addCgiChild(Client& client)
 	child.setOutputPipe(output_pipe);
 	child.setInputPipe(input_pipe);
 	this->_input_pipes.insert(std::pair<int, CgiChild*>(input_pipe[1], &child));
-	this->add_2_epoll(EPOLLOUT, child.getInputPipe()[1]);
-	this->add_2_epoll(EPOLLIN, child.getOutputPipe()[0]);
+	this->set_2_epoll(EPOLLOUT, child.getInputPipe()[1], EPOLL_CTL_ADD);
+	this->set_2_epoll(EPOLLIN, child.getOutputPipe()[0], EPOLL_CTL_ADD);
 	log = "Child added to Epoll pool: " + toStr(child.getOutputPipe()[0]) + "\n";
 	print_log(TEXT_GREEN, NULL, log, 0);
 	client.getRequest().is_cgi_in_progress = true;
