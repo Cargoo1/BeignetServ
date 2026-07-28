@@ -31,7 +31,7 @@ int	main(int ac, char **av)
 	}
 	catch (std::exception& e)
 	{
-		print_log(TEXT_RED, NULL, e.what(), true);
+		print_log(TEXT_RED, NULL, "Child: " + std::string(e.what()), true);
 		exit_sts = errno;
 	}
 	return (exit_sts);

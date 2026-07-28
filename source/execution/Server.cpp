@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/12 15:15:33 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/25 16:38:28 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/28 23:08:02 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include "run_server.hpp"
 #include "send_http_response.hpp"
 #include "utils.hpp"
+#include "utils_execution.hpp"
 #include "utils_logs.hpp"
 #include <Client.hpp>
 #include <cerrno>
@@ -186,6 +187,14 @@ int	Server::addCgiChild(Client& client)
 	CgiChild&	child = this->_scripts_childs.at(output_pipe[0]);
 	child.setOutputPipe(output_pipe);
 	child.setInputPipe(input_pipe);
+	int	infno = child.set_cgi();
+	if (infno != 0)
+	{
+		child.getClientOwner().getRequest().getResponse().setStatusCode(infno);
+		child.getClientOwner().error_request = true;
+		this->deleteCgiChild(child.getOutputPipe()[0]);
+		return -1;
+	}
 	this->_input_pipes.insert(std::pair<int, CgiChild*>(input_pipe[1], &child));
 	this->set_2_epoll(EPOLLOUT, child.getInputPipe()[1], EPOLL_CTL_ADD);
 	this->set_2_epoll(EPOLLIN, child.getOutputPipe()[0], EPOLL_CTL_ADD);
@@ -193,14 +202,6 @@ int	Server::addCgiChild(Client& client)
 	print_log(TEXT_GREEN, NULL, log, 0);
 	client.getRequest().is_cgi_in_progress = true;
 	client.getRequest().setPipeFd(child.getOutputPipe()[0]);
-	int	infno = child.set_cgi();
-	if (infno != 0)
-	{
-		child.getClientOwner().getRequest().getResponse().setStatusCode(infno);
-		child.getClientOwner().getRequest().is_request_done = true;
-		this->deleteCgiChild(child.getOutputPipe()[0]);
-		return -1;
-	}
 	return INCOMPLETE;
 }
 
@@ -230,10 +231,14 @@ void	Server::deleteCgiChild(int pipe_fd)
 {
 	if (this->_scripts_childs.find(pipe_fd) == this->_scripts_childs.end())
 		return;
-	print_log(TEXT_YELLOW, NULL, "Removing pipe from epoll: " + toStr(pipe_fd), 0);
+	print_log(TEXT_YELLOW, NULL, "Removing cgi child from server, fd: " + toStr(pipe_fd), true);
+	epoll_ctl(this->_epollfd, EPOLL_CTL_DEL, this->_scripts_childs.at(pipe_fd).getInputPipe()[1], &this->_einf);
+	this->_input_pipes.erase(this->_scripts_childs.at(pipe_fd).getInputPipe()[1]);
+	close_pipe(this->_scripts_childs.at(pipe_fd).getInputPipe());
 	epoll_ctl(this->_epollfd, EPOLL_CTL_DEL, pipe_fd, &this->_einf);
 	this->_scripts_childs.at(pipe_fd).getClientOwner().getRequest().setPipeFd(-1);
-	//this->_scripts_childs.erase(pipe_fd);
+	close_pipe(this->_scripts_childs.at(pipe_fd).getOutputPipe());
+	this->_scripts_childs.erase(pipe_fd);
 }
 
 time_t	Server::getLastCheckScripts(void) const
@@ -268,12 +273,6 @@ void	Server::remove_from_epoll(int fd)
 		return;
 	}
 	return;
-	std::map<int, CgiChild>::iterator it_childs = this->_scripts_childs.find(fd);
-	if (it_childs != this->_scripts_childs.end())
-	{
-		this->deleteCgiChild(fd);
-		return;
-	}
 }
 
 void	Server::removeChild(int pipe_fd)
@@ -284,11 +283,15 @@ void	Server::removeChild(int pipe_fd)
 	int	process_status = 0;
 	int	return_value = 0;
 	return_value = waitpid(toDelete.getPid(), &process_status, WNOHANG);
-	if (return_value > 0)
+	if (return_value > 0 || errno == ECHILD)
 	{
-		this->_scripts_childs.erase(pipe_fd);
+		deleteCgiChild(toDelete.getOutputPipe()[0]);
 		return;
 	}
-	kill(toDelete.getPid(), SIGKILL);
+	print_log(TEXT_YELLOW, NULL, "Killing child: fd: "
+								+ toStr(pipe_fd) + " pid: "
+								+ toStr(toDelete.getPid()), 1);
+	if (kill(toDelete.getPid(), SIGKILL) > 0)
+		print_log(TEXT_RED, NULL, "Could not kill process: " + toStr(toDelete.getPid()) + "!!!", true);
 	deleteCgiChild(toDelete.getOutputPipe()[0]);
 }

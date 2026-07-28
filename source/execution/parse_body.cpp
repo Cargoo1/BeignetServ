@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/01 13:36:16 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/23 23:51:56 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/28 23:51:30 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,23 +27,15 @@
 
 bool	read_trailer_fields(Request& r, std::string& raw_body)
 {
-	try
-	{
-		if (parse_fields(raw_body, r) == INCOMPLETE)
-			return INCOMPLETE;
-	}
-	catch(Request::ErrorRequest &e)
-	{
-		print_log(TEXT_RED, &e, e.what(), 1);
-		return e.getErrorCode();
-	}
+	if (parse_fields(raw_body, r) == INCOMPLETE)
+		return INCOMPLETE;
 	return DONE;
 }
 
 int	read_with_boundaries(Request& r, std::string& raw_body)
 {
 	size_t boundary_pos = 0;
-	Request temp_r;
+	Request temp_request;
 
 	if (!r.is_body_being_read)
 	{
@@ -54,22 +46,19 @@ int	read_with_boundaries(Request& r, std::string& raw_body)
 		r.is_body_being_read = true;
 	}
 	std::string	boundary = CRLF + r.getHeader().getBoundary();
-	temp_r.getHeader().set_is_header_parsed(true);
-	temp_r.getHeader().is_method_parsed = true;
+	temp_request.getHeader().set_is_header_parsed(true);
+	temp_request.getHeader().is_method_parsed = true;
 	boundary_pos = raw_body.find(boundary);
 	while (boundary_pos != raw_body.npos)
 	{
 		consume_until_crlf(raw_body);
-		int	return_value = read_trailer_fields(temp_r, raw_body);
-		if (return_value == INCOMPLETE)
+		if (read_trailer_fields(temp_request, raw_body) == INCOMPLETE)
 			return INCOMPLETE;
-		else if (return_value > 1)
-			return return_value;
 		boundary_pos = raw_body.find(boundary);
-		if (temp_r.getHeader().data_values[0] == "file")
+		if (temp_request.getHeader().data_values[0] == "file")
 		{
 			r.getRawBody().append(raw_body, 0, boundary_pos);
-			r.getHeader().setFilename(temp_r.getHeader().data_values[1]);
+			r.getHeader().setFilename(temp_request.getHeader().data_values[1]);
 		}
 		else
 			print_log(TEXT_BLUE, NULL, "\nClient Comment:\n@@@@@@@@@@\n>>>" +

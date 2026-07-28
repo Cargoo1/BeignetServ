@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/23 23:13:46 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/25 17:09:52 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/28 23:11:30 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,10 @@ int	main(int argc, char **argv, char **env)
 {
 	(void)argc;
 	(void)argv;
+	while (true)
+	{
+		;
+	}
 	std::map<std::string, std::string>	fields;
 	std::string	temp;
 	for (size_t i = 0; env[i]; ++i)
@@ -54,6 +58,7 @@ int	main(int argc, char **argv, char **env)
 	std::ofstream	fstream(filename.c_str());
 	fstream << input;
 	std::cerr << "sending\n";
-	msg = "Status: 200 OK\r\n\r\n";
+	msg = "Status: 200 OK\r\nContent-length:    0\r\n\r\n";
 	write(1, msg.c_str(), msg.length());
+	close(STDOUT_FILENO);
 }

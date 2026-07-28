@@ -6,11 +6,12 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/12 15:08:39 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/25 15:56:19 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/28 16:56:09 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
+
 #include "CgiChild.hpp"
 #include "Request.hpp"
 #include "SessionManager.hpp"

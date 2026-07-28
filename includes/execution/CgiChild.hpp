@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/18 22:25:37 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/25 01:00:49 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/28 16:56:25 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #pragma once
@@ -14,6 +14,8 @@
 #include "Client.hpp"
 #include "Request.hpp"
 #include <string>
+class	Server;
+
 class	CgiChild
 {
 public:
@@ -24,10 +26,10 @@ public:
 	CgiChild& operator=(CgiChild const& other);
 	
 	int		set_cgi();
-	int		execute_script();
+	int		execute_script(Server& server);
 	int		create_args(std::string const& interpreter);
 	int		create_env(Request const& r);
-	int		fork_child();
+	int		fork_child(Server& server);
 	char**	getArgs(void) const;
 	char**	getEnv(void) const;
 	std::string const&	getFilename(void) const;

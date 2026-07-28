@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/16 20:36:21 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/23 23:56:08 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/28 16:45:43 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,12 +25,12 @@ bool	is_in_cgi_dir(std::string const& uri)
 	size_t dir_pos = uri.find(CGI_DIR);
 	if (dir_pos == std::string::npos)
 		return false;
-	dir_pos += std::strlen(CGI_DIR) - 1;
+	dir_pos += std::strlen(CGI_DIR);
 	if (dir_pos > uri.length())
 		return false;
 	else if (dir_pos == uri.length())
-		return true;
-	else if (uri.at(dir_pos + 1) != '/')
+		return false;
+	else if (uri.at(dir_pos) != '/')
 		return false;
 	return true;
 }

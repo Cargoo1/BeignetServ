@@ -102,15 +102,6 @@ void GetMethod::executeMethod(HttpResponse &rsp) {
 		return;
 	}
 	std::string path = this->_request.getHeader().getTargetResource();
-	std::cout << "DEBUG: GET: path: " << path << std::endl;
-	/* C deja fait dans le parsing, et je pense que c mieux de le faire avant d'appeller une method
-	std::string query = getQuery(path);
-	std::string cgiPath = getQuery_path(path);
-	if (isCgi(cgiPath)) {
-		// _executeCGI(this->_context);
-		return;
-	}
-	*/
 	struct stat path_stat;
 	if (stat(path.c_str(), &path_stat) < 0) 
 		throw Request::ErrorRequest(not_found, "GET: no such file or directory (stat)");

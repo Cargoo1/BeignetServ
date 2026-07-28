@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 19:10:40 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/25 18:00:19 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/28 22:51:39 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,27 +40,9 @@
 #include <sys/epoll.h>
 #include <sys/wait.h>
 
-volatile bool stop_server = false;
+#define CLIENT_TIMEOUT 60
 
-namespace {
-	void check_childs(std::map<int, CgiChild> &childMap, Server &serv) {
-		std::map<int, CgiChild>::iterator it = childMap.begin();
-		for (; it != childMap.end(); it++) {
-			if (!it->second.is_done)
-				continue;
-			int return_value = waitpid(it->second.getPid(), NULL, WNOHANG);
-			if (return_value > 0)
-			{
-				serv.getCgiChilds().erase((it++));
-				continue ;
-			}
-			time_t curr;
-			std::time(&curr);
-			if (curr - it->second.getLastComm() >= 3)
-				serv.removeChild((it++)->first);
-		}
-	}
-}
+volatile bool stop_server = false;
 
 int		getListenerSocket(const std::string &host, const std::string &port)
 {
@@ -148,7 +130,7 @@ void	check_idle_clients(Server& server)
 	std::map<int, Client>::iterator	it;
 	for (it = server.getClients().begin(); it != server.getClients().end();)
 	{
-		if (curr_time - it->second.getLastComm() < 160)
+		if (curr_time - it->second.getLastComm() < CLIENT_TIMEOUT || it->second.getRequest().is_cgi_in_progress)
 		{
 			++it;
 			continue;
@@ -157,8 +139,6 @@ void	check_idle_clients(Server& server)
 								+ it->second.getIp() + ":"
 								+ it->second.getPort() + ", fd: "
 								+ toStr(it->first), 0);
-		if (it->second.getRequest().getPipeFd() != -1)
-			server.deleteCgiChild(it->second.getRequest().getPipeFd());
 		server.deleteClient((it++)->first, true);
 	}
 	server.setLastCheck();
@@ -233,6 +213,8 @@ void	handle_event(Server& server, uint32_t events, int fd)
 		}
 		if (epollup)
 		{
+			child.is_done = true;
+			child.getClientOwner().setLastComm();
 			int infno = handle_script_output(child);
 			server.set_2_epoll(EPOLLIN, fd, EPOLL_CTL_DEL);
 			server.set_2_epoll(EPOLLIN | EPOLLOUT, child.getClientOwner().getFd(), EPOLL_CTL_MOD);
@@ -245,10 +227,8 @@ void	handle_event(Server& server, uint32_t events, int fd)
 		CgiChild&	child = *server.getInputPipes().at(fd);
 		if (epollout && !child.is_script_running)
 		{
-			child.execute_script();
-			//server.remove_from_epoll(fd);
+			child.execute_script(server);
 			server.set_2_epoll(EPOLLIN, fd, EPOLL_CTL_DEL);
-			close_pipe(child.getInputPipe());
 		}
 	}
 	return;
@@ -270,7 +250,6 @@ void	process_data(Server&	server, int epollcount)
 	}
 	check_idle_clients(server);
 	check_idle_scripts(server);
-	check_childs(server.getCgiChilds(), server);
 }
 
 #define MAX_EVENTS 10
@@ -331,7 +310,6 @@ int	run(std::vector<serverConfig> const& servers_conf)
 		{
 			check_idle_clients(server);
 			check_idle_scripts(server);
-			check_childs(server.getCgiChilds(), server);
 			continue;
 		}
 		else if (epollcount < 0)

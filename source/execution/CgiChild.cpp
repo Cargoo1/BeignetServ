@@ -6,12 +6,13 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/18 22:41:57 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/25 18:00:09 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/28 22:19:48 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
 #include "Request.hpp"
+#include "Server.hpp"
 #include "locationConfig.hpp"
 #include "send_http_response.hpp"
 #include "utils.hpp"
@@ -24,6 +25,7 @@
 #include <cstring>
 #include <ctime>
 #include <stdexcept>
+#include <string>
 #include <unistd.h>
 CgiChild::CgiChild(Client& client) : _env(NULL), _args(NULL), _client_owner(client), _pid(-1)
 {
@@ -60,10 +62,6 @@ CgiChild::~CgiChild()
 		free_double_char_ptr(this->_env);
 	if (this->_args)
 		free_double_char_ptr(this->_args);
-	if (this->_output_pipe[0] >= 0)
-		close(this->_output_pipe[0]);
-	if (this->_output_pipe[1] >= 0)
-		close(this->_output_pipe[1]);
 }
 
 CgiChild& CgiChild::operator=(CgiChild const& other)
@@ -111,14 +109,14 @@ void	CgiChild::setInputPipe(int* pipe_fd)
 	return;
 }
 
-int		CgiChild::execute_script()
+int		CgiChild::execute_script(Server& server)
 {
 
 	size_t	len = this->_client_owner.getRequest().getBody().length();
 	writeall(this->_input_pipe[1], this->_client_owner.getRequest().getBody().c_str(), len);
 	if (len != this->_client_owner.getRequest().getBody().length())
 		print_log(TEXT_RED, NULL, "Could not send all the body", 1);
-	this->fork_child();
+	this->fork_child(server);
 	this->is_script_running = true;
 	return 0;
 }
@@ -132,7 +130,11 @@ int		CgiChild::set_cgi()
 		print_log(TEXT_YELLOW, NULL, "Could not execute cgi, script misssing", 1);
 		return not_found;
 	}
-	if (access(this->_file_path.c_str(), F_OK) != 0)
+	size_t	file_name_pos = this->_file_path.find_last_of('/') + 1;
+	this->_file_name = "./" + this->_file_path.substr(file_name_pos, std::string::npos);
+	this->_file_path.erase(file_name_pos, std::string::npos);
+	std::string	full_file_path = this->_file_path + this->_file_name;
+	if (access(full_file_path.c_str(), F_OK) != 0)
 	{
 		print_log(TEXT_YELLOW, NULL, "Could not execute cgi, script misssing", 1);
 		return not_found;
@@ -140,7 +142,7 @@ int		CgiChild::set_cgi()
 	int	access_opts = R_OK;
 	if (this->_interpreter.empty())
 		access_opts = access_opts | X_OK;
-	if (access(this->_file_path.c_str(), access_opts) != 0)
+	if (access(full_file_path.c_str(), access_opts) != 0)
 	{
 		print_log(TEXT_YELLOW, NULL, "Could not execute cgi, permission denied", 1);
 		return forbiden;
@@ -163,7 +165,7 @@ int		CgiChild::create_args(std::string const& interpreter)
 			this->_args[i] = ft_create_c_str(interpreter);
 			continue;
 		}
-		this->_args[i] = ft_create_c_str(this->_file_path);
+		this->_args[i] = ft_create_c_str(this->_file_name);
 	}
 	this->_args[args_len - 1] = NULL;
 	return 0;
@@ -199,7 +201,7 @@ int		CgiChild::create_env(Request const& r)
 	return 0;
 }
 
-int	CgiChild::fork_child()
+int	CgiChild::fork_child(Server& server)
 {
 	this->_pid = fork();
 	if (this->_pid == -1)
@@ -211,8 +213,10 @@ int	CgiChild::fork_child()
 			throw std::runtime_error("Dup2: " + std::string(strerror(errno)));
 		if (!this->_args || !this->_env)
 			throw std::runtime_error("execve args empty");
+		server.close_server(false);
 		close_pipe(this->getInputPipe());
 		close_pipe(this->getOutputPipe());
+		chdir(this->_file_path.c_str());
 		execve(this->_args[0], this->_args, this->_env);
 		throw std::runtime_error("execve: " + std::string(strerror(errno)));
 	}

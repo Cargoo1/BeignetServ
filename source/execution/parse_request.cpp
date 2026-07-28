@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/07 19:49:10 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/23 20:41:14 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/28 22:00:18 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,7 +124,6 @@ void	parse_line(std::string & line,
 	it = fields.find(field_name);
 	if (it == fields.end())
 		return;
-	print_log(TEXT_MAGENTA, NULL, "DEBUG:" + line, false);
 	(header.*(it->second))(line);
 }
 
