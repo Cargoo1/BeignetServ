@@ -140,8 +140,8 @@ namespace {
 		else {
 			char **ret = new char*[3];
 			ret[0] = ft_dupStrC(interpretor);
-			ret[0] = ft_dupStrC(script);
-			ret[1] = 0;
+			ret[1] = ft_dupStrC(script);
+			ret[2] = 0;
 			return ret;
 		}
 	}

@@ -37,7 +37,7 @@ enum MIME { JPG, PNG, HTML, CSS,TXT, CGI_PY, APP};
 
 #define NULL_STR ""
 
-#define CGI_DIR "/cgi_bin"
+#define CGI_DIR "/cgi-bin"
 
 template <typename T> 
 std::string toStr(T nbr) {

@@ -35,6 +35,7 @@ int	main(int argc, char **argv, char **env)
 	std::cerr << "???\n";
 	size_t bytes_read = read(0, &buff, 249);
 	std::cerr << "!!\n";
+	std::cerr << "\r\n";
 	buff[bytes_read] = '\0';
 	std::string	input = buff;
 	it = fields.find("QUERY_STRING");
@@ -53,6 +54,6 @@ int	main(int argc, char **argv, char **env)
 	std::ofstream	fstream(filename.c_str());
 	fstream << input;
 	std::cerr << "sending\n";
-	msg = "Status: 200 OK\n";
+	msg = "Status: 200 OK\r\n\r\n";
 	write(1, msg.c_str(), msg.length());
 }
