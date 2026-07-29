@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/18 22:41:57 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/28 22:19:48 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/29 23:28:22 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,10 +33,10 @@ CgiChild::CgiChild(Client& client) : _env(NULL), _args(NULL), _client_owner(clie
 	this->_file_path = client.getRequest().getHeader().getTargetResource();
 	this->is_done = false;
 	this->is_script_running = false;
-	this->_output_pipe[0] = -1;
-	this->_output_pipe[1] = -1;
-	this->_input_pipe[0] = -1;
-	this->_input_pipe[1] = -1;
+	this->_read_from_script_pipe[0] = -1;
+	this->_read_from_script_pipe[1] = -1;
+	this->_write_2_script[0] = -1;
+	this->_write_2_script[1] = -1;
 	return;
 }
 
@@ -45,10 +45,10 @@ CgiChild::CgiChild(CgiChild const& other) : _env(NULL), _args(NULL), _client_own
 	this->_pid = other._pid;
 	this->is_script_running = other.is_script_running;
 	this->is_done = other.is_done;
-	this->_output_pipe[0] = other._output_pipe[0];
-	this->_output_pipe[1] = other._output_pipe[1];
-	this->_input_pipe[0] = other._input_pipe[0];
-	this->_input_pipe[1] = other._input_pipe[1];
+	this->_read_from_script_pipe[0] = other._read_from_script_pipe[0];
+	this->_read_from_script_pipe[1] = other._read_from_script_pipe[1];
+	this->_write_2_script[0] = other._write_2_script[0];
+	this->_write_2_script[1] = other._write_2_script[1];
 	this->_file_name = other._file_name;
 	this->_file_path = other._file_path;
 	this->_extension = other._extension;
@@ -62,6 +62,8 @@ CgiChild::~CgiChild()
 		free_double_char_ptr(this->_env);
 	if (this->_args)
 		free_double_char_ptr(this->_args);
+	close_pipe(this->_read_from_script_pipe);
+	close_pipe(this->_write_2_script);
 }
 
 CgiChild& CgiChild::operator=(CgiChild const& other)
@@ -95,17 +97,17 @@ void	find_interpreter(std::string const& extension, std::string& interpreter, lo
 }
 
 }
-void	CgiChild::setOutputPipe(int* pipe_fd)
+void	CgiChild::setReadFromScriptPipe(int* pipe_fd)
 {
-	this->_output_pipe[0] = pipe_fd[0];
-	this->_output_pipe[1] = pipe_fd[1];
+	this->_read_from_script_pipe[0] = pipe_fd[0];
+	this->_read_from_script_pipe[1] = pipe_fd[1];
 	return;
 }
 
-void	CgiChild::setInputPipe(int* pipe_fd)
+void	CgiChild::setWrite2Script(int* pipe_fd)
 {
-	this->_input_pipe[0] = pipe_fd[0];
-	this->_input_pipe[1] = pipe_fd[1];
+	this->_write_2_script[0] = pipe_fd[0];
+	this->_write_2_script[1] = pipe_fd[1];
 	return;
 }
 
@@ -113,7 +115,7 @@ int		CgiChild::execute_script(Server& server)
 {
 
 	size_t	len = this->_client_owner.getRequest().getBody().length();
-	writeall(this->_input_pipe[1], this->_client_owner.getRequest().getBody().c_str(), len);
+	writeall(this->_write_2_script[1], this->_client_owner.getRequest().getBody().c_str(), len);
 	if (len != this->_client_owner.getRequest().getBody().length())
 		print_log(TEXT_RED, NULL, "Could not send all the body", 1);
 	this->fork_child(server);
@@ -208,20 +210,22 @@ int	CgiChild::fork_child(Server& server)
 		throw std::runtime_error("Fork: " + std::string(strerror(errno)));
 	if (this->_pid == 0)
 	{
-		if (dup2(this->_output_pipe[1], STDOUT_FILENO) == -1
-			|| dup2(this->_input_pipe[0], STDIN_FILENO) == -1)
+		if (dup2(this->_read_from_script_pipe[1], STDOUT_FILENO) == -1
+			|| dup2(this->_write_2_script[0], STDIN_FILENO) == -1)
 			throw std::runtime_error("Dup2: " + std::string(strerror(errno)));
 		if (!this->_args || !this->_env)
 			throw std::runtime_error("execve args empty");
 		server.close_server(false);
-		close_pipe(this->getInputPipe());
-		close_pipe(this->getOutputPipe());
+		close_pipe(this->getWrite2Script());
+		close_pipe(this->getReadFromScriptPipe());
 		chdir(this->_file_path.c_str());
 		execve(this->_args[0], this->_args, this->_env);
 		throw std::runtime_error("execve: " + std::string(strerror(errno)));
 	}
-	close(this->_output_pipe[1]);
-	this->_output_pipe[1] = -1;
+	close(this->_read_from_script_pipe[1]);
+	close(this->_write_2_script[0]);
+	this->_write_2_script[0] = -1;
+	this->_read_from_script_pipe[1] = -1;
 	return 0;
 }
 
@@ -290,14 +294,14 @@ void	CgiChild::setLastComm(void)
 	std::time(&this->_last_communication);
 }
 
-int*	CgiChild::getInputPipe(void)
+int*	CgiChild::getWrite2Script(void)
 {
-	return this->_input_pipe;
+	return this->_write_2_script;
 }
 
-int*	CgiChild::getOutputPipe(void)
+int*	CgiChild::getReadFromScriptPipe(void)
 {
-	return this->_output_pipe;
+	return this->_read_from_script_pipe;
 }
 
 int		CgiChild::getPid(void) const

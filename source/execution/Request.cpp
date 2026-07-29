@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/08 15:51:44 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/25 14:45:59 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/29 23:39:46 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,9 +23,7 @@
 
 Request::Request() : _header(*this)
 {
-	this->_request_in_progress = false;
-	this->is_request_done = false;
-	this->is_cgi_in_progress = false;
+	this->is_request_in_progress = false;
 	this->_body_len = 0;
 	this->_bytes_read = 0;
 	this->_locConf_block = NULL;
@@ -33,7 +31,7 @@ Request::Request() : _header(*this)
 	this->is_body_read = false;
 	this->waiting_chunk = false;
 	this->is_body_being_read = false;
-	this->_pipe_fd = -1;
+	this->_current_cgi_pipe_fd = -1;
 	return;
 }
 
@@ -45,11 +43,9 @@ Request::~Request()
 Request::Request(const Request& other) : _header(*this)
 {
 	this->_header = other._header;
-	this->is_request_done = other.is_request_done;
 	this->_body = other._body;
 	this->_response = other._response;
-	this->_request_in_progress = other._request_in_progress;
-	this->is_cgi_in_progress = other.is_cgi_in_progress;
+	this->is_request_in_progress = other.is_request_in_progress;
 	this->_body_len = other._body_len;
 	this->_bytes_read = other._bytes_read;
 	this->_locConf_block = other._locConf_block;
@@ -110,17 +106,6 @@ int		Request::ErrorRequest::getErrorCode(void) const
 HttpResponse&		Request::getResponse(void)
 {
 	return this->_response;
-}
-
-bool					Request::getReqInProg(void) const
-{
-	return this->_request_in_progress;
-}
-
-void					Request::setReqInProg(bool value)
-{
-	this->_request_in_progress = value;
-	return;
 }
 
 size_t	Request::getBytesRead(void) const
@@ -203,17 +188,17 @@ std::string&	Request::getBoundary(void)
 	return this->_boundary;
 }
 
-bool	Request::setPipeFd(int pipe_fd)
+bool	Request::setCurrentCgiPipeFd(int pipe_fd)
 {
 	if (pipe_fd < 0)
 		return false;
-	this->_pipe_fd = pipe_fd;
+	this->_current_cgi_pipe_fd = pipe_fd;
 	return true;
 }
 
-int		Request::getPipeFd(void) const
+int		Request::getCurrentCgiPipeFd(void) const
 {
-	return this->_pipe_fd;
+	return this->_current_cgi_pipe_fd;
 }
 
 std::string&	Request::getScripOutput(void)

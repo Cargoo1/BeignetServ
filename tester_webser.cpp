@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   client.cpp                                         :+:      :+:    :+:   */
+/*   tester_webser.cpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/21 15:12:53 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/28 23:55:14 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/29 23:05:00 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,17 +94,14 @@ int	main()
 		std::vector<std::string>	header;
 
 		header.push_back("Host:localhost:8080");
-		test_get("/", header, "", sfd);
+		test_get("/good_file", header, "", sfd);
 		recv_response(sfd);
 	}
 	{
 		std::vector<std::string>	header;
 		header.push_back("Host:localhost:8080");
 		header.push_back("Transfer-Encoding:chunked");
-		test_post("/testing", header, "", sfd);
-		test_post("/testing/", header, "", sfd);
-		test_post("/okok/", header, "", sfd);
-		test_post("/testing/yes", header, "", sfd);
+		test_post("/slow_chunked", header, "", sfd);
 		send_str(sfd, "1\r\n");
 		sleep(2);
 		send_str(sfd, "a\r\nA\r\n");
@@ -118,7 +115,7 @@ int	main()
 		std::vector<std::string>	header;
 		header.push_back("Host:localhost:8080");
 		header.push_back("Transfer-Encoding:chunked");
-		test_post("/testing", header, "", sfd);
+		test_post("/bad_test", header, "", sfd);
 		send_str(sfd, "1\r\n");
 		sleep(2);
 		send_str(sfd, "?\r\nA\r\n");
@@ -128,11 +125,45 @@ int	main()
 		send_str(sfd, "Sasdasd");
 		send_str(sfd, "\r\n");
 		recv_response(sfd);
+		close(sfd);
+		sleep(1);
+		sfd = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
+		std::cout << sfd << '\n';
 		if (connect(sfd, result->ai_addr, result->ai_addrlen) != 0)
 		{
 			perror("connect");
 			exit(1);
 		}
+	}
+	{
+		std::vector<std::string>	header;
+		header.push_back("Host:localhost:8080");
+		header.push_back("Transfer-Encoding:		chunked			");
+		test_post("/test_chunked_complete", header, "", sfd);
+		send_str(sfd, "3\r\ncat\r\n0\r\n\r\n");
+		recv_response(sfd);
+	}
+	{
+		std::vector<std::string>	header;
+		header.push_back("Host:localhost:8080");
+		header.push_back("Transfer-Encoding:		chunked			");
+		test_post("/test_multi_request", header, "", sfd);
+		send_str(sfd, "5\r\nmulti\r\n0\r\n\r\n");
+		header.pop_back();
+		test_get("/good_file", header, "", sfd);
+		recv_response(sfd);
+		recv_response(sfd);
+	}
+	{
+		std::vector<std::string>	header;
+		header.push_back("Host:localhost:8080");
+		header.push_back("Content-Length:11");
+		test_post("/test.ws?file=test_cgi", header, "HELLO??????", sfd);
+		header.pop_back();
+		sleep(1);
+		test_get("/good_file", header, "", sfd);
+		recv_response(sfd);
+		recv_response(sfd);
 	}
 	return EXIT_SUCCESS;
 }

@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/08 14:23:48 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/25 14:45:50 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/29 23:39:15 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,8 +50,6 @@ class	Request
 		void				appendBody(std::string const& str);
 		HttpResponse&		getResponse(void);
 		//void					setResponse(std::string const& str);
-		bool					getReqInProg(void) const;
-		void					setReqInProg(bool value);
 		size_t				getBytesRead(void) const;
 		unsigned long long const&	getBodyLen(void) const;
 		bool				addBytesRead(size_t bytes);
@@ -68,24 +66,22 @@ class	Request
 		bool				is_body_read;
 		bool				is_body_being_read;
 		bool				waiting_chunk;
-		bool				is_cgi_in_progress;
-		bool				is_request_done;
+		bool				is_request_in_progress;
 		size_t				bytes_2_read;
 		std::string			data_name;
-		bool				setPipeFd(int pipe_fd);
-		int					getPipeFd(void) const;
+		bool				setCurrentCgiPipeFd(int pipe_fd);
+		int					getCurrentCgiPipeFd(void) const;
 		std::string&		getScripOutput(void);
 
 	private:
 		Header					_header;
-		bool					_request_in_progress;
 		std::string				_body;
 		std::string				_request;
 		std::string				_boundary;
 		std::stringstream		_raw_body;
 		std::stringstream		_request_stream;
 		std::string				_script_output;
-		int						_pipe_fd;
+		int						_current_cgi_pipe_fd;
 		HttpResponse			_response;
 		unsigned long long		_body_len;
 		locationConfig const*	_locConf_block;

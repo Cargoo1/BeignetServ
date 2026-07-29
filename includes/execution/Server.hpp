@@ -6,16 +6,14 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/12 15:08:39 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/28 16:56:09 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/29 23:48:08 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
 #include "CgiChild.hpp"
-#include "Request.hpp"
 #include "SessionManager.hpp"
-#include <cstddef>
 #include <ctime>
 #include <serverConfig.hpp>
 #include <map>
@@ -23,6 +21,14 @@
 #include <sys/poll.h>
 #include <vector>
 #include <Client.hpp>
+#include <handle_request.hpp>
+
+#define CLIENT_TIMEOUT 60
+
+#define SCRIPT_TIMEOUT 20
+
+#define PROCESS_TIMEOUT 10
+
 #define MAX_EVENTS 10
 
 class	Server
@@ -60,6 +66,10 @@ public:
 	void						set_2_epoll(uint32_t events, int fd, int op);
 	void						remove_from_epoll(int fd);
 	void						removeChild(int pipe_fd);
+	int							check_pending_requests();
+	void						check_iddle_clients();
+	void						check_iddle_cgi_childs();
+
 private:
 	std::vector<int>			_sfds;
 	time_t						_last_check;

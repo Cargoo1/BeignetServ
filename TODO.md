@@ -9,6 +9,10 @@
 - [x] Doing epoll before send/write!
     * mod epoll when done reading request
 
+- [ ] Requet queue
+
+- [ ] quitting server when 50x
+
 ## TODO RVTEL!!
 
 * POST 

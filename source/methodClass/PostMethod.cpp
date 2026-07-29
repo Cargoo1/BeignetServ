@@ -105,7 +105,7 @@ PostMethod::~PostMethod() {};
 void PostMethod::executeMethod(HttpResponse &rsp) {
 	std::string path = this->_request.getHeader().getTargetResource();
 	const locationConfig *loc = this->_request.getLocConfBlock();
-	if (!loc->isCgiBin() && loc->getUploadStore().empty())
+	if (loc->getUploadStore().empty())
 		throw Request::ErrorRequest(internal_server_error, "POST: no Upload store avaliable");
 	std::size_t contentLenght = this->_request.getBodyLen();
 	if (this->_request.getLocConfBlock()->hasCMBS()) {

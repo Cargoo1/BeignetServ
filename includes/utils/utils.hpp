@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/03 17:39:25 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/23 21:11:20 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/29 21:11:17 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,8 +116,6 @@ void	consume_until_crlf(std::string& str);
 bool	is_a_cgi_request(std::string const& uri, size_t& path_extra_pos);
 
 int		get_script_output(Server& server, int pipe_fd);
-
-void	check_idle_scripts(Server& server);
 
 int	execute_script(Request const& r, HttpResponse& response);
 

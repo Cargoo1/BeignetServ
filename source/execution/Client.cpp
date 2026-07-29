@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/14 19:50:59 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/25 14:43:47 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/29 23:31:13 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@ Client::Client(int fd, uint32_t events)
 	this->_einf.data.fd = fd;
 	this->_einf.events = events;
 	this->error_request = false;
+	this->is_cgi_in_progress = false;
 	std::time(&this->_last_communication);
 	return;
 }
@@ -33,6 +34,7 @@ Client::Client(Client const& other)
 	this->_einf = other._einf;
 	this->_r = other._r;
 	this->error_request = other.error_request;
+	this->is_cgi_in_progress = other.is_cgi_in_progress;
 	this->_last_communication = other._last_communication;
 	return;
 }

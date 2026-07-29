@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/07 19:49:10 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/28 22:00:18 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/29 20:48:42 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ void	remove_whitespace(std::string& line)
 	size_t	pos = 0;
 	bool	quotations = false;
 
-	for (;pos < line.length(); ++pos)
+	for (;pos < line.length();)
 	{
 		if (quotations && line.at(pos) != '\"')
 			continue;
@@ -54,6 +54,8 @@ void	remove_whitespace(std::string& line)
 		}
 		if (std::isspace(line.at(pos)))
 			line.erase(pos, 1);
+		else
+			++pos;
 		quotations = false;
 	}
 }

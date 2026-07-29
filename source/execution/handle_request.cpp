@@ -6,7 +6,7 @@
 /*   By: ratel <ratel@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/11 19:40:38 by alejandroca       #+#    #+#             */
-/*   Updated: 2026/07/28 23:26:07 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/29 23:40:55 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,13 +39,13 @@
 
 int	handle_request(Client& client, Server& server)
 {
-	if (!client.getRequest().getReqInProg())
+	if (!client.getRequest().is_request_in_progress)
 	{
-		client.getRequest().setReqInProg(true);
+		client.getRequest().is_request_in_progress = true;
 		client.getRequest().setServerBlock(find_server_block(client, server.getServerConf()));
 	}
 	Request&	r = client.getRequest();
-	print_log(TEXT_CYAN, NULL, "CLIENT INPUT:\n@@@@@@@@@@\n>>>" +
+	print_log(TEXT_BLUE, NULL, "Request:\n@@@@@@@@@@\n>>>" +
 								client.getMsg() +
 								"<<<\n@@@@@@@@@@\n\n", 0);
 	if (!r.getHeader().is_header_parsed())
@@ -63,6 +63,7 @@ int	handle_request(Client& client, Server& server)
 			print_log(TEXT_RED, &e, e.what(), 1);
 			r.getResponse().setStatusCode(e.getErrorCode());
 			client.error_request = true;
+			server.set_2_epoll(EPOLLIN | EPOLLOUT, client.getFd(), EPOLL_CTL_MOD);
 			return -1;
 		}
 	}
@@ -82,17 +83,21 @@ int	handle_request(Client& client, Server& server)
 		print_log(TEXT_RED, &e, e.what(), 1);
 		r.getResponse().setStatusCode(e.getErrorCode());
 		client.error_request = true;
+		server.set_2_epoll(EPOLLIN | EPOLLOUT, client.getFd(), EPOLL_CTL_MOD);
 		return -1;
 	}
 	int infno = router(r, r.getResponse(), server);
 	if (infno == RUN_CGI)
-		return server.addCgiChild(client);
-	else if (infno != 0)
 	{
-		client.error_request = true;
-		return infno;
+		infno = server.addCgiChild(client);
+		if (infno == INCOMPLETE)
+			return infno;
 	}
-	r.is_request_done = true;
+	else if (infno == INCOMPLETE)
+		return infno;
+	if (infno < 0)
+		client.error_request = true;
+	server.set_2_epoll(EPOLLIN | EPOLLOUT, client.getFd(), EPOLL_CTL_MOD);
 	return DONE;
 }
 

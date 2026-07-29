@@ -6,7 +6,7 @@
 /*   By: ratel <ratel@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 21:54:03 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/28 23:26:11 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/29 23:08:57 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,9 +104,9 @@ int	send_response(Request& r, int cfd)
 	response.addField("Content-Length", toStr(response.getBody().length()));
 	msg = response.toHttpString();
 	size_t	len = msg.length();
-	print_log(TEXT_MAGENTA, NULL, "SERVER OUTPUT:\n@@@@@@@@@@\n" +
+	print_log(TEXT_MAGENTA, NULL, "SERVER OUTPUT:\n@@@@@@@@@@\n>>>" +
 								msg +
-								"<-\n@@@@@@@@@@\n\n", 0);
+								"<<<\n@@@@@@@@@@\n\n", 0);
 	sendall(cfd, msg.c_str(), len);
 	r = Request();
 	if (len != msg.length())

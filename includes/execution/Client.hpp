@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/14 19:47:36 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/25 14:42:45 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/29 23:30:53 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include "Request.hpp"
 #include <ctime>
 #include <sys/epoll.h>
+#include <vector>
 class Client
 {
 friend	class Server;
@@ -35,6 +36,7 @@ public:
 	std::string const&	getMsg(void) const;
 	int				getFd(void) const;
 	bool			error_request;
+	bool			is_cgi_in_progress;
 private:
 	Request		_r;
 	time_t		_last_communication;

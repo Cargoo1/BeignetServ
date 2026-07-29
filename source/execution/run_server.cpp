@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 19:10:40 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/28 22:51:39 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/29 23:44:38 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,8 +39,6 @@
 #include <signal.h>
 #include <sys/epoll.h>
 #include <sys/wait.h>
-
-#define CLIENT_TIMEOUT 60
 
 volatile bool stop_server = false;
 
@@ -120,58 +118,23 @@ void	accept_client(Server& server, int fd)
 	server.addClient(new_fd, EPOLLIN, ip.str(), port.str());
 }
 
-void	check_idle_clients(Server& server)
-{
-	time_t	curr_time;
-
-	std::time(&curr_time);
-	if (curr_time - server.getLastCheck() < 1)
-		return;
-	std::map<int, Client>::iterator	it;
-	for (it = server.getClients().begin(); it != server.getClients().end();)
-	{
-		if (curr_time - it->second.getLastComm() < CLIENT_TIMEOUT || it->second.getRequest().is_cgi_in_progress)
-		{
-			++it;
-			continue;
-		}
-		print_log(TEXT_YELLOW, NULL, "Removing iddle client: "
-								+ it->second.getIp() + ":"
-								+ it->second.getPort() + ", fd: "
-								+ toStr(it->first), 0);
-		server.deleteClient((it++)->first, true);
-	}
-	server.setLastCheck();
-}
-
 void	get_client_request(Server& server, int fd)
 {
 	Client&	client = server.getClients().at(fd);
-	int		infno = 0;
 
 	if (recv_msg(client.getNotConstMsg(), fd) != 0)
 	{
-		if (client.getRequest().getPipeFd() != -1)
-			server.removeChild(client.getRequest().getPipeFd());
 		server.deleteClient(fd, true);
 		return;
 	}
+	print_log(TEXT_CYAN, NULL, "CLIENT INPUT:\n@@@@@@@@@@\n>>>" +
+								client.getMsg() +
+								"<<<\n@@@@@@@@@@\n\n", 0);
 	client.setLastComm();
-	if (client.getRequest().is_cgi_in_progress)
+	if (client.is_cgi_in_progress)
 		return ;
-	infno = handle_request(server.getClients().at(fd), server);
-	if (infno == INCOMPLETE || infno == RUN_CGI)
-		return;
-	server.set_2_epoll(EPOLLIN | EPOLLOUT, fd, EPOLL_CTL_MOD);
+	handle_request(server.getClients().at(fd), server);
 	return;
-	/*
-	while (!client.getMsg().empty())
-	{
-		infno = handle_request(server.getClients().at(fd), server);
-		if (infno != DONE)
-			break;
-	}
-	*/
 }
 
 void	handle_event(Server& server, uint32_t events, int fd)
@@ -183,10 +146,9 @@ void	handle_event(Server& server, uint32_t events, int fd)
 	if (server.getClients().find(fd) != server.getClients().end())
 	{
 		Client&	client = server.getClients().at(fd);
-		if (epollin && !client.error_request
-			&& !client.getRequest().is_request_done)
+		if (epollin)
 			get_client_request(server, fd);
-		if (epollout && (client.error_request || client.getRequest().is_request_done))
+		if (epollout)
 		{
 			send_response(client.getRequest(), client.getFd());
 			server.set_2_epoll(EPOLLIN, fd, EPOLL_CTL_MOD);
@@ -248,8 +210,8 @@ void	process_data(Server&	server, int epollcount)
 		else
 			handle_event(server, server.getEventQueue()[i].events, fd);
 	}
-	check_idle_clients(server);
-	check_idle_scripts(server);
+	server.check_iddle_clients();
+	server.check_iddle_cgi_childs();
 }
 
 #define MAX_EVENTS 10
@@ -308,8 +270,9 @@ int	run(std::vector<serverConfig> const& servers_conf)
 									MAX_EVENTS, 1000);
 		if (epollcount == TIMEOUT)
 		{
-			check_idle_clients(server);
-			check_idle_scripts(server);
+			server.check_pending_requests();
+			server.check_iddle_clients();
+			server.check_iddle_cgi_childs();
 			continue;
 		}
 		else if (epollcount < 0)

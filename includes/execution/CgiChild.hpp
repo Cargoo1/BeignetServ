@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/18 22:25:37 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/28 16:56:25 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/29 22:30:00 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #pragma once
@@ -38,10 +38,10 @@ public:
 	std::string&	getOutput(void);
 	Client&	getClientOwner(void);
 	int		getPid(void) const;
-	int *	getOutputPipe(void);
-	void	setOutputPipe(int* pipe_fd);
-	int *	getInputPipe(void);
-	void	setInputPipe(int* pipe_fd);
+	int *	getReadFromScriptPipe(void);
+	void	setReadFromScriptPipe(int* pipe_fd);
+	int *	getWrite2Script(void);
+	void	setWrite2Script(int* pipe_fd);
 	void	appedOutput(std::string const& str);
 	void	setFilename(std::string const& str);
 	void	setFilepath(std::string const& str);
@@ -60,7 +60,7 @@ private:
 	std::string		_file_path;
 	std::string		_extension;
 	std::string		_output;
-	int		_output_pipe[2];
-	int		_input_pipe[2];
+	int		_read_from_script_pipe[2];
+	int		_write_2_script[2];
 	int		_pid;
 };

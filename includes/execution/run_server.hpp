@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 19:14:10 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/22 20:18:40 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/29 21:05:03 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,3 +47,5 @@
 extern volatile bool stop_server;
 
 int	run(std::vector<serverConfig> const&	servers_conf);
+
+void	get_client_request(Server& server, int fd);
