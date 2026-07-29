@@ -9,7 +9,7 @@
 - [x] Doing epoll before send/write!
     * mod epoll when done reading request
 
-- [ ] Requet queue
+- [x] Requet queue
 
 - [ ] quitting server when 50x
 
@@ -19,4 +19,4 @@
     * qd on fait post /testing ...... le fichier cree a pas le nom testing!
 
 *   Conf file
-    * regler l'erreur qd y a pas un upload_store in cgi-bin avec POST
+    * regler l'erreur qd y a pas un upload_store in cgi-bin avec POST (toujours ca)
