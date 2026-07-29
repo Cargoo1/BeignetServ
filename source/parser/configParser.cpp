@@ -387,6 +387,8 @@ void configParser::_parseLocationDir(locationConfig &locTo_pars) {
 			if (!isValid_path(_peek().getValue()))
 				throw configException("Error: cgi path syntax", _peek().getLine(), _peek().getValue());
 			locTo_pars._cgi[ext] = _consume().getValue();
+			if (locTo_pars._isCgiBin == false)
+				locTo_pars._isCgiBin = true;
 			_expect(";");
 			break;
 		}

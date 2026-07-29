@@ -37,6 +37,8 @@ class locationConfig {
 
 		bool const& getAutoindex() const;
 
+		bool const& isCgiBin() const;
+
 		unsigned long long &getCMBS();
 		const unsigned long long &getCMBS() const;
 
@@ -64,6 +66,7 @@ class locationConfig {
 		std::string							_index;
 		bool								_hasIndex;
 		bool								_autoindex;
+		bool								_isCgiBin;
 		std::string							_uploadStore;
 		std::map<std::string, std::string>	_cgi;
 		std::string							_indexCgi;

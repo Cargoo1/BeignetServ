@@ -19,8 +19,10 @@ namespace { std::string generateTimestampFilename(std::string filename) {
 	}
 	std::string tmp;
 	std::string::size_type pos = filename.find(".");
-	if (pos == std::string::npos)
+	if (pos == 0 || pos == std::string::npos) {
+		filename += '-' + timestamp;
 		return (filename);
+	}
 	tmp = filename.substr(0, pos);
 	std::string newFileName = tmp + "-" + timestamp;
 	tmp = filename.substr(pos);
@@ -43,16 +45,21 @@ namespace { bool createFile(const std::string &fileName, const std::string &body
 namespace { bool postFile(std::string path, const std::string &body, std::string filename){
 	std::size_t found = path.find_last_of("/\\");
 	std::string newPath = path.substr(0, found);
+	std::string LOG = path.substr(found +1);
 	std::istringstream iss(newPath);
 	std::string part, current_path = "";
 	struct stat path_stat;
+	int stat_ret;
 
 	if (found != std::string::npos) {
 		while (std::getline(iss, part, '/')) {
 			if (part.empty())
 				continue;
 			current_path += part;
-			if (stat(current_path.c_str(), &path_stat) != 0) {
+			stat_ret = stat(current_path.c_str(), &path_stat);
+			if (stat_ret != 0 || !S_ISDIR(path_stat.st_mode)) {
+				if (stat_ret == 0)
+					current_path = generateTimestampFilename(current_path);
 				if (mkdir(current_path.c_str(), S_IRWXU) != 0) {
 					std::cerr << "Post method mkdir failed" << std::endl;
 					return (false);
@@ -63,16 +70,17 @@ namespace { bool postFile(std::string path, const std::string &body, std::string
 	}
 	if (!body.empty()) {
 		if (filename.empty())
-			filename = generateTimestampFilename(filename);
+			filename = LOG;
 		std::string tmp(current_path);
 		current_path += filename;
 		int ret = stat(current_path.c_str(), &path_stat);
-		if (ret == 0)
+		if (ret == 0) {
 			filename = generateTimestampFilename(filename);
-		tmp += filename;
-		current_path = tmp;
-			if (!createFile(current_path, body))
-				return (false);
+			tmp += filename;
+			current_path = tmp;
+		}
+		if (!createFile(current_path, body))
+			return (false);
 	}
 	return (true);
 } }
@@ -97,7 +105,7 @@ PostMethod::~PostMethod() {};
 void PostMethod::executeMethod(HttpResponse &rsp) {
 	std::string path = this->_request.getHeader().getTargetResource();
 	const locationConfig *loc = this->_request.getLocConfBlock();
-	if (loc->getUploadStore().empty())
+	if (!loc->isCgiBin() && loc->getUploadStore().empty())
 		throw Request::ErrorRequest(internal_server_error, "POST: no Upload store avaliable");
 	std::size_t contentLenght = this->_request.getBodyLen();
 	if (this->_request.getLocConfBlock()->hasCMBS()) {

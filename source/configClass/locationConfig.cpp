@@ -1,7 +1,7 @@
 #include <locationConfig.hpp>
 
-locationConfig::locationConfig() : _hasIndex(false), _autoindex(false), _hasIndexCgi(false), _hasRedirect(false), _hasClientMaxBodySize(false) {}
-locationConfig::locationConfig(const locationConfig &rhs) : _path(rhs._path), _methods(rhs._methods), _root(rhs._root), _index(rhs._index), _hasIndex(rhs._hasIndex), _autoindex(rhs._autoindex), _uploadStore(rhs._uploadStore), _cgi(rhs._cgi), _indexCgi(rhs._indexCgi), _hasIndexCgi(rhs._hasIndexCgi), _hasRedirect(rhs._hasRedirect), _redirectCode(rhs._redirectCode), _redirectUrl(rhs._redirectUrl), _clientMaxBodySize(rhs._clientMaxBodySize), _hasClientMaxBodySize(rhs._hasClientMaxBodySize) {}
+locationConfig::locationConfig() : _hasIndex(false), _autoindex(false), _isCgiBin(false), _hasIndexCgi(false), _hasRedirect(false), _hasClientMaxBodySize(false) {}
+locationConfig::locationConfig(const locationConfig &rhs) : _path(rhs._path), _methods(rhs._methods), _root(rhs._root), _index(rhs._index), _hasIndex(rhs._hasIndex), _autoindex(rhs._autoindex), _isCgiBin(rhs._isCgiBin), _uploadStore(rhs._uploadStore), _cgi(rhs._cgi), _indexCgi(rhs._indexCgi), _hasIndexCgi(rhs._hasIndexCgi), _hasRedirect(rhs._hasRedirect), _redirectCode(rhs._redirectCode), _redirectUrl(rhs._redirectUrl), _clientMaxBodySize(rhs._clientMaxBodySize), _hasClientMaxBodySize(rhs._hasClientMaxBodySize) {}
 locationConfig::~locationConfig() {}
 
 locationConfig &locationConfig::operator=(const locationConfig &rhs) {
@@ -12,6 +12,7 @@ locationConfig &locationConfig::operator=(const locationConfig &rhs) {
 		this->_index = rhs._index;
 		this->_hasIndex = rhs._hasIndex;
 		this->_autoindex = rhs._autoindex;
+		this->_isCgiBin = rhs._isCgiBin;
 		this->_uploadStore = rhs._uploadStore;
 		this->_cgi = rhs._cgi;
 		this->_indexCgi = rhs._indexCgi;
@@ -63,6 +64,10 @@ const std::string &locationConfig::getUploadStore() const {
 
 bool const& locationConfig::hasCMBS() const {
 	return (this->_hasClientMaxBodySize);
+}
+
+bool const& locationConfig::isCgiBin() const {
+	return (this->_isCgiBin);
 }
 
 bool const& locationConfig::hasRedirect() const {

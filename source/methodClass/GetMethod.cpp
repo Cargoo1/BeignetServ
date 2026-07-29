@@ -107,7 +107,11 @@ void GetMethod::executeMethod(HttpResponse &rsp) {
 		throw Request::ErrorRequest(not_found, "GET: no such file or directory (stat)");
 	if (S_ISDIR(path_stat.st_mode)) {
 		if (this->_request.getLocConfBlock()->hasIndex()) {
-			std::string indexPath = path + "/" + this->_request.getLocConfBlock()->getIndex();
+			std::string indexPath;
+			if (path.at(path.size() - 1) == '/')
+				indexPath = path + this->_request.getLocConfBlock()->getIndex();
+			else
+				indexPath = path + '/' + this->_request.getLocConfBlock()->getIndex();
 			if (stat(indexPath.c_str(), &path_stat) == 0) {
 				if (S_ISREG(path_stat.st_mode)) {
 					if (this->_request.getLocConfBlock()->getPath() == kCounterRoute) {

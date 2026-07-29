@@ -102,6 +102,9 @@ int	main()
 		header.push_back("Host:localhost:8080");
 		header.push_back("Transfer-Encoding:chunked");
 		test_post("/testing", header, "", sfd);
+		test_post("/testing/", header, "", sfd);
+		test_post("/okok/", header, "", sfd);
+		test_post("/testing/yes", header, "", sfd);
 		send_str(sfd, "1\r\n");
 		sleep(2);
 		send_str(sfd, "a\r\nA\r\n");
