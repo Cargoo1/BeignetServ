@@ -20,3 +20,8 @@
 
 *   Conf file
     * regler l'erreur qd y a pas un upload_store in cgi-bin avec POST (toujours ca)
+
+### Changed
+    * POST method
+        - s'y n'a pas de body dans le fichier on le cree de toute facon, avant on le faisait pas
+

@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/07 19:49:10 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/29 20:48:42 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/30 20:31:00 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,28 +41,22 @@ void	remove_spaces(std::string& line, size_t pos)
 void	remove_whitespace(std::string& line)
 {
 	size_t	pos = 0;
-	bool	quotations = false;
 
-	for (;pos < line.length();)
+	for (;pos < line.length(); ++pos)
 	{
-		if (quotations && line.at(pos) != '\"')
-			continue;
-		if (!quotations && line.at(pos) == '\"')
+		if (line.at(pos) == '\"')
 		{
-			quotations = true;
-			continue;
-		}
-		if (std::isspace(line.at(pos)))
-			line.erase(pos, 1);
-		else
 			++pos;
-		quotations = false;
+			while (pos < line.length() && line.at(pos) != '\"')
+				++pos;
+		}
+		else if (std::isspace(line.at(pos)))
+			line.erase(pos--, 1);
 	}
 }
 
 void	parse_method(std::string &line, Header& header, Request& r)
 {
-	//size_t	pos = line.find_first_of(' ', 0);
 	std::vector<std::string>	vector;
 	split(vector, line, ' ');
 	if (vector.empty() || vector.size() < 3 || vector.size() > 3)
@@ -70,24 +64,6 @@ void	parse_method(std::string &line, Header& header, Request& r)
 	header.setMethod(vector.at(0));
 	header.setTargetResource(vector.at(1), r);
 	header.setProtocolV(vector.at(2));
-	/*
-	std::string	buff_tmp;
-
-	while (pos != std::string::npos || !line.empty())
-	{
-		buff_tmp = line.substr(0, pos);
-		if (header.getMethod().empty())
-			header.setMethod(buff_tmp);
-		else if (header.getTargetResource().empty())
-			header.setTargetResource(buff_tmp, r);
-		else if (header.getProtocolV().empty())
-			header.setProtocolV(buff_tmp);
-		else
-			break;
-		remove_spaces(line, pos);
-		pos = line.find_first_of(' ', 0);
-	}
-	*/
 	if (header.getMethod().empty() ||
 		header.getTargetResource().empty() ||
 		header.getProtocolV().empty())

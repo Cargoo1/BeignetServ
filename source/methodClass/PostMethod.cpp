@@ -68,20 +68,18 @@ namespace { bool postFile(std::string path, const std::string &body, std::string
 			current_path += "/";
 		}
 	}
-	if (!body.empty()) {
-		if (filename.empty())
-			filename = LOG;
-		std::string tmp(current_path);
-		current_path += filename;
-		int ret = stat(current_path.c_str(), &path_stat);
-		if (ret == 0) {
-			filename = generateTimestampFilename(filename);
-			tmp += filename;
-			current_path = tmp;
-		}
-		if (!createFile(current_path, body))
-			return (false);
+	if (filename.empty())
+		filename = LOG;
+	std::string tmp(current_path);
+	current_path += filename;
+	int ret = stat(current_path.c_str(), &path_stat);
+	if (ret == 0) {
+		filename = generateTimestampFilename(filename);
+		tmp += filename;
+		current_path = tmp;
 	}
+	if (!createFile(current_path, body))
+		return (false);
 	return (true);
 } }
 

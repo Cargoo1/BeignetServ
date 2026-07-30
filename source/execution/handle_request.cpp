@@ -6,7 +6,7 @@
 /*   By: ratel <ratel@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/11 19:40:38 by alejandroca       #+#    #+#             */
-/*   Updated: 2026/07/29 23:40:55 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/30 17:52:18 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,11 +31,6 @@
 #include <serverConfig.hpp>
 #include <HttpMethodDispatcher.hpp>
 #include <send_http_response.hpp>
-
-// namespace {
-// 	int validateContex(const Request &req, const locationConfig &loc, const serverConfig &serv) {
-
-// 	}
 
 int	handle_request(Client& client, Server& server)
 {
@@ -100,20 +95,3 @@ int	handle_request(Client& client, Server& server)
 	server.set_2_epoll(EPOLLIN | EPOLLOUT, client.getFd(), EPOLL_CTL_MOD);
 	return DONE;
 }
-
-
-
-
-	// if (fields.find("Content-Length") == fields.end())
-	// {
-	// 	send_response(r, 200, server_block, client.getFd(), loc_block);
-	// 	return 0;
-	// }
-	// r.setBodyLen(ft_atoull(fields.at("Content-Length").c_str()));
-	// if (read_body(r, request_stream) == 0)
-	// {
-	// 	send_response(r, 200, server_block, client.getFd(), loc_block);
-	// 	std::cout << "sending response, done reading the body\n";
-	// 	//send_response(r, 200, server_block, client.getFd());
-	// }
-	// return 0;

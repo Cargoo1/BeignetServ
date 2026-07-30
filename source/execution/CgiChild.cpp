@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/18 22:41:57 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/29 23:28:22 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/30 18:16:54 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -133,7 +133,7 @@ int		CgiChild::set_cgi()
 		return not_found;
 	}
 	size_t	file_name_pos = this->_file_path.find_last_of('/') + 1;
-	this->_file_name = "./" + this->_file_path.substr(file_name_pos, std::string::npos);
+	this->_file_name = this->_file_path.substr(file_name_pos, std::string::npos);
 	this->_file_path.erase(file_name_pos, std::string::npos);
 	std::string	full_file_path = this->_file_path + this->_file_name;
 	if (access(full_file_path.c_str(), F_OK) != 0)
@@ -149,6 +149,7 @@ int		CgiChild::set_cgi()
 		print_log(TEXT_YELLOW, NULL, "Could not execute cgi, permission denied", 1);
 		return forbiden;
 	}
+	this->_file_name = "./" + this->_file_name;
 	this->create_args(this->_interpreter);
 	this->create_env(this->_client_owner.getRequest());
 	return 0;

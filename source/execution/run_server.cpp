@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 19:10:40 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/29 23:44:38 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/07/30 18:24:39 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,7 +146,7 @@ void	handle_event(Server& server, uint32_t events, int fd)
 	if (server.getClients().find(fd) != server.getClients().end())
 	{
 		Client&	client = server.getClients().at(fd);
-		if (epollin)
+		if (epollin && !client.error_request)
 			get_client_request(server, fd);
 		if (epollout)
 		{
