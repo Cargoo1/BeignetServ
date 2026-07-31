@@ -125,7 +125,7 @@ bool		isValid_method(const std::vector<std::string> &methods, const locationConf
 	while (it != methods.end()) {
 		if (*it == "GET") it++;
 		else if (*it == "POST") {
-			if (loc.getUploadStore().empty() && loc.getCGI().empty()) {
+			if (loc.getUploadStore().empty()) {
 				std::cerr << "Error: " << loc.getPath() << " has method 'POST' but no upload store or cgi" << std::endl;
 				return (false);
 			}
@@ -181,10 +181,9 @@ bool		parse_methods(const std::vector<std::string> &methods, const locationConfi
 	return (true);
 }
 
-
 // bool isIP(std::string listen) {
 // 	for (std::string::size_type i = 0; i < listen.size(); i++) {
-// 		if (listen.at(i) != '.' || !isdigit(listen.at(i)))
+// 		if (listen.at(i) != '.' && !isdigit(listen.at(i)))
 // 			return (false);
 // 	}
 // 	return (true);
@@ -494,7 +493,7 @@ void configParser::_validateAll() {
 		const serverConfig &server = this->_servers[i];
 		if (server._listen.empty())
 			this->_servers[i]._listen = "0.0.0.0:8080";
-		//else
+		// else
 		// 	managePortSyntax(this->_servers[i]._listen);
 		port_dup.push_back(server._listen);
 		if (!check_double(port_dup)) {
