@@ -122,35 +122,18 @@ void	get_client_request(Server& server, int fd)
 {
 	Client&	client = server.getClients().at(fd);
 
-	int	status = recv_msg(client.getNotConstMsg(), fd);
-	if (status == -1) {
+	if (recv_msg(client.getNotConstMsg(), fd) != 0)
+	{
 		server.deleteClient(fd, true);
 		return;
 	}
-	if (status == 1)
-	{
-		if (client.getRequest().getHeader().is_header_parsed() == false) {
-			server.deleteClient(fd, true);
-			return;
-		}
-		else if (client.getRequest().is_body_being_read == true && client.getRequest().is_body_read == true) {
-			server.deleteClient(fd, true);
-			return;
-		}
-		else {
-			server.set_2_epoll(0, fd, EPOLL_CTL_MOD);
-			return ;
-		}
-	}
-	else if (status == 0) {
-		print_log(TEXT_CYAN, NULL, "CLIENT INPUT:\n@@@@@@@@@@\n>>>" +
+	print_log(TEXT_CYAN, NULL, "CLIENT INPUT:\n@@@@@@@@@@\n>>>" +
 								client.getMsg() +
 								"<<<\n@@@@@@@@@@\n\n", 0);
-		client.setLastComm();
-		if (client.is_cgi_in_progress)
-			return ;
-		handle_request(server.getClients().at(fd), server);
-	}
+	client.setLastComm();
+	if (client.is_cgi_in_progress)
+		return ;
+	handle_request(server.getClients().at(fd), server);
 	return;
 }
 

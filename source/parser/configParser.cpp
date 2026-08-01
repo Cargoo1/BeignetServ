@@ -189,6 +189,8 @@ bool		parse_methods(const std::vector<std::string> &methods, const locationConfi
 // 	return (true);
 // }
 
+// CHECK IF IT IS A VALID IP AND PORT!!!!!
+
 // void managePortSyntax(std::string &port) {
 // 	if (isIP(port)) {
 // 		port += ":8080";

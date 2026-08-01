@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/23 23:13:46 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/29 23:47:58 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/08/01 15:53:54 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,7 +119,7 @@ int	post(fields& header, std::string& server_body, std::string& body)
 	os << server_body;
 	if (!os.is_open())
 		std::cerr << "Not open\n";
-	body = "Created!";
+	body = "ZAdy!";
 	return 0;
 }
 
