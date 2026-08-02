@@ -178,7 +178,7 @@ std::string GetMethod::_generateAutoindex(const std::string &path) {
 		std::string name = entry->d_name;
 		if (name == "." || name == "..")
 			continue;
-		entries.push_back("<li><a href=\"" + name + "\">" + name + "</a></li>\n");
+		entries.push_back("<li>" + name + "</li>\n");
 	}
 	closedir(dir);
 	for (size_t i = 0; i < entries.size(); ++i)

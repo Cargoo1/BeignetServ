@@ -1,5 +1,6 @@
 #include <configParser.hpp>
 #include <configException.hpp>
+#include <utils_logs.hpp>
 #include <limits>
 #include <parserUtils.hpp>
 
@@ -11,10 +12,14 @@
 
 #define DEFAULT_CLIENT_MAX_BODY_SIZE "1m"
 
-#define PORT_MIN 1
-#define PORT_MAX 65535
+#define PORT_MIN 1024
+#define PORT_MAX 49151
+
+#define IP_MAX 255
+
 #define ERRO_MIN 400
 #define ERRO_MAX 599
+
 #define RDIR_MIN 300
 #define RDIR_MAX 399
 
@@ -57,7 +62,7 @@ bool		parse_digitCode(const std::string &digitStr, long min, long max) {
 }
 
 bool parseIP(const std::string &ipstr) {
-	int parts[4] = {0};
+	unsigned int parts[4] = {0};
 	int partIndex = 0;
 	std::string current;
 	std::string::size_type d_dot = ipstr.find(":", 0);
@@ -69,7 +74,7 @@ bool parseIP(const std::string &ipstr) {
 			if (partIndex >= 4 || current.empty())
 				return false;
 			std::stringstream ss(current);
-			if (!(ss >> parts[partIndex]) || parts[partIndex] > 255)
+			if (!(ss >> parts[partIndex]) || parts[partIndex] > IP_MAX)
 				return false;
 			partIndex++;
 			current.clear();
@@ -83,7 +88,7 @@ bool parseIP(const std::string &ipstr) {
 	if (partIndex != 3 || current.empty())
 		return false;
 	std::stringstream ss(current);
-	if (!(ss >> parts[3]) || parts[3] > 255)
+	if (!(ss >> parts[3]) || parts[3] > IP_MAX)
 		return false;
 	return (true);
 }
@@ -181,26 +186,57 @@ bool		parse_methods(const std::vector<std::string> &methods, const locationConfi
 	return (true);
 }
 
-// bool isIP(std::string listen) {
-// 	for (std::string::size_type i = 0; i < listen.size(); i++) {
-// 		if (listen.at(i) != '.' && !isdigit(listen.at(i)))
-// 			return (false);
-// 	}
-// 	return (true);
-// }
+bool checkListenSyntax(const std::string &listen) {
+	std::string::size_type pos = listen.find_first_of(':');
+	if (pos != std::string::npos) {
+		std::string ip = listen.substr(0, pos);
+		std::string port = listen.substr(pos + 1);
+		if (!parseIP(ip) || !parse_digitCode(port, PORT_MIN, PORT_MAX))
+			return (false);
+		return (true);
+	}
+	if (!parseIP(listen) && !parse_digitCode(listen, PORT_MIN, PORT_MAX))
+			return (false);
+	return (true);
+}
+
+bool isSoloIP(std::string listen) {
+	char dot = 0;
+	for (std::string::size_type i = 0; i < listen.size(); i++) {
+		if (listen.at(i) == '.')
+			dot++;
+	}
+	if (dot != 3)
+		return (false);
+	return (true);
+}
 
 // CHECK IF IT IS A VALID IP AND PORT!!!!!
 
-// void managePortSyntax(std::string &port) {
-// 	if (isIP(port)) {
-// 		port += ":8080";
-// 		return ;
-// 	}
-// 	else {
-// 		std::string newPort = "0.0.0.0:" + port;
-// 		port = newPort;
-// 	}
-// }
+bool manageListenSyntax(std::string &listen) {
+	std::string::size_type pos = listen.find_first_of(':');
+	if (pos != std::string::npos) {
+		std::string ip = listen.substr(0, pos);
+		std::string port = listen.substr(pos + 1, listen.size());
+		if (port.empty())
+			listen += "8080";
+		else if (ip.empty()) {
+			std::string newListen = "0.0.0.0" + listen;
+			listen = newListen;
+		}
+	}
+	else {
+		if (!isSoloIP(listen)) {
+			std::string newListen = "0.0.0.0:" + listen;
+			listen = newListen;
+		}
+		else 
+			listen += ":8080";
+	}
+	if (!checkListenSyntax(listen))
+		return (false);
+	return (true);
+}
 
 }
 
@@ -427,7 +463,7 @@ void configParser::_parseDirective(serverConfig &toParse) {
 	switch (find_Dir(_consume().getValue()))
 	{
 		case LISTEN: {
-			if (!parse_digitCode(_peek().getValue(), PORT_MIN, PORT_MAX) && !parseIP(_peek().getValue()))
+			if (!checkListenSyntax(_peek().getValue()))
 				throw configException("Error: listen port syntax error", _peek().getLine(), _peek().getValue());
 			toParse._listen = _consume().getValue();
 			_expect(";");
@@ -495,8 +531,10 @@ void configParser::_validateAll() {
 		const serverConfig &server = this->_servers[i];
 		if (server._listen.empty())
 			this->_servers[i]._listen = "0.0.0.0:8080";
-		// else
-		// 	managePortSyntax(this->_servers[i]._listen);
+		else {
+				if (!manageListenSyntax(this->_servers[i]._listen))
+					throw configException("Error: server failed to add change listen syntax");
+		}
 		port_dup.push_back(server._listen);
 		if (!check_double(port_dup)) {
 			std::cerr << "Error: server " << server._serverName << " is listening an already assigned port" << std::endl;

@@ -1,0 +1,12 @@
+
+From Wikipedia, the free encyclopedia
+Port ranges Start	End	Designation
+0	1023	System or well-known ports
+1024	49151	User or registered ports
+49152	65535	Dynamic, private or ephemeral ports
+
+A registered port is a network port designated for use with a certain protocol or application.
+
+Registered port numbers are currently assigned by the Internet Assigned Numbers Authority (IANA) and were assigned by Internet Corporation for Assigned Names and Numbers (ICANN) before March 21, 2001,[1] and were assigned by the Information Sciences Institute (USC/ISI) before 1998.
+
+Ports with numbers 0–1023 are called system or well-known ports; ports with numbers 1024-49151 are called user or registered ports, and ports with numbers 49152-65535 are called dynamic, private or ephemeral ports.[2] Both system and user ports are used by transport protocols (TCP, UDP, DCCP, SCTP) to identify an application or service.

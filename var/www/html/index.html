@@ -13,7 +13,7 @@
 			<h1>Home page simple, lisible et facile à modifier.</h1>
 			<p>
 				Cette page sert de point d’entrée pour tester le serveur, valider les routes de
-				<code>valid.conf</code> et garder une base HTML propre pour le debug.
+				<code>valid.conf</code>.
 			</p>
 			<div class="links">
 				<a class="button secondary" href="/uploads">Tester l&apos;upload</a>
@@ -28,6 +28,7 @@
 				<ul>
 					<li><a href="/old-page">/old-page</a></li>
 					<li><a href="/errors/404.html">/errors/404.html</a> et <a href="/errors/50x.html">/errors/50x.html</a></li>
+					<li><a href="/autoindex">/autoindex</a></li>
 				</ul>
 			</article>
 
@@ -38,13 +39,10 @@
 					<li>Page dédiée à l&apos;upload, sans logique complexe</li>
 					<li>Page de redirection cible pour vérifier le retour 301</li>
 					<li>Pages d&apos;erreur simples pour vérifier le code HTTP affiché</li>
+					<li>Page sans index permetant de tester autoindex</li>
 				</ul>
 			</article>
 		</section>
-
-		<div class="footer">
-			Astuce: gardez ce fichier comme hub de debug, puis modifiez uniquement les blocs HTML nécessaires.
-		</div>
 	</main>
 </body>
 </html>

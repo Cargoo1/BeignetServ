@@ -55,6 +55,7 @@ int		getListenerSocket(const std::string &host, const std::string &port)
 	hints.ai_family = AF_INET;
 	hints.ai_protocol = 0;
 	hints.ai_socktype = SOCK_STREAM;
+	std::cout << "LOG\nhost = " << host << "\nport: " << port << std::endl;
 	if ((gai_errno = getaddrinfo(host.c_str(), port.c_str(), &hints, &result)) != 0)
 		throw std::runtime_error("gai: " + std::string(gai_strerror(gai_errno)));
 	for (temp = result; temp != NULL; temp = temp->ai_next)

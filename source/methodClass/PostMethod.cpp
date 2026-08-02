@@ -57,13 +57,13 @@ namespace { bool postFile(std::string path, const std::string &body, std::string
 				continue;
 			current_path += part;
 			stat_ret = stat(current_path.c_str(), &path_stat);
-			if (stat_ret != 0 || !S_ISDIR(path_stat.st_mode)) {
-				if (stat_ret == 0)
-					current_path = generateTimestampFilename(current_path);
-				if (mkdir(current_path.c_str(), S_IRWXU) != 0) {
-					std::cerr << "Post method mkdir failed" << std::endl;
-					return (false);
-				}
+			if (stat_ret == 0 && !S_ISDIR(path_stat.st_mode)) {
+				std::cerr << "Post method: " << current_path << " exists and is not a directory" << std::endl;
+				return (false);
+			}
+			if (stat_ret != 0 && mkdir(current_path.c_str(), S_IRWXU) != 0) {
+				std::cerr << "Post method mkdir failed" << std::endl;
+				return (false);
 			}
 			current_path += "/";
 		}
