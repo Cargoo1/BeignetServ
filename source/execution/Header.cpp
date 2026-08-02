@@ -6,11 +6,13 @@
 /*   By: ratel <ratel@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 19:03:36 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/29 20:08:23 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/08/02 22:20:06 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
+#include "Server.hpp"
+#include "utils_logs.hpp"
 #include <Request.hpp>
 #include <Header.hpp>
 #include <cctype>
@@ -176,9 +178,7 @@ namespace { size_t	parse_path(std::string& uri)
 	}
 }
 
-namespace
-{
-bool	set_root_path(Request const& r, std::string& path)
+static bool	set_root_path(Request const& r, std::string& real_path, std::string const& uri)
 {
 	std::string	prefix = ".";
 	std::string	root;
@@ -190,9 +190,20 @@ bool	set_root_path(Request const& r, std::string& path)
 		root = r.getServerBlock()->getRoot();
 	if (root.at(0) != '/')
 		prefix += '/';
-	path.insert(0, prefix + root);
+	real_path = uri;
+	size_t	loc_conf_path = real_path.find(r.getLocConfBlock()->getPath());
+	if (loc_conf_path != real_path.npos && r.getLocConfBlock()->getPath().length() > 1)
+	{
+		if (real_path.at(loc_conf_path) == '/')
+			++loc_conf_path;
+		if (loc_conf_path < real_path.length())
+			real_path.erase(loc_conf_path, r.getLocConfBlock()->getPath().length() - 1);
+	}
+	real_path.insert(0, prefix + root);
+	print_log(TEXT_GREEN, NULL, 
+	"Final URI:"
+	+ real_path, false);
 	return true;
-}
 }
 
 void	Header::setTargetResource(std::string& uri, Request& r)
@@ -200,8 +211,7 @@ void	Header::setTargetResource(std::string& uri, Request& r)
 	if (uri.empty())
 		throw Request::ErrorRequest(bad_request, "Empty URI");
 	r.setLocConfBlock(find_location_block(uri, *r.getServerBlock()));
-	set_root_path(r, this->_target_resource);
-	this->_target_resource.append(uri);
+	set_root_path(r, this->_target_resource, uri);
 	size_t	separator_pos = parse_path(this->_target_resource);
 	if (separator_pos != std::string::npos
 		&& separator_pos < this->_target_resource.length())

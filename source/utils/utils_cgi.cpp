@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/16 20:36:21 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/28 16:45:43 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/08/02 23:05:32 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,8 +52,6 @@ bool	is_a_cgi_request(std::string const& uri, size_t& path_extra_pos)
 			return true;
 		}
 	}
-	if (is_in_cgi_dir(uri))
-		return true;
 	return false;
 }
 

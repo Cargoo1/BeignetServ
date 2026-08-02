@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/21 15:12:53 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/30 18:11:23 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/08/02 23:02:12 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,11 @@
 
 char	buff[2000];
 
+void	print(std::string const& log)
+{
+	std::cout << log + "\n";
+}
+
 void	recv_response(int sfd)
 {
 	memset(&buff, 0, sizeof(buff));
@@ -49,6 +54,7 @@ void	send_str(int sfd, std::string const& str)
 
 void	test_get(std::string const& uri, std::vector<std::string>& vector, std::string const& body, int sfd)
 {
+	print("TEST GET:");
 	std::string	msg;
 	std::vector<std::string>::iterator	it = vector.begin();
 
@@ -64,7 +70,21 @@ void	test_post(std::string const& uri, std::vector<std::string>& vector, std::st
 	std::string	msg;
 	std::vector<std::string>::iterator	it = vector.begin();
 
+	print("TEST POST:");
 	msg = "POST " + uri + " HTTP/1.1\r\n";
+	for (; it != vector.end(); ++it)
+		msg.append(*it + "\r\n");
+	msg.append("\r\n" + body);
+	send(sfd, msg.c_str(), msg.length(), 0);
+}
+
+void	test_delete(std::string const& uri, std::vector<std::string>& vector, std::string const& body, int sfd)
+{
+	std::string	msg;
+	std::vector<std::string>::iterator	it = vector.begin();
+
+	print("TEST DELETE:");
+	msg = "DELETE " + uri + " HTTP/1.1\r\n";
 	for (; it != vector.end(); ++it)
 		msg.append(*it + "\r\n");
 	msg.append("\r\n" + body);
@@ -110,6 +130,9 @@ int	main()
 		sleep(5);
 		send_str(sfd, "\r\n");
 		recv_response(sfd);
+		header.pop_back();
+		test_get("/tester/uploads/slow_chunked", header, "", sfd);
+		recv_response(sfd);
 	}
 	{
 		std::vector<std::string>	header;
@@ -126,9 +149,7 @@ int	main()
 		send_str(sfd, "\r\n");
 		recv_response(sfd);
 		close(sfd);
-		sleep(1);
 		sfd = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
-		std::cout << sfd << '\n';
 		if (connect(sfd, result->ai_addr, result->ai_addrlen) != 0)
 		{
 			perror("connect");
@@ -142,15 +163,18 @@ int	main()
 		test_post("/tester/test_chunked_complete", header, "", sfd);
 		send_str(sfd, "3\r\ncat\r\n0\r\n\r\n");
 		recv_response(sfd);
+		header.pop_back();
+		test_get("/tester/uploads/test_chunked_complete", header, "", sfd);
+		recv_response(sfd);
 	}
 	{
 		std::vector<std::string>	header;
 		header.push_back("Host:localhost:8080");
 		header.push_back("Transfer-Encoding:		chunked			");
 		test_post("/tester/test_multi_request", header, "", sfd);
-		send_str(sfd, "5\r\nmulti\r\n0\r\n\r\n");
+		send_str(sfd, "5\r\nMULTI\r\n0\r\n\r\n");
 		header.pop_back();
-		test_get("/tester", header, "", sfd);
+		test_get("/tester/uploads/test_multi_request", header, "", sfd);
 		recv_response(sfd);
 		recv_response(sfd);
 	}
@@ -161,8 +185,14 @@ int	main()
 		test_post("/tester/test.ws?file=test_cgi", header, "HELLO??????", sfd);
 		header.pop_back();
 		sleep(1);
-		test_get("/tester", header, "", sfd);
+		test_get("/tester/uploads/test_cgi", header, "", sfd);
 		recv_response(sfd);
+		recv_response(sfd);
+	}
+	{
+		std::vector<std::string>	header;
+		header.push_back("Host:localhost:8080");
+		test_delete("/tester/uploads", header, "", sfd);
 		recv_response(sfd);
 	}
 	return EXIT_SUCCESS;

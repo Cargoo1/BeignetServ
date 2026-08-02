@@ -111,8 +111,8 @@ void PostMethod::executeMethod(HttpResponse &rsp) {
 			throw Request::ErrorRequest(content_too_large, "POST: the files is too heavy (> client max body size)");
 	}
 	std::string body = "";
-	if (path.at(path.size()-1) != '/')
-		body = this->_request.getBody();
+	//if (path.at(path.size()-1) != '/')
+	body = this->_request.getBody();
 	if (!postFile(path, body, this->_request.getHeader().getFilename()))
 		throw Request::ErrorRequest(internal_server_error, "POST: postFile(path, body) failed");
 	rsp.setStatusCode(204);

@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/03 17:41:28 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/23 20:35:37 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/08/02 21:31:18 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -311,17 +311,21 @@ int	split_between_delimiter(std::vector<std::string>& vector, std::string const&
 
 serverConfig const&	find_server_block(Client& client, std::vector<serverConfig> const& serverConfig)
 {
-	std::string	ip_port = client.getIp() + ':' + client.getPort();
+	std::string server_ip;
+	std::string	server_port;
 	std::vector<class serverConfig>::const_iterator it;
 	for (it = serverConfig.begin(); it != serverConfig.end(); it++)
 	{
-		if (ip_port.compare(it->listen()) == 0)
+		find_ip_and_port(server_ip, server_port, it->listen());
+		if (server_ip.compare("0.0.0.0") == 0)
+		{
+			if (server_port.compare(client.getPort()) == 0)
+				return *it;
+		}
+		else if (server_ip.compare(client.getIp()) == 0
+			&& server_port.compare(client.getPort()) == 0)
 			return *it;
-	}
-	for (it = serverConfig.begin(); it != serverConfig.end(); it++)
-	{
-		if (client.getPort().compare(it->listen()) == 0)
-			return *it;
+
 	}
 	return serverConfig.front();
 }
@@ -399,3 +403,14 @@ void ft_handler(int sig) {
 	print_log(TEXT_RED, NULL, "Signal recived: " + toStr(sig) + " stoping server", 1);
 	stop_server = true;
 }
+
+void	find_ip_and_port(std::string& ip, std::string& port, std::string const& server_listen)
+{
+	size_t colon_pos = server_listen.find_first_of(':');
+	if (colon_pos == server_listen.npos || colon_pos == server_listen.length() - 1)
+		return;
+	ip = server_listen.substr(0, colon_pos);
+	port = server_listen.substr(colon_pos + 1, server_listen.npos);
+	return;
+}
+

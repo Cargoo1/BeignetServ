@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/01 13:36:16 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/30 19:34:28 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/08/02 23:22:30 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,7 +146,7 @@ int	parse_body(Request& r, std::string& raw_body)
 			return INCOMPLETE;
 	}
 	r.waiting_chunk = false;
-	r.setBodyLen(r.getBytesRead());
+	r.setBodyLen(r.getBody().length());
 	return DONE;
 }
 

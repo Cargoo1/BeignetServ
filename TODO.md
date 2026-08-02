@@ -21,6 +21,9 @@
 *   Conf file ✅
     * regler l'erreur qd y a pas un upload_store in cgi-bin avec POST (toujours ca)✅
 
+- [ ] Conf file 
+    *   location homepage {...} compte pas comme une erreur, et tu le laisse passer comme un valid location mais a mon avis ca a pas trop de sens, t'en penses quoi?
+
 ### Changed
     * POST method ✔️
         - s'y n'a pas de body dans le fichier on le cree de toute facon, avant on le faisait pas ✔️
@@ -42,12 +45,3 @@
 		                                        managePortSyntax(this->_servers[i]._listen);
             
             Etant donné que getaddrinfo s'attends à avoir une adresse résaux et on lui envoie un hybride. Du coup utiliser ca pour avoir du virtual hosting ?
-
-    * Exec : Je pense que la gestion de reception via recv_msg a un point flou avec les cgi. utils.cpp l:239,240
-        if (bytes_read == 0)
-		    return 1;
-        à la fin du script on est half closed et laisse tourner. Le check qu'on a fait arrive plus tard.
-        J'ai donc modifié pour gérer les différent cas de figure, mais je suis pas méga sûre de ce que j'ai fait. De ce que j'ai compris de ton code, di on à recu tout les bytes de rcv_msg mais que le body est pas parsé je pense que c'est une erreur, egalement si on est entrain de lire le body. Donc j'ai fait un fix en nested if pour voir. Dit moi ce que t'en penses. 
-        (méga galére le truc de EPOLLIN et EPOLLOUT avec set_2_epoll ... J'ai mis une heure a comprendre qu'il fallait mettre le masque a zéro pour dire a epollwait d'attendre la fin du script)
-
-

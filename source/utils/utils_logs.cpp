@@ -6,13 +6,13 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/29 14:15:09 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/29 14:49:30 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/08/02 22:41:13 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <utils_logs.hpp>
 
-void	print_log(std::string const text_color, Request::ErrorRequest const* e, std::string const log, bool is_error)
+void	print_log(std::string const& text_color, Request::ErrorRequest const* e, std::string const& log, bool is_error)
 {
 	std::string	str_temp;
 	if (!e)

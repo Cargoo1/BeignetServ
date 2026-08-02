@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/03 17:39:25 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/29 21:11:17 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/08/02 20:53:43 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,3 +128,5 @@ char	*ft_create_c_str(std::string const& str);
 void	find_extension(std::string const& file_path, std::string& extension);
 
 void ft_handler(int sig);
+
+void	find_ip_and_port(std::string& ip, std::string& port, std::string const& server_listen);

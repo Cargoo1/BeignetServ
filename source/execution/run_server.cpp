@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 19:10:40 by acamargo          #+#    #+#             */
-/*   Updated: 2026/08/02 20:06:46 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/08/02 22:42:31 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,16 +41,6 @@
 #include <sys/wait.h>
 
 volatile bool stop_server = false;
-
-void	find_ip_and_port(std::string& ip, std::string& port, std::string const& server_listen)
-{
-	size_t colon_pos = server_listen.find_first_of(':');
-	if (colon_pos == server_listen.npos || colon_pos == server_listen.length() - 1)
-		return;
-	ip = server_listen.substr(0, colon_pos);
-	port = server_listen.substr(colon_pos + 1, server_listen.npos);
-	return;
-}
 
 int		getListenerSocket(std::string const& server_listen)
 {

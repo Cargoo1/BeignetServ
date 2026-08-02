@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/29 14:44:40 by acamargo          #+#    #+#             */
-/*   Updated: 2026/06/30 21:38:13 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/08/02 23:03:03 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,6 @@
 #define TEXT_MAGENTA "35"
 #define TEXT_CYAN "36"
 
-void	print_log(std::string const text_color,
+void	print_log(std::string const& text_color,
 				Request::ErrorRequest const* e,
-				std::string const log, bool is_error);
+				std::string const& log, bool is_error);
