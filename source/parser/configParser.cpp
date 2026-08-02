@@ -200,43 +200,43 @@ bool checkListenSyntax(const std::string &listen) {
 	return (true);
 }
 
-bool isSoloIP(std::string listen) {
-	char dot = 0;
-	for (std::string::size_type i = 0; i < listen.size(); i++) {
-		if (listen.at(i) == '.')
-			dot++;
-	}
-	if (dot != 3)
-		return (false);
-	return (true);
-}
+// bool isSoloIP(std::string listen) {
+// 	char dot = 0;
+// 	for (std::string::size_type i = 0; i < listen.size(); i++) {
+// 		if (listen.at(i) == '.')
+// 			dot++;
+// 	}
+// 	if (dot != 3)
+// 		return (false);
+// 	return (true);
+// }
 
-// CHECK IF IT IS A VALID IP AND PORT!!!!!
+// // CHECK IF IT IS A VALID IP AND PORT!!!!!
 
-bool manageListenSyntax(std::string &listen) {
-	std::string::size_type pos = listen.find_first_of(':');
-	if (pos != std::string::npos) {
-		std::string ip = listen.substr(0, pos);
-		std::string port = listen.substr(pos + 1, listen.size());
-		if (port.empty())
-			listen += "8080";
-		else if (ip.empty()) {
-			std::string newListen = "0.0.0.0" + listen;
-			listen = newListen;
-		}
-	}
-	else {
-		if (!isSoloIP(listen)) {
-			std::string newListen = "0.0.0.0:" + listen;
-			listen = newListen;
-		}
-		else 
-			listen += ":8080";
-	}
-	if (!checkListenSyntax(listen))
-		return (false);
-	return (true);
-}
+// bool manageListenSyntax(std::string &listen) {
+// 	std::string::size_type pos = listen.find_first_of(':');
+// 	if (pos != std::string::npos) {
+// 		std::string ip = listen.substr(0, pos);
+// 		std::string port = listen.substr(pos + 1, listen.size());
+// 		if (port.empty())
+// 			listen += "8080";
+// 		else if (ip.empty()) {
+// 			std::string newListen = "0.0.0.0" + listen;
+// 			listen = newListen;
+// 		}
+// 	}
+// 	else {
+// 		if (!isSoloIP(listen)) {
+// 			std::string newListen = "0.0.0.0:" + listen;
+// 			listen = newListen;
+// 		}
+// 		else 
+// 			listen += ":8080";
+// 	}
+// 	if (!checkListenSyntax(listen))
+// 		return (false);
+// 	return (true);
+// }
 
 }
 
@@ -531,10 +531,10 @@ void configParser::_validateAll() {
 		const serverConfig &server = this->_servers[i];
 		if (server._listen.empty())
 			this->_servers[i]._listen = "0.0.0.0:8080";
-		else {
-				if (!manageListenSyntax(this->_servers[i]._listen))
-					throw configException("Error: server failed to add change listen syntax");
-		}
+		// else {
+		// 		if (!manageListenSyntax(this->_servers[i]._listen))
+		// 			throw configException("Error: server failed to add change listen syntax");
+		// }
 		port_dup.push_back(server._listen);
 		if (!check_double(port_dup)) {
 			std::cerr << "Error: server " << server._serverName << " is listening an already assigned port" << std::endl;

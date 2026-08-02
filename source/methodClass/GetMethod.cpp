@@ -138,9 +138,17 @@ void GetMethod::executeMethod(HttpResponse &rsp) {
 				rsp.setContentType(find_content_type(indexPath));
 				rsp.addContentLength();
 				rsp.setStatusCode(200);
-				}
+			}
+			if (access(indexPath.c_str(), R_OK) != 0) {
+				throw Request::ErrorRequest(forbiden, "GET: does not have the access to the file");
+				return ;
+			}
 			return;
 		}
+		}
+		if (access(path.c_str(), R_OK) != 0) {
+			throw Request::ErrorRequest(forbiden, "GET: does not have the access to the directory");
+			return ;
 		}
 		if (this->_request.getLocConfBlock()->getAutoindex()) {
 			std::string htmlList = _generateAutoindex(path);
