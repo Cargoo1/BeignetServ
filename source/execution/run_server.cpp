@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 19:10:40 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/30 18:24:39 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/08/02 19:33:44 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,8 +42,20 @@
 
 volatile bool stop_server = false;
 
-int		getListenerSocket(const std::string &host, const std::string &port)
+void	find_ip_and_port(std::string& ip, std::string& port, std::string const& server_listen)
 {
+	size_t colon_pos = server_listen.find_first_of(':');
+	if (colon_pos == server_listen.npos || colon_pos == server_listen.length() - 1)
+		return;
+	ip = server_listen.substr(0, colon_pos);
+	port = server_listen.substr(colon_pos + 1, server_listen.npos);
+	return;
+}
+
+int		getListenerSocket(std::string const& server_listen)
+{
+	std::string	ip;
+	std::string	port;
 	struct addrinfo	hints;
 	struct addrinfo	*result;
 	struct addrinfo	*temp;
@@ -51,11 +63,14 @@ int		getListenerSocket(const std::string &host, const std::string &port)
 	int		sfd = -1;
 	const int		enable = 1;
 
+	find_ip_and_port(ip, port, server_listen);
+	if (ip.empty() || port.empty())
+		throw std::runtime_error("Ip or port missing");
 	memset(&hints, 0, sizeof hints);
 	hints.ai_family = AF_INET;
 	hints.ai_protocol = 0;
 	hints.ai_socktype = SOCK_STREAM;
-	if ((gai_errno = getaddrinfo(host.c_str(), port.c_str(), &hints, &result)) != 0)
+	if ((gai_errno = getaddrinfo(ip.c_str(), port.c_str(), &hints, &result)) != 0)
 		throw std::runtime_error("gai: " + std::string(gai_strerror(gai_errno)));
 	for (temp = result; temp != NULL; temp = temp->ai_next)
 	{
@@ -250,7 +265,7 @@ int	run(std::vector<serverConfig> const& servers_conf)
 	{
 		try
 		{
-			server.getSfds().push_back(getListenerSocket(it_svrconf->serverName(), it_svrconf->listen()));
+			server.getSfds().push_back(getListenerSocket(it_svrconf->listen()));
 		}
 		catch (std::exception &e)
 		{
