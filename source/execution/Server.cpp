@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/12 15:15:33 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/29 23:53:08 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/08/02 19:47:43 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -269,6 +269,7 @@ const SessionManager				&Server::getSession() const {
 void	Server::remove_from_epoll(int fd)
 {
 	std::map<int, Client>::iterator it_clients = this->_clients.find(fd);
+	std::cout << "HUP called\n";
 	if (it_clients != this->_clients.end())
 	{
 		this->deleteClient(fd, true);
