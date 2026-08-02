@@ -24,6 +24,9 @@
 - [ ] Conf file 
     *   location homepage {...} compte pas comme une erreur, et tu le laisse passer comme un valid location mais a mon avis ca a pas trop de sens, t'en penses quoi?
 
+- [ ] POST METHOD BUG
+    * si le filename est envoyer par le multipart body type ou dans le query string on met rien dans le fichier pour l'instant j'ai commenter
+
 ### Changed
     * POST method ✔️
         - s'y n'a pas de body dans le fichier on le cree de toute facon, avant on le faisait pas ✔️
