@@ -6,12 +6,14 @@
 /*   By: ratel <ratel@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 19:03:36 by acamargo          #+#    #+#             */
-/*   Updated: 2026/08/02 22:20:06 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/08/03 19:09:22 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
 #include "Server.hpp"
+#include "configParser.hpp"
+#include "parserUtils.hpp"
 #include "utils_logs.hpp"
 #include <Request.hpp>
 #include <Header.hpp>
@@ -246,9 +248,8 @@ void	Header::setHost(std::string& host)
 	if (host.empty())
 		throw Request::ErrorRequest(bad_request, "Empty host");
 	size_t	colon_pos = host.find_first_of(":");
-	if (colon_pos == 0 || colon_pos == std::string::npos || colon_pos == host.length() - 1)
+	if (colon_pos == host.length() - 1)
 		throw Request::ErrorRequest(bad_request, "Invalid host");
-	host.erase(0, colon_pos + 1);
 	this->getFields()["Host"] = host;
 }
 

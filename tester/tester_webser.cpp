@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/21 15:12:53 by acamargo          #+#    #+#             */
-/*   Updated: 2026/08/03 15:08:20 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/08/03 19:04:42 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,7 +113,7 @@ int	main()
 	{
 		std::vector<std::string>	header;
 
-		header.push_back("Host:localhost:8080");
+		header.push_back("Host:localhost");
 		test_get("/tester", header, "", sfd);
 		recv_response(sfd);
 	}

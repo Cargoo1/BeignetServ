@@ -10,18 +10,6 @@
 #include <fstream>
 #include <climits>
 #include <iostream>
-
-#define DEFAULT_CLIENT_MAX_BODY_SIZE "1m"
-
-#define PORT_MIN 1024
-#define PORT_MAX 49151
-
-#define ERRO_MIN 400
-#define ERRO_MAX 599
-
-#define RDIR_MIN 300
-#define RDIR_MAX 399
-
 /*============= UTILS SERVER =============*/
 
 namespace {
