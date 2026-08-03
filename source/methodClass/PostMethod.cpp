@@ -98,12 +98,7 @@ PostMethod::~PostMethod() {};
 
 //CHANGEMENTS!! g pu recuperer le filename et je le mets dans le HEADER getFilename
 //si filename c vide ca veut dire qu'on a pas le filename
-std::string exctractFilename(const std::string &filename) {
-	if (!filename.empty())
-		return (filename);
-	std::string ret = generateTimestampFilename("");
-	return (ret);
-}
+
 
 void PostMethod::executeMethod(HttpResponse &rsp) {
 	const locationConfig *loc = this->_request.getLocConfBlock();
@@ -118,7 +113,7 @@ void PostMethod::executeMethod(HttpResponse &rsp) {
 			throw Request::ErrorRequest(content_too_large, "POST: the files is too heavy (> client max body size)");
 	}
 
-	std::string filename = exctractFilename(this->_request.getHeader().getFilename());
+	std::string filename = findFilename(this->_request.getHeader());
 
 	std::string body = "";
 	body = this->_request.getBody();
