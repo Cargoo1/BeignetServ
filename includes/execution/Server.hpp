@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/12 15:08:39 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/29 23:48:08 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/08/03 20:08:53 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,13 @@
 #include <vector>
 #include <Client.hpp>
 #include <handle_request.hpp>
+#include <unistd.h>
+#include <utils_logs.hpp>
+#include <utils_execution.hpp>
+#include <utils.hpp>
+#include <csignal>
+#include <cstdlib>
+#include <sys/wait.h>
 
 #define CLIENT_TIMEOUT 60
 

@@ -6,27 +6,17 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/18 22:41:57 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/30 18:16:54 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/08/03 20:05:35 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-#include "Client.hpp"
-#include "Request.hpp"
-#include "Server.hpp"
-#include "locationConfig.hpp"
-#include "send_http_response.hpp"
-#include "utils.hpp"
-#include "utils_execution.hpp"
-#include "utils_logs.hpp"
+#include <utils_execution.hpp>
+#include <utils_logs.hpp>
 #include <CgiChild.hpp>
-#include <cerrno>
-#include <cstddef>
-#include <cstdlib>
-#include <cstring>
 #include <ctime>
 #include <stdexcept>
 #include <string>
 #include <unistd.h>
+
 CgiChild::CgiChild(Client& client) : _env(NULL), _args(NULL), _client_owner(client), _pid(-1)
 {
 	std::time(&this->_last_communication);

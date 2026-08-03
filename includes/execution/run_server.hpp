@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 19:14:10 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/29 21:05:03 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/08/03 20:03:16 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,13 +14,13 @@
 
 #include <netdb.h>
 
-#include <string>
-
 #include <sys/poll.h>
 
 #include <sys/socket.h>
 
 #include <netinet/in.h>
+
+#include <errno.h>
 
 #include <sys/types.h>
 
@@ -29,8 +29,6 @@
 #include <poll.h>
 
 #include <vector>
-
-#include <iostream>
 
 #include <serverConfig.hpp>
 

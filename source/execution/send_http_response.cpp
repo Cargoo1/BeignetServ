@@ -6,22 +6,11 @@
 /*   By: ratel <ratel@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 21:54:03 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/29 23:08:57 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/08/03 20:04:44 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-#include "ExecutionContext.hpp"
-#include "GetMethod.hpp"
-#include "HttpMethodDispatcher.hpp"
-#include "PostMethod.hpp"
-#include "DeleteMethod.hpp"
-#include "Request.hpp"
-#include "locationConfig.hpp"
-#include "utils_logs.hpp"
+#include <utils_logs.hpp>
 #include <HttpResponse.hpp>
-
-#include <cerrno>
-#include <cstddef>
 #include <cstring>
 #include <fstream>
 #include <map>
@@ -31,7 +20,6 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <iostream>
-#include <vector>
 #include <serverConfig.hpp>
 #include <utils.hpp>
 #include <Client.hpp>

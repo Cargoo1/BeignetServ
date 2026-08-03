@@ -1,7 +1,6 @@
 
 #include "run_server.hpp"
 #include "utils_logs.hpp"
-#include <cerrno>
 #include <exception>
 #include <iostream>
 #include <stdexcept>

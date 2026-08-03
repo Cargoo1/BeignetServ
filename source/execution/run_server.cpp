@@ -6,28 +6,21 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 19:10:40 by acamargo          #+#    #+#             */
-/*   Updated: 2026/08/02 22:42:31 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/08/03 20:06:46 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "CgiChild.hpp"
-#include "Client.hpp"
-#include "Request.hpp"
-#include "send_http_response.hpp"
-#include "utils.hpp"
-#include "utils_execution.hpp"
-#include "utils_logs.hpp"
+#include <CgiChild.hpp>
+#include <Client.hpp>
+#include <send_http_response.hpp>
+#include <utils.hpp>
+#include <utils_execution.hpp>
+#include <utils_logs.hpp>
 #include <configParser.hpp>
-#include <cstddef>
-#include <cstdlib>
 #include <ctime>
 #include <map>
-#include <netinet/in.h>
-# include <run_server.hpp>
-#include <cerrno>
-#include <cstring>
+#include <run_server.hpp>
 #include <iostream>
-#include <set>
 #include <sstream>
 #include <stdexcept>
 #include <sys/poll.h>

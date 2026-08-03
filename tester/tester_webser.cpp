@@ -6,19 +6,14 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/21 15:12:53 by acamargo          #+#    #+#             */
-/*   Updated: 2026/08/03 19:04:42 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/08/03 20:02:59 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <cerrno>
-#include <climits>
-#include <csignal>
-#include <cstddef>
 #include <cstdio>
 #include <cstring>
 #include <iostream>
 #include <cstdlib>
-#include <map>
 #include <string>
 #include <sys/socket.h>
 #include <netinet/in.h>

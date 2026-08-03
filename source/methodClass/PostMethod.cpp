@@ -1,7 +1,6 @@
 #include "Request.hpp"
 #include "utils_execution.hpp"
 #include <PostMethod.hpp>
-#include <cerrno>
 #include <utils.hpp>
 #include <dirent.h>
 #include <unistd.h>

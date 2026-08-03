@@ -6,22 +6,15 @@
 /*   By: ratel <ratel@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 19:03:36 by acamargo          #+#    #+#             */
-/*   Updated: 2026/08/03 19:09:22 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/08/03 20:05:52 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-#include "Client.hpp"
-#include "Server.hpp"
-#include "configParser.hpp"
-#include "parserUtils.hpp"
-#include "utils_logs.hpp"
+#include <utils_logs.hpp>
 #include <Request.hpp>
 #include <Header.hpp>
 #include <cctype>
-#include <cerrno>
 #include <cstddef>
 #include <HttpResponse.hpp>
-#include <iostream>
 #include <utils.hpp>
 
 Header::Header(Request const& r) : is_method_parsed(false),

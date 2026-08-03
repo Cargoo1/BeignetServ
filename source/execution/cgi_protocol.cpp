@@ -6,32 +6,17 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/30 19:17:45 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/29 23:36:45 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/08/03 20:04:23 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-#include "CgiChild.hpp"
-#include "Client.hpp"
-#include "HttpResponse.hpp"
-#include "Request.hpp"
-#include "Server.hpp"
-#include "locationConfig.hpp"
-#include "parserUtils.hpp"
-#include "run_server.hpp"
-#include "send_http_response.hpp"
-#include "utils.hpp"
-#include "utils_logs.hpp"
-
-#include <bits/stdc++.h>
-#include <cerrno>
-#include <cstddef>
-#include <cstring>
+#include <parserUtils.hpp>
+#include <run_server.hpp>
+#include <utils.hpp>
+#include <utils_logs.hpp>
 #include <map>
 #include <parse_request.hpp>
-
 #include <sys/epoll.h>
 #include <sys/socket.h>
-#include <vector>
 #include <sys/stat.h>
 #include <sys/wait.h>
 

@@ -6,39 +6,11 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/12 15:15:33 by acamargo          #+#    #+#             */
-/*   Updated: 2026/08/02 19:47:43 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/08/03 20:08:59 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "CgiChild.hpp"
-#include "Request.hpp"
-#include "SessionManager.hpp"
-#include "run_server.hpp"
-#include "send_http_response.hpp"
-#include "utils.hpp"
-#include "utils_execution.hpp"
-#include "utils_logs.hpp"
-#include <Client.hpp>
-#include <cerrno>
-#include <csignal>
-#include <cstdlib>
-#include <cstring>
-#include <ctime>
-#include <exception>
-#include <map>
-#include <serverConfig.hpp>
-#include <iostream>
 #include <Server.hpp>
-#include <sstream>
-#include <stdexcept>
-#include <string>
-#include <sys/epoll.h>
-#include <sys/poll.h>
-#include <sys/wait.h>
-#include <unistd.h>
-#include <utility>
-#include <vector>
-#include "signal.h"
 
 Server::Server(Server const& other) : _server_conf(other._server_conf)
 {
