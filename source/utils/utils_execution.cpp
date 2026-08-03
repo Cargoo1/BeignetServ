@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/22 20:16:17 by acamargo          #+#    #+#             */
-/*   Updated: 2026/08/03 16:41:21 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/08/03 18:06:41 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,12 +99,14 @@ int		find_filename(Header const& header, std::string& filename)
 	}
 	if (!header.getQueryStr().empty())
 	{
-		std::string query_str = header.getFields().at("QUERY_STRING");
+		std::string query_str = header.getQueryStr();
 		std::string	file_var("file=");
 		size_t	file_var_pos = query_str.find(file_var);
 		if (file_var_pos != query_str.npos)
 		{
-			size_t	separator_pos = query_str.find('&', file_var_pos + file_var.length());
+			size_t	separator_pos = query_str.find_first_of('&', file_var_pos + file_var.length());
+			if (separator_pos != query_str.npos)
+				separator_pos = separator_pos - (file_var_pos + file_var.length());
 			filename = query_str.substr(file_var_pos + file_var.length(), separator_pos);
 			return 0;
 		}
