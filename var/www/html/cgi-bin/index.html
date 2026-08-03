@@ -28,17 +28,12 @@
         <div class="form-grid">
           <label class="span-2">
             Script CGI cible
-            <input id="cgi-target" type="text" value="/cgi-bin/yes.py" placeholder="/cgi-bin/yes.py">
-          </label>
-
-          <label>
-            Paramètre GET
-            <input id="cgi-get-data" type="text" value="name=Beignet&mode=get" placeholder="name=Beignet&mode=get">
+            <input id="cgi-target" type="text" value="" placeholder="test.ws for example...">
           </label>
 
           <label>
             Corps POST
-            <textarea id="cgi-post-data" placeholder="name=Beignet&mode=post">name=Beignet&mode=post</textarea>
+            <textarea id="cgi-post-data" placeholder="some text?..."> </textarea>
           </label>
         </div>
 
@@ -65,7 +60,6 @@
       const status = document.getElementById('cgi-status');
       const responseBox = document.getElementById('cgi-response');
       const target = document.getElementById('cgi-target').value.trim();
-      const getData = document.getElementById('cgi-get-data').value.trim();
       const postData = document.getElementById('cgi-post-data').value.trim();
 
       if (!target) {
@@ -76,12 +70,7 @@
       let url = target;
       let options = { method: method };
 
-      if (method === 'GET') {
-        const query = getData ? (getData.startsWith('?') ? getData.slice(1) : getData) : '';
-        if (query) {
-          url += (url.includes('?') ? '&' : '?') + query;
-        }
-      } else {
+      if (method !== 'GET') {
         options.headers = { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' };
         options.body = postData;
       }

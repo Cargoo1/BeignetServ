@@ -6,11 +6,13 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/22 20:16:17 by acamargo          #+#    #+#             */
-/*   Updated: 2026/07/25 00:06:42 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/08/03 16:41:21 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
+#include "Header.hpp"
+#include <ctime>
 #include <map>
 #include <unistd.h>
 #include <utils_execution.hpp>
@@ -65,4 +67,54 @@ void	close_pipe(int* pipe)
 		close(pipe[1]);
 	pipe[0] = -1;
 	pipe[1] = -1;
+}
+
+void generateTimestampFilename(std::string& filename)
+{
+	std::time_t resultTime = std::time(0);
+	std::string timestamp = std::asctime(std::localtime(&resultTime));
+	timestamp.erase(timestamp.length() - 1, 1);
+	if (filename.empty()) {
+		filename = timestamp;
+		return;
+	}
+	std::string tmp;
+	std::string::size_type pos = filename.find_last_of(".");
+	if (pos == 0 || pos == std::string::npos) {
+		filename += '-' + timestamp;
+	}
+	tmp = filename.substr(0, pos);
+	std::string newFileName = tmp + "-" + timestamp;
+	tmp = filename.substr(pos);
+	newFileName += tmp;
+	filename = newFileName;
+}
+
+int		find_filename(Header const& header, std::string& filename)
+{
+	if (!header.getFilename().empty())
+	{
+		filename = header.getFilename();
+		return 0;
+	}
+	if (!header.getQueryStr().empty())
+	{
+		std::string query_str = header.getFields().at("QUERY_STRING");
+		std::string	file_var("file=");
+		size_t	file_var_pos = query_str.find(file_var);
+		if (file_var_pos != query_str.npos)
+		{
+			size_t	separator_pos = query_str.find('&', file_var_pos + file_var.length());
+			filename = query_str.substr(file_var_pos + file_var.length(), separator_pos);
+			return 0;
+		}
+	}
+	if (header.getTargetResource().at(header.getTargetResource().length() - 1) != '/')
+	{
+		size_t	last_slash_pos = header.getTargetResource().find_last_of('/');
+		filename = header.getTargetResource().substr(last_slash_pos + 1, std::string::npos);
+		return 0;
+	}
+	generateTimestampFilename(filename);
+	return 0;
 }

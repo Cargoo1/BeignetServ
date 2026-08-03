@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/23 23:13:46 by acamargo          #+#    #+#             */
-/*   Updated: 2026/08/01 15:53:54 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/08/03 17:12:01 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,16 +67,19 @@ int	find_method(fields& header, std::string& method)
 		return -1;
 }
 
-int	find_filename(fields& header, std::string& filename)
+int	find_post_path(fields& header, std::string& path)
 {
 	fields::iterator	it;
 	it = header.find("PATH_INFO");
-	if (it != header.end() && !it->second.empty())
-	{
-		filename = it->second;
-		filename.erase(0, 1);
-		return 0;
-	}
+	if (it == header.end())
+		return -1;
+	path = '.' + it->second;
+	return 0;
+}
+
+int	find_filename(fields& header, std::string& filename)
+{
+	fields::iterator	it;
 	it = header.find("QUERY_STRING");
 	if (it != header.end() && !it->second.empty())
 	{
@@ -86,10 +89,12 @@ int	find_filename(fields& header, std::string& filename)
 		found_pos = filename.find(file);
 		if (found_pos == filename.npos)
 			return -1;
-		filename.erase(found_pos, file.length());
-		size_t	sep_pos = filename.find_first_of('&');
+		size_t	sep_pos = filename.find_first_of('&', found_pos);
 		std::cerr << sep_pos << " " << found_pos <<'\n';
-		filename = filename.substr(0, sep_pos);
+		if (sep_pos != filename.npos)
+			sep_pos = sep_pos - (found_pos + file.length());
+		filename = filename.substr(found_pos + file.length(), sep_pos);
+		std::cerr << filename + '\n';
 		return 0;
 	}
 	return -1;
@@ -114,12 +119,17 @@ int	post(fields& header, std::string& server_body, std::string& body)
 
 	if (find_filename(header, filename) < 0)
 		return 404;
+	if (find_post_path(header, file_path) == 0)
+	{
+		if (chdir(file_path.c_str()) < 0)
+			return -1;
+	}
 	std::ofstream	os(filename.c_str());
 	std::cerr << filename << '\n';
 	os << server_body;
 	if (!os.is_open())
 		std::cerr << "Not open\n";
-	body = "ZAdy!";
+	body = "Hi from the script!!!";
 	return 0;
 }
 

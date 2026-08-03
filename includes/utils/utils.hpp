@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/03 17:39:25 by acamargo          #+#    #+#             */
-/*   Updated: 2026/08/02 20:53:43 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/08/03 16:22:41 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,8 @@ enum MIME { JPG, PNG, HTML, CSS,TXT, CGI_PY, APP};
 #define NULL_STR ""
 
 #define CGI_DIR "/cgi-bin"
+
+#define EXTENSIONS_SIZE 4
 
 template <typename T> 
 std::string toStr(T nbr) {

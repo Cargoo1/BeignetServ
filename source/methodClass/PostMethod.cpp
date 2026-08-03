@@ -1,8 +1,8 @@
 #include "Request.hpp"
+#include "utils_execution.hpp"
 #include <PostMethod.hpp>
 #include <cerrno>
 #include <utils.hpp>
-
 #include <dirent.h>
 #include <unistd.h>
 #include <string.h>
@@ -10,25 +10,6 @@
 #include <fstream>
 #include <ctime>
 #include <sys/stat.h>
-
-namespace { std::string generateTimestampFilename(std::string filename) {
-	std::time_t resultTime = std::time(0);
-	std::string timestamp = toStr(resultTime);
-	if (filename.empty()) {
-		return (timestamp);
-	}
-	std::string tmp;
-	std::string::size_type pos = filename.find(".");
-	if (pos == 0 || pos == std::string::npos) {
-		filename += '-' + timestamp;
-		return (filename);
-	}
-	tmp = filename.substr(0, pos);
-	std::string newFileName = tmp + "-" + timestamp;
-	tmp = filename.substr(pos);
-	newFileName += tmp;
-	return (newFileName);
-} }
 
 namespace { bool createFile(const std::string &fileName, const std::string &body) {
 	std::ofstream ofs;
@@ -70,7 +51,7 @@ namespace { bool postFile(std::string &path, const std::string &body, std::strin
 	std::string tmp(current_path);
 	int ret = stat(current_path.c_str(), &path_stat);
 	if (ret == 0) {
-		filename = generateTimestampFilename(filename);
+		generateTimestampFilename(filename);
 		tmp += filename;
 		current_path = tmp;
 	}
@@ -109,7 +90,8 @@ void PostMethod::executeMethod(HttpResponse &rsp) {
 			throw Request::ErrorRequest(content_too_large, "POST: the files is too heavy (> client max body size)");
 	}
 
-	std::string filename = findFilename(this->_request.getHeader());
+	std::string filename;
+	find_filename(this->_request.getHeader(), filename);
 
 	std::string body = "";
 	body = this->_request.getBody();

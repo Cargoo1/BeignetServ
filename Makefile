@@ -60,6 +60,7 @@ SRCS = $(SRCS_DIR)/$(EXEP_DIR)/configException.cpp			\
 	   $(SRCS_DIR)/$(EXEC_DIR)/send_http_response.cpp		\
 	   $(SRCS_DIR)/$(EXEC_DIR)/SessionManager.cpp			\
 	   $(SRCS_DIR)/$(UTILS_DIR)/utils.cpp					\
+	   $(SRCS_DIR)/$(UTILS_DIR)/utils_cgi.cpp				\
 	   $(SRCS_DIR)/$(UTILS_DIR)/utils_logs.cpp				\
 	   $(SRCS_DIR)/$(UTILS_DIR)/utils_string.cpp			\
 	   $(SRCS_DIR)/$(UTILS_DIR)/ft_atoull.cpp				\
@@ -70,7 +71,6 @@ SRCS = $(SRCS_DIR)/$(EXEP_DIR)/configException.cpp			\
 	   $(SRCS_DIR)/$(MTD_DIR)/GetMethod.cpp					\
 	   $(SRCS_DIR)/$(MTD_DIR)/PostMethod.cpp				\
 	   $(SRCS_DIR)/$(EXEC_DIR)/parse_body.cpp				\
-	   $(SRCS_DIR)/$(UTILS_DIR)/utils_cgi.cpp				\
 	   $(SRCS_DIR)/$(EXEC_DIR)/cgi_protocol.cpp				\
 	   $(SRCS_DIR)/$(EXEC_DIR)/CgiChild.cpp					\
 	   $(SRCS_DIR)/$(UTILS_DIR)/utils_execution.cpp			\

@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/21 15:12:53 by acamargo          #+#    #+#             */
-/*   Updated: 2026/08/02 23:02:12 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/08/03 15:08:20 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,7 +121,7 @@ int	main()
 		std::vector<std::string>	header;
 		header.push_back("Host:localhost:8080");
 		header.push_back("Transfer-Encoding:chunked");
-		test_post("/tester/slow_chunked", header, "", sfd);
+		test_post("/tester/uploads/slow_chunked", header, "", sfd);
 		send_str(sfd, "1\r\n");
 		sleep(2);
 		send_str(sfd, "a\r\nA\r\n");
@@ -138,7 +138,7 @@ int	main()
 		std::vector<std::string>	header;
 		header.push_back("Host:localhost:8080");
 		header.push_back("Transfer-Encoding:chunked");
-		test_post("/tester/bad_test", header, "", sfd);
+		test_post("/tester/uploads/bad_test", header, "", sfd);
 		send_str(sfd, "1\r\n");
 		sleep(2);
 		send_str(sfd, "?\r\nA\r\n");
@@ -160,7 +160,7 @@ int	main()
 		std::vector<std::string>	header;
 		header.push_back("Host:localhost:8080");
 		header.push_back("Transfer-Encoding:		chunked			");
-		test_post("/tester/test_chunked_complete", header, "", sfd);
+		test_post("/tester/uploads/test_chunked_complete", header, "", sfd);
 		send_str(sfd, "3\r\ncat\r\n0\r\n\r\n");
 		recv_response(sfd);
 		header.pop_back();
@@ -171,7 +171,7 @@ int	main()
 		std::vector<std::string>	header;
 		header.push_back("Host:localhost:8080");
 		header.push_back("Transfer-Encoding:		chunked			");
-		test_post("/tester/test_multi_request", header, "", sfd);
+		test_post("/tester/uploads/test_multi_request", header, "", sfd);
 		send_str(sfd, "5\r\nMULTI\r\n0\r\n\r\n");
 		header.pop_back();
 		test_get("/tester/uploads/test_multi_request", header, "", sfd);
@@ -182,10 +182,10 @@ int	main()
 		std::vector<std::string>	header;
 		header.push_back("Host:localhost:8080");
 		header.push_back("Content-Length:11");
-		test_post("/tester/test.ws?file=test_cgi", header, "HELLO??????", sfd);
+		test_post("/tester/test.ws/uploads?file=test_cgi_ws", header, "HELLO??????", sfd);
 		header.pop_back();
 		sleep(1);
-		test_get("/tester/uploads/test_cgi", header, "", sfd);
+		test_get("/tester/uploads/test_cgi_ws", header, "", sfd);
 		recv_response(sfd);
 		recv_response(sfd);
 	}

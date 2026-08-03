@@ -6,22 +6,17 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/16 20:36:21 by acamargo          #+#    #+#             */
-/*   Updated: 2026/08/02 23:05:32 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/08/03 14:18:41 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <cstddef>
 #include <utils.hpp>
 
-#define EXTENSIONS_SIZE 3
+static std::string	cgi_extensions[EXTENSIONS_SIZE] = {".py", ".js", ".ws", ".php"};
 
 bool	is_in_cgi_dir(std::string const& uri)
 {
-	/*
-	   /cgi_bin 
-	 /cgi_bin/
-	 /cgi_bin/yes.py
-	 */
 	size_t dir_pos = uri.find(CGI_DIR);
 	if (dir_pos == std::string::npos)
 		return false;
@@ -37,7 +32,6 @@ bool	is_in_cgi_dir(std::string const& uri)
 
 bool	is_a_cgi_request(std::string const& uri, size_t& path_extra_pos)
 {
-	std::string	cgi_extensions[EXTENSIONS_SIZE] = {".py", ".bla", ".ws"};
 	size_t	ext_pos = 0;
 
 	for (size_t i = 0; i < EXTENSIONS_SIZE; i++)
@@ -57,7 +51,6 @@ bool	is_a_cgi_request(std::string const& uri, size_t& path_extra_pos)
 
 void	find_extension(std::string const& file_path, std::string& extension)
 {
-	std::string	cgi_extensions[EXTENSIONS_SIZE] = {".py", ".cgi", ".ws"};
 	size_t	ext_pos = 0;
 
 	for (size_t i = 0; i < EXTENSIONS_SIZE; i++)
