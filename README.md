@@ -96,6 +96,7 @@ A location must define either a path or an `upload_store`, and each server needs
 least one location. See [`conf/valid.conf`](conf/valid.conf) for a complete, working
 example with several servers, ports and CGI mappings.
 
+
 ## Resources
 
 - [HTTP/1.1 RFC 9110/9112](https://httpwg.org/specs/) — reference for the protocol semantics and message syntax.

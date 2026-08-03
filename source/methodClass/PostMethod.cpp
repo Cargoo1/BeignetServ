@@ -42,10 +42,9 @@ namespace { bool createFile(const std::string &fileName, const std::string &body
 	return (true);
 } }
 
-namespace { bool postFile(std::string path, const std::string &body, std::string filename){
+namespace { bool postFile(std::string &path, const std::string &body, std::string &filename){
 	std::size_t found = path.find_last_of("/\\");
 	std::string newPath = path.substr(0, found);
-	std::string LOG = path.substr(found +1);
 	std::istringstream iss(newPath);
 	std::string part, current_path = "";
 	struct stat path_stat;
@@ -68,10 +67,7 @@ namespace { bool postFile(std::string path, const std::string &body, std::string
 			current_path += "/";
 		}
 	}
-	if (filename.empty())
-		filename = LOG;
 	std::string tmp(current_path);
-	current_path += filename;
 	int ret = stat(current_path.c_str(), &path_stat);
 	if (ret == 0) {
 		filename = generateTimestampFilename(filename);
