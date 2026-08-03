@@ -35,6 +35,7 @@
 #include <serverConfig.hpp>
 #include <utils.hpp>
 #include <Client.hpp>
+#include <sys/stat.h>
 #include <send_http_response.hpp>
 
 std::string	generate_default_error_page(HttpResponse& response)
@@ -73,25 +74,20 @@ void	create_error_response(HttpResponse& response, int error_code, std::string c
 
 void	send_error_response(HttpResponse& response, serverConfig const& serverConf)
 {
-	std::map<int, std::string>::const_iterator	it = serverConf.errorPages().find(response.getStatusCode());
+	int code = response.getStatusCode();
+	std::map<int, std::string>::const_iterator entry = serverConf.errorPages().find(code);
 
-	if (it == serverConf.errorPages().end())
+	if (entry == serverConf.errorPages().end())
 	{
-		create_default_error_response(response, response.getStatusCode());
+		create_default_error_response(response, code);
 		return;
 	}
-	std::string final_path = "." + serverConf.getRoot() + it->second;
-	if (access(final_path.c_str(), F_OK) == 0)
-	{
-		if (access(final_path.c_str(), R_OK) == 0)
-		{
-			create_error_response(response, response.getStatusCode(), final_path);
-		}
-		else
-			create_default_error_response(response, forbiden);
-	}
+	std::string final_path = "." + serverConf.getRoot() + entry->second;
+	struct stat path_stat;
+	if (stat(final_path.c_str(), &path_stat) ==  0 && access(final_path.c_str(), R_OK) == 0)
+			create_error_response(response, code, final_path);
 	else
-		create_default_error_response(response, not_found);
+		create_default_error_response(response, code);
 }
 
 int	send_response(Request& r, int cfd)

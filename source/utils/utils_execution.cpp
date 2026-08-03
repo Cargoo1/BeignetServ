@@ -99,7 +99,7 @@ int		find_filename(Header const& header, std::string& filename)
 	}
 	if (!header.getQueryStr().empty())
 	{
-		std::string query_str = header.getQueryStr();
+		std::string query_str = header.getFields().at("QUERY_STRING");
 		std::string	file_var("file=");
 		size_t	file_var_pos = query_str.find(file_var);
 		if (file_var_pos != query_str.npos)
