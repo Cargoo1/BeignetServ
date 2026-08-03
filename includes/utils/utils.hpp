@@ -132,3 +132,5 @@ void	find_extension(std::string const& file_path, std::string& extension);
 void ft_handler(int sig);
 
 void	find_ip_and_port(std::string& ip, std::string& port, std::string const& server_listen);
+
+bool parseIP(const std::string &ipstr);

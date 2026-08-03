@@ -29,6 +29,8 @@
 #include <utils.hpp>
 #include <vector>
 
+#define IP_MAX 255
+
 std::string const generate_reason_phrase(int code)
 {
 	std::string	ret;
@@ -414,3 +416,34 @@ void	find_ip_and_port(std::string& ip, std::string& port, std::string const& ser
 	return;
 }
 
+bool parseIP(const std::string &ipstr) {
+	int parts[4] = {0};
+	int partIndex = 0;
+	std::string current;
+	std::string::size_type d_dot = ipstr.find(":", 0);
+	std::string ip = ipstr;
+	if (d_dot != std::string::npos)
+		ip = ipstr.substr(0, d_dot);
+	for (std::size_t i = 0; i < ip.size(); i++) {
+		if (ip[i] == '.') {
+			if (partIndex >= 4 || current.empty())
+				return false;
+			std::stringstream ss(current);
+			if (!(ss >> parts[partIndex]) || parts[partIndex] > IP_MAX)
+				return false;
+			partIndex++;
+			current.clear();
+		} 
+		else if (isdigit(ip[i]))
+			current += ip[i];
+
+		else
+			return false;
+	}
+	if (partIndex != 3 || current.empty())
+		return false;
+	std::stringstream ss(current);
+	if (!(ss >> parts[3]) || parts[3] > IP_MAX)
+		return false;
+	return (true);
+}
