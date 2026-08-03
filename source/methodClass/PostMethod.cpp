@@ -98,23 +98,33 @@ PostMethod::~PostMethod() {};
 
 //CHANGEMENTS!! g pu recuperer le filename et je le mets dans le HEADER getFilename
 //si filename c vide ca veut dire qu'on a pas le filename
-
+std::string exctractFilename(const std::string &filename) {
+	if (!filename.empty())
+		return (filename);
+	std::string ret = generateTimestampFilename("");
+	return (ret);
+}
 
 void PostMethod::executeMethod(HttpResponse &rsp) {
-	std::string path = this->_request.getHeader().getTargetResource();
 	const locationConfig *loc = this->_request.getLocConfBlock();
+	std::string path = this->_request.getHeader().getTargetResource();
+
 	if (loc->getUploadStore().empty())
 		throw Request::ErrorRequest(internal_server_error, "POST: no Upload store avaliable");
+
 	std::size_t contentLenght = this->_request.getBodyLen();
 	if (this->_request.getLocConfBlock()->hasCMBS()) {
 		if (contentLenght > this->_request.getLocConfBlock()->getCMBS())
 			throw Request::ErrorRequest(content_too_large, "POST: the files is too heavy (> client max body size)");
 	}
+
+	std::string filename = exctractFilename(this->_request.getHeader().getFilename());
+
 	std::string body = "";
-	//if (path.at(path.size()-1) != '/')
 	body = this->_request.getBody();
-	if (!postFile(path, body, this->_request.getHeader().getFilename()))
+	if (!postFile(path, body, filename))
 		throw Request::ErrorRequest(internal_server_error, "POST: postFile(path, body) failed");
+
 	rsp.setStatusCode(204);
 	rsp.addField("Content-Length", "0");
 }

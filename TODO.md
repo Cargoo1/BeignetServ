@@ -21,8 +21,11 @@
 *   Conf file ✅
     * regler l'erreur qd y a pas un upload_store in cgi-bin avec POST (toujours ca)✅
 
-- [ ] Conf file 
-    *   location homepage {...} compte pas comme une erreur, et tu le laisse passer comme un valid location mais a mon avis ca a pas trop de sens, t'en penses quoi?
+- [X] Conf file ❓
+    *   location homepage {...} compte pas comme une erreur, et tu le laisse passer comme un valid location mais a mon avis ca a pas trop de sens, t'en penses quoi? ❓
+            ➡️ REP-> J'avoue que j'ai du mal a trouver un cas où ca pourrais être une erreur. C'est à l'user de gerer son fichier conf. S'il veut appeler sa location homepage ou même YouTube il peut. C'est à lui de gerer.
+                Tu pense toi que / est un equivalent à homepage et qu'il ne peut avoir d'équivalent ? et donc un fichier .conf ne peut contenir le mot clès "homepage" ? Pourquoi pas.
+                    l:353
 
 - [ ] POST METHOD BUG
     * si le filename est envoyer par le multipart body type ou dans le query string on met rien dans le fichier pour l'instant j'ai commenter

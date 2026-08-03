@@ -350,7 +350,7 @@ void configParser::_parseServer(serverConfig &servTo_pars) {
 }
 
 void configParser::_parseLocation(locationConfig &locTo_add) {
-	if (!isValid_path(_peek().getValue()))
+	if (_peek().getValue().at(0) != '/' || !isValid_path(_peek().getValue()))
 		throw configException("Error: location path syntax", _peek().getLine(), _peek().getValue());
 	locTo_add._path = _consume().getValue();
 	_expect("{");
