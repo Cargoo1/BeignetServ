@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/23 23:13:46 by acamargo          #+#    #+#             */
-/*   Updated: 2026/08/03 17:12:01 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/08/03 20:31:52 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,8 +107,10 @@ int	get(fields& header, std::string& body)
 		return 404;
 	if (access(filename.c_str(), F_OK | R_OK) != 0)
 		return 404;
+	std::stringstream	ss;
 	std::ifstream is(filename.c_str());
-	is >> body;
+	ss << is.rdbuf();
+	body = ss.str();
 	return 0;
 }
 
