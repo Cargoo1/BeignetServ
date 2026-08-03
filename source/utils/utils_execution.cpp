@@ -6,7 +6,7 @@
 /*   By: acamargo <acamargo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/22 20:16:17 by acamargo          #+#    #+#             */
-/*   Updated: 2026/08/03 18:06:41 by acamargo         ###   ########.fr       */
+/*   Updated: 2026/08/03 18:08:27 by acamargo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,7 +102,7 @@ int		find_filename(Header const& header, std::string& filename)
 		std::string query_str = header.getFields().at("QUERY_STRING");
 		std::string	file_var("file=");
 		size_t	file_var_pos = query_str.find(file_var);
-		if (file_var_pos != query_str.npos)
+		if (file_var_pos != query_str.npos || file_var_pos != query_str.length() - 1)
 		{
 			size_t	separator_pos = query_str.find_first_of('&', file_var_pos + file_var.length());
 			if (separator_pos != query_str.npos)
