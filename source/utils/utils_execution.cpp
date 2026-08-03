@@ -82,6 +82,7 @@ void generateTimestampFilename(std::string& filename)
 	std::string::size_type pos = filename.find_last_of(".");
 	if (pos == 0 || pos == std::string::npos) {
 		filename += '-' + timestamp;
+		return ;
 	}
 	tmp = filename.substr(0, pos);
 	std::string newFileName = tmp + "-" + timestamp;

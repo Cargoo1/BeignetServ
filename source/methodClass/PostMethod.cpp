@@ -48,13 +48,11 @@ namespace { bool postFile(std::string &path, const std::string &body, std::strin
 			current_path += "/";
 		}
 	}
-	std::string tmp(current_path);
-	int ret = stat(current_path.c_str(), &path_stat);
-	if (ret == 0) {
+	std::string tmp = current_path + filename;
+	int ret = stat(tmp.c_str(), &path_stat);
+	if (ret == 0)
 		generateTimestampFilename(filename);
-		tmp += filename;
-		current_path = tmp;
-	}
+	current_path += filename;
 	if (!createFile(current_path, body))
 		return (false);
 	return (true);
